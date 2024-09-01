@@ -13,7 +13,7 @@
 			Schema::create('events', function (Blueprint $table) {
 				$table->id();
 				$table->string('title');
-				$table->string('description');
+				$table->string('description')->nullable();
 				$table->dateTime('starting_time');
 				$table->dateTime('ending_time');
 				$table->string('password')->nullable();

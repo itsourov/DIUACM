@@ -2,18 +2,12 @@
 	
 	namespace App\Filament\Resources;
 	
-	use App\Enums\VisibilityStatuses;
-	use App\Filament\Resources\EventResource\Pages;
-	use App\Models\Event;
-	use Filament\Forms\Components\Checkbox;
-	use Filament\Forms\Components\DatePicker;
-	use Filament\Forms\Components\DateTimePicker;
+	use App\Filament\Resources\GroupResource\Pages;
+	use App\Models\Group;
 	use Filament\Forms\Components\Placeholder;
+	use Filament\Forms\Components\Select;
 	use Filament\Forms\Components\TextInput;
-	use Filament\Forms\Components\Toggle;
-	use Filament\Forms\Components\ToggleButtons;
 	use Filament\Forms\Form;
-	use Filament\Infolists\Components\TextEntry;
 	use Filament\Resources\Resource;
 	use Filament\Tables\Actions\BulkActionGroup;
 	use Filament\Tables\Actions\DeleteAction;
@@ -29,19 +23,19 @@
 	use Illuminate\Database\Eloquent\Builder;
 	use Illuminate\Database\Eloquent\SoftDeletingScope;
 	
-	class EventResource extends Resource
+	class GroupResource extends Resource
 	{
-		protected static ?string $model = Event::class;
+		protected static ?string $model = Group::class;
 		
-		protected static ?string $slug = 'events';
+		protected static ?string $slug = 'groups';
 		
 		protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 		
 		public static function form(Form $form): Form
 		{
 			return $form
-				->schema(Event::getForm());
-		
+				->schema(Group::getForm());
+	
 		}
 		
 		public static function table(Table $table): Table
@@ -52,25 +46,11 @@
 						->searchable()
 						->sortable(),
 					
-					TextColumn::make('description')->html(),
-					
-					TextColumn::make('starting_time')
-						->date(),
-					
-					TextColumn::make('ending_time')
-						->date(),
-					
-					TextColumn::make('open_for_attendance'),
-					
-					TextColumn::make('type'),
-					
-					TextColumn::make('visibility')
+					TextColumn::make('description')->html()->limit(30),
+					TextColumn::make('users_count')
+						->counts('users')
 						->badge()
-						->color(function ($state) {
-							return $state->getColor();
-						}),
-					
-					TextColumn::make('organized_for'),
+						->sortable(),
 				])
 				->filters([
 					TrashedFilter::make(),
@@ -93,9 +73,9 @@
 		public static function getPages(): array
 		{
 			return [
-				'index' => Pages\ListEvents::route('/'),
-				'create' => Pages\CreateEvent::route('/create'),
-				'edit' => Pages\EditEvent::route('/{record}/edit'),
+				'index' => Pages\ListGroups::route('/'),
+				'create' => Pages\CreateGroup::route('/create'),
+				'edit' => Pages\EditGroup::route('/{record}/edit'),
 			];
 		}
 		

@@ -5,16 +5,21 @@
 	use App\Enums\AccessStatuses;
 	use App\Enums\EventTypes;
 	use App\Enums\VisibilityStatuses;
+	use Carbon\Carbon;
 	use Filament\Forms\Components\DateTimePicker;
 	use Filament\Forms\Components\Fieldset;
 	use Filament\Forms\Components\Placeholder;
+	use Filament\Forms\Components\RichEditor;
 	use Filament\Forms\Components\Section;
+	use Filament\Forms\Components\Select;
 	use Filament\Forms\Components\TextInput;
 	use Filament\Forms\Components\Toggle;
 	use Filament\Forms\Components\ToggleButtons;
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Model;
+	use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 	use Illuminate\Database\Eloquent\SoftDeletes;
+	
 	
 	class Event extends Model
 	{
@@ -44,6 +49,11 @@
 			];
 		}
 		
+		public function groups(): BelongsToMany
+		{
+			return $this->belongsToMany(Group::class);
+		}
+		
 		public static function getForm(): array
 		{
 			return [
@@ -56,24 +66,38 @@
 					->content(fn(?Event $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 				
 				Section::make('Event Details')
+					
 					->schema([
 						
 						
 						TextInput::make('title')
 							->required(),
 						
-						TextInput::make('description')
-							->required(),
+						RichEditor::make('description'),
 						
-						DateTimePicker::make('starting_time')
-							->seconds(false),
+						Fieldset::make('Time')
+							->schema([
+								DateTimePicker::make('starting_time')
+									->seconds(false),
+								
+								DateTimePicker::make('ending_time')
+									->seconds(false)
+									->after('starting_time'),
+								
+								Placeholder::make('duration')
+									->live()
+									->content(fn($get) => calculateRuntime($get('starting_time'), $get('ending_time')))
+									->columnSpan('full'),
+							
+							]),
 						
-						DateTimePicker::make('ending_time')
-							->seconds(false),
+						Fieldset::make('Extra')
+							->schema([
+								TextInput::make('password'),
+								
+								Toggle::make('open_for_attendance'),
+							]),
 						
-						TextInput::make('password'),
-						
-						Toggle::make('open_for_attendance'),
 						Fieldset::make('Event Types')
 							->schema([
 								ToggleButtons::make('type')
@@ -86,6 +110,17 @@
 									->inline()
 									->options(AccessStatuses::class)
 									->required(),
+								
+								Select::make('groups')
+									->label('Selected User Groups')
+									->relationship('groups', 'title')
+									->visible(function ($get) {
+										return $get('organized_for') === AccessStatuses::SELECTED_PERSONS->value;
+									})
+									->createOptionModalHeading("Add New Group")
+									->createOptionForm(Group::getForm())
+									->multiple()
+									->preload(),
 							
 							]),
 						
@@ -113,4 +148,25 @@
 					]),
 			];
 		}
+		
+		
 	}
+	
+	function calculateRuntime($start, $end): ?string
+	{
+		if (!$start || !$end) {
+			return 'N/A'; // Placeholder text when either time is not set
+		}
+		
+		$start = Carbon::parse($start);
+		$end = Carbon::parse($end);
+		
+		$diff = $start->diff($end);
+		
+		try {
+			return $diff->forHumans();
+		} catch (\Exception $e) {
+			return 'Calculation error: ' . $e->getMessage();
+		}
+	}
+	
