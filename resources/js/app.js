@@ -1,1 +1,4 @@
-import './bootstrap';
+import './dark-mode.js';
+import 'preline'
+import 'spotlight.js';
+

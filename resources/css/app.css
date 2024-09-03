@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Merriweather';
+    src: url('/font/Merriweather.woff');
+
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+@font-face {
+    font-family: 'Figtree';
+    src: url('/font/Figtree.woff');
+
+    font-weight: normal;
+    font-style: normal;
+}

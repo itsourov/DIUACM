@@ -7,8 +7,12 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.2",
+        "filament/spatie-laravel-media-library-plugin": "^3.2",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/socialite": "^5.15",
+        "laravel/tinker": "^2.9",
+        "ralphjsmit/laravel-seo": "^1.6",
+        "stechstudio/filament-impersonate": "^3.14"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
