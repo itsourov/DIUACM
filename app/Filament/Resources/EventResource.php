@@ -4,6 +4,8 @@
 	
 	use App\Enums\VisibilityStatuses;
 	use App\Filament\Resources\EventResource\Pages;
+	use App\Filament\Resources\EventResource\RelationManagers\AttendancesRelationManager;
+	use App\Filament\Resources\EventResource\RelationManagers\AttendersRelationManager;
 	use App\Models\Event;
 	use Filament\Forms\Components\Checkbox;
 	use Filament\Forms\Components\DatePicker;
@@ -99,6 +101,12 @@
 			];
 		}
 		
+		public static function getRelations(): array
+		{
+			return [
+				AttendersRelationManager::class,
+			];
+		}
 		public static function getEloquentQuery(): Builder
 		{
 			return parent::getEloquentQuery()

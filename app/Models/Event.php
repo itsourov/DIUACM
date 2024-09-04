@@ -55,9 +55,9 @@
 		{
 			return $this->belongsToMany(Group::class);
 		}
-		public function attendances(): HasMany
+		public function attenders(): BelongsToMany
 		{
-			return $this->hasMany(Attendance::class);
+			return $this->belongsToMany(User::class)->withPivot(['extra_info']);
 		}
 		
 		public static function getForm(): array

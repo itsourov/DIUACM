@@ -5,7 +5,6 @@
 	use Illuminate\Contracts\Auth\MustVerifyEmail;
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-	use Illuminate\Database\Eloquent\Relations\HasMany;
 	use Illuminate\Database\Eloquent\SoftDeletes;
 	use Illuminate\Foundation\Auth\User as Authenticatable;
 	use Illuminate\Notifications\Notifiable;
@@ -14,7 +13,7 @@
 	use Spatie\MediaLibrary\InteractsWithMedia;
 	use Spatie\MediaLibrary\MediaCollections\Models\Media;
 	
-	class User extends Authenticatable  implements HasMedia, MustVerifyEmail
+	class User extends Authenticatable implements HasMedia, MustVerifyEmail
 	{
 		use HasFactory, Notifiable;
 		use InteractsWithMedia, SoftDeletes;
@@ -61,6 +60,7 @@
 				->useFallbackUrl(asset('images/user.png'))
 				->useFallbackPath(public_path('/images/user.png'));
 		}
+		
 		public function registerMediaConversions(Media|null $media = null): void
 		{
 			$this
@@ -75,8 +75,8 @@
 			return $this->belongsToMany(Group::class);
 		}
 		
-		public function attendances(): HasMany
+		public function events(): BelongsToMany
 		{
-			return $this->hasMany(Attendance::class);
+			return $this->belongsToMany(Event::class)->withPivot(['extra_info']);
 		}
 	}

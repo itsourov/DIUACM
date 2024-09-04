@@ -25,11 +25,10 @@
 		public Event $event;
 		public $isPresent = false;
 		
+		
 		public function mount(Event $event): void
 		{
-			$this->$event = $event->loadMissing('groups.users');
-		
-			
+			$this->event = $event;
 			
 		}
 		
@@ -42,7 +41,6 @@
 				->hidden($this->isPresent)
 				->fillForm(['vjudge_username' => auth()->user()?->vjudge_username])
 				->action(function (array $data) {
-					
 					$this->markAsPresent($data);
 					
 				});
@@ -51,7 +49,14 @@
 		
 		private function markAsPresent(?array $data): void
 		{
-			$this->requireLogin();
+			if (!auth()->user()) {
+				Notification::make()
+					->title("You need to logged in.")
+					->warning()
+					->send();
+				redirect(route('login'));
+				return;
+			}
 			if (!$this->checkPermission()) {
 				$this->showPermissionError();
 				return;
@@ -63,9 +68,8 @@
 					->send();
 				return;
 			}
-			$this->event->attendances()->create([
-				'user_id' => auth()->user()->id,
-				'vjudge_username' => $data['vjudge_username'] ?? null,
+			$this->event->attenders()->syncWithoutDetaching([
+				'user_id' => auth()->user()->id
 			]);
 			Notification::make()
 				->title("Attendance done.")
@@ -74,16 +78,6 @@
 			
 		}
 		
-		private function requireLogin()
-		{
-			if (!auth()->user()) {
-				Notification::make()
-					->title("You need to logged in.")
-					->warning()
-					->send();
-				return redirect(route('login'));
-			}
-		}
 		
 		private function checkPermission()
 		{
@@ -113,9 +107,12 @@
 		
 		public function render()
 		{
-			$this->isPresent = $this->event->attendances->contains('user_id', auth()->user()?->id);
-			$event = $this->event;
-			return view('livewire.event-attendance-page', compact('event'));
+			$this->event->loadMissing(['attenders.media']);
+			$this->event->loadMissing(['attenders.media']);
+			$this->isPresent = $this->event->attenders->contains('id', auth()->user()?->id);
+			
+			return
+				view('livewire.event-attendance-page');
 		}
 		
 		private function getFormComponent()

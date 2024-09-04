@@ -11,7 +11,8 @@
 		 */
 		public function index()
 		{
-			$events = Event::with(['attendances', 'groups.users'])->orderByDesc('starts_at')->paginate(10);
+			$events = Event::with(['attenders'])->orderByDesc('starting_time')->paginate(10);
+			
 			return view('events.index', [
 				'events' => $events,
 			]);
@@ -22,9 +23,9 @@
 		 */
 		public function show(Event $event)
 		{
-			$event->loadMissing(['attendances.user']);
-			
-			return view('events.show', compact('event'));
+			return view('events.show',[
+				'event'=>$event,
+			]);
 		}
 		
 	}

@@ -68,8 +68,8 @@
 	<div>
 		<h3 class="text-center text-2xl font-marry font-semibold">Event Attenders</h3>
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			@foreach($event->attendances as $attendance)
-				<x-profile-card :user="$attendance->user"/>
+			@foreach($event->attenders as $user)
+				<x-profile-card :user="$user"/>
 			@endforeach
 		</div>
 	</div>

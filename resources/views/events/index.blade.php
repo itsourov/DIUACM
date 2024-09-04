@@ -7,7 +7,7 @@
 
 			@foreach ($events as $event)
 				@php
-					$isPresent = $event->attendances->contains('user_id', auth()->user()?->id);
+					$isPresent = $event->attenders->contains('user_id', auth()->user()?->id);
 				@endphp
 				<div>
 					<a href="{{ route('events.show', $event) }}">
@@ -39,7 +39,7 @@
 								</p>
 								<p class="flex items-center content-center">
 									<x-svg.users class="w-5 h-5 text-gray-500" />
-									: {{ $event->attendances->count() }}
+									: {{ $event->attenders->count() }}
 								</p>
 							</div>
 
