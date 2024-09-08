@@ -11,11 +11,9 @@
 		 */
 		public function index()
 		{
-			$events = Event::with(['attenders'])->orderByDesc('starting_time')->paginate(10);
+
 			
-			return view('events.index', [
-				'events' => $events,
-			]);
+			return view('events.index');
 		}
 		
 		/**

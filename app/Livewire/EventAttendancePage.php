@@ -79,10 +79,11 @@
 		}
 		
 		
-		private function checkPermission()
+		private function checkPermission(): bool
 		{
-			if ($this->event->type == AccessStatuses::OPEN_FOR_ALL)
+			if ($this->event->organized_for == AccessStatuses::OPEN_FOR_ALL)
 				return true;
+			
 			$eventGroupUserIds = $this->event->groups()
 				->with('users')
 				->get()
