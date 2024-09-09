@@ -21,8 +21,15 @@
 		 */
 		public function show(Event $event)
 		{
+			$SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
+				title: $event->title,
+				description: $event->description,
+		
+			);
+			
 			return view('events.show',[
 				'event'=>$event,
+				'SEOData'=>$SEOData,
 			]);
 		}
 		
