@@ -2,6 +2,7 @@
 	
 	namespace App\Models;
 	
+	use Filament\Panel;
 	use Illuminate\Contracts\Auth\MustVerifyEmail;
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +18,13 @@
 	{
 		use HasFactory, Notifiable;
 		use InteractsWithMedia, SoftDeletes;
+		
+		
+		public function canAccessPanel(Panel $panel): bool
+		{
+			return ($this->email == 'sourov2305101004@diu.edu.bd' && $this->hasVerifiedEmail());
+			// return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
+		}
 		
 		
 		/**
