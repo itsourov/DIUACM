@@ -38,7 +38,7 @@
 			return Action::make('attendance')
 				->label("I am present here")
 				->form($this->getFormComponent())
-				->hidden($this->isPresent)
+				->hidden($this->isPresent )
 				->fillForm(['vjudge_username' => auth()->user()?->vjudge_username])
 				->action(function (array $data) {
 					$this->markAsPresent($data);
@@ -61,6 +61,17 @@
 				$this->showPermissionError();
 				return;
 			}
+			$user = auth()->user();
+			if (!($user->phone && $user->student_id && $user->codeforces_username && $user->vjudge_username && $user->atcoder_username)) {
+				
+				Notification::make()
+					->title("Profile Incomplete!!")
+					->body("You need to complete your profile with all the required info.")
+					->warning()
+					->send();
+				redirect(route('my-account.profile.edit'));
+				return;
+			}
 			if ($this->event->password != $data['password']) {
 				Notification::make()
 					->title("Password Invalid")
@@ -81,6 +92,7 @@
 		
 		private function checkPermission(): bool
 		{
+			if (!$this->event->open_for_attendance) return false;
 			if ($this->event->organized_for == AccessStatuses::OPEN_FOR_ALL)
 				return true;
 			

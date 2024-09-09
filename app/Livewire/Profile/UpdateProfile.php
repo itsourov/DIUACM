@@ -2,16 +2,17 @@
 	
 	namespace App\Livewire\Profile;
 	
-	use Filament\Forms;
 	use App\Models\User;
-	use Filament\Notifications\Notification;
-	use Livewire\Component;
-	use Filament\Forms\Form;
-	use Illuminate\Contracts\View\View;
-	use Filament\Forms\Components\Section;
-	use Filament\Forms\Contracts\HasForms;
-	use Filament\Forms\Concerns\InteractsWithForms;
+	use Filament\Forms;
 	use Filament\Forms\Components\Actions\Action;
+	use Filament\Forms\Components\Section;
+	use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+	use Filament\Forms\Concerns\InteractsWithForms;
+	use Filament\Forms\Contracts\HasForms;
+	use Filament\Forms\Form;
+	use Filament\Notifications\Notification;
+	use Illuminate\Contracts\View\View;
+	use Livewire\Component;
 	
 	class UpdateProfile extends Component implements HasForms
 	{
@@ -35,13 +36,11 @@
 				->schema([
 					
 					Section::make('Profile Information')
-						
 						->columns(2)
-						
 						->description('Update your account\'s profile information and email address.')
 						->schema([
 							
-							\Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('profile Image')
+							SpatieMediaLibraryFileUpload::make('profile Image')
 								->collection('profile-images')
 								->disk('profile-images')
 								->preserveFilenames()
@@ -52,7 +51,7 @@
 									'1:1',
 								])
 								->visibility('public'),
-							\Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('Cover Photo')
+							SpatieMediaLibraryFileUpload::make('Cover Photo')
 								->collection('cover-photos')
 								->disk('cover-photos')
 								->preserveFilenames()
@@ -88,18 +87,63 @@
 							
 							Forms\Components\TextInput::make('email')
 								->email()
+								->disabled()
 								->required()
 								->maxLength(255),
 							
 							Forms\Components\TextInput::make('student_id')
 								->prefixIcon('heroicon-o-identification')
+								->required()
 								->maxLength(255),
 							Forms\Components\TextInput::make('phone')
+								->required()
 								->prefixIcon('heroicon-o-phone')
 								->maxLength(255),
 							
-							Forms\Components\Textarea::make('Bio')
+							Forms\Components\TextInput::make('codeforces_username')
+								->required()
+								->suffixAction(
+									Action::make('PreviewThisUsername')
+										->requiresConfirmation()
+										->icon('heroicon-o-link')
+										->url(function ($state) {
+											return 'https://codeforces.com/profile/'. $state;
+										})
+										->openUrlInNewTab()
+										->requiresConfirmation()
 								
+								)
+								->maxLength(255),
+							Forms\Components\TextInput::make('vjudge_username')
+								->required()
+								->suffixAction(
+									Action::make('PreviewThisUsername')
+										->requiresConfirmation()
+										->icon('heroicon-o-link')
+										->url(function ($state) {
+											return 'https://vjudge.net/user/'. $state;
+										})
+										->openUrlInNewTab()
+										->requiresConfirmation()
+								
+								)
+								->maxLength(255),
+							Forms\Components\TextInput::make('atcoder_username')
+								->required()
+								->suffixAction(
+									Action::make('PreviewThisUsername')
+										->requiresConfirmation()
+										->icon('heroicon-o-link')
+										->url(function ($state) {
+											return 'https://atcoder.jp/users/'. $state;
+										})
+										->openUrlInNewTab()
+										->requiresConfirmation()
+								
+								)
+								->maxLength(255),
+							
+							Forms\Components\Textarea::make('bio')
 								->maxLength(255),
 						
 						

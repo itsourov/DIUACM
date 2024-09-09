@@ -42,37 +42,39 @@
 
 	</x-card>
 
-	<div class="space-y-1">
-		@auth()
-			@if(!$isPresent)
-				<x-profile-card :user="auth()->user()->loadMissing('media')"/>
-			@endif
+	@if($event->open_for_attendance)
+		<div class="space-y-1">
+			@auth()
+				@if(!$isPresent)
+					<x-profile-card :user="auth()->user()->loadMissing('media')"/>
+				@endif
 
-		@endauth
+			@endauth
 
+			<div>
+				@if ($this->attendanceAction->isVisible())
+					{{ $this->attendanceAction }}
+				@else
+					<div class="mt-2 bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500"
+					     role="alert" tabindex="-1" aria-labelledby="hs-soft-color-success-label">
+						<span id="hs-soft-color-success-label" class="font-bold">Success</span> You already gave
+						attendance.
+					</div>
+				@endif
+
+
+				<x-filament-actions::modals/>
+			</div>
+		</div>
 		<div>
-			@if ($this->attendanceAction->isVisible())
-				{{ $this->attendanceAction }}
-			@else
-				<div class="mt-2 bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500"
-				     role="alert" tabindex="-1" aria-labelledby="hs-soft-color-success-label">
-					<span id="hs-soft-color-success-label" class="font-bold">Success</span> You already gave attendance.
-				</div>
-			@endif
-
-
-			<x-filament-actions::modals/>
+			<h3 class="text-center text-2xl font-marry font-semibold">Event Attenders</h3>
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				@foreach($event->attenders as $user)
+					<x-profile-card :user="$user"/>
+				@endforeach
+			</div>
 		</div>
-	</div>
-
-	<div>
-		<h3 class="text-center text-2xl font-marry font-semibold">Event Attenders</h3>
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			@foreach($event->attenders as $user)
-				<x-profile-card :user="$user"/>
-			@endforeach
-		</div>
-	</div>
+	@endif
 
 
 </div>

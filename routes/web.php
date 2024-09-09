@@ -5,9 +5,7 @@
 	use App\Http\Controllers\ProfileController;
 	use Illuminate\Support\Facades\Route;
 	
-	Route::get('/', function () {
-		return view('welcome');
-	})->name('home');
+	Route::get('/', [EventController::class, 'index'])->name('home');
 	
 	
 	Route::prefix('events')->name('events.')->group(function () {

@@ -18,6 +18,7 @@
 		use HasFactory, Notifiable;
 		use InteractsWithMedia, SoftDeletes;
 		
+		
 		/**
 		 * The attributes that are mass assignable.
 		 *
@@ -28,6 +29,12 @@
 			'email',
 			'password',
 			'username',
+			'bio',
+			'phone',
+			'student_id',
+			'codeforces_username',
+			'vjudge_username',
+			'atcoder_username',
 		];
 		
 		/**

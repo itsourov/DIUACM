@@ -16,6 +16,12 @@ return new class extends Migration
             $table->string('name');
 	        $table->string('username')->unique();
             $table->string('email')->unique();
+            $table->longText('bio')->nullable();
+			$table->string('phone')->nullable();
+	        $table->string('student_id')->nullable();
+	        $table->string('codeforces_username')->nullable();
+	        $table->string('vjudge_username')->nullable();
+	        $table->string('atcoder_username')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 	        $table->softDeletes();
