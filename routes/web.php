@@ -3,6 +3,7 @@
 	use App\Http\Controllers\EventController;
 	use App\Http\Controllers\PageController;
 	use App\Http\Controllers\ProfileController;
+	use App\Http\Middleware\EnsureDiuEmail;
 	use Illuminate\Support\Facades\Route;
 	
 	Route::get('/', [EventController::class, 'index'])->name('home');
@@ -10,9 +11,8 @@
 	
 	Route::prefix('events')->name('events.')->group(function () {
 		Route::get('/', [EventController::class, 'index'])->name('index');
-		Route::get('/{event}', [EventController::class, 'show'])->name('show');
+		Route::get('/{event}', [EventController::class, 'show'])->middleware(['auth', 'verified', EnsureDiuEmail::class])->name('show');
 	});
-	
 	
 	
 	Route::prefix('my-account')->name('my-account.')->middleware(['auth'])->group(function () {
