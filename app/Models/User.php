@@ -2,6 +2,7 @@
 	
 	namespace App\Models;
 	
+	use Filament\Models\Contracts\FilamentUser;
 	use Filament\Panel;
 	use Illuminate\Contracts\Auth\MustVerifyEmail;
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@
 	use Spatie\MediaLibrary\InteractsWithMedia;
 	use Spatie\MediaLibrary\MediaCollections\Models\Media;
 	
-	class User extends Authenticatable implements HasMedia, MustVerifyEmail
+	class User extends Authenticatable implements HasMedia, MustVerifyEmail,FilamentUser
 	{
 		use HasFactory, Notifiable;
 		use InteractsWithMedia, SoftDeletes;
