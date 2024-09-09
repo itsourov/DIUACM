@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
@@ -23,44 +22,37 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-	            \Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('profile Image')
-		            ->collection('profile-images')
-		            ->disk('profile-images')
-		            ->preserveFilenames()
-		            ->avatar()
-		            ->image()
-		            ->imageEditor()
-		            ->imageEditorAspectRatios([
-			            '1:1',
-		            ])
-		            ->visibility('public'),
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-	            Forms\Components\TextInput::make('username')
-		            ->required()
-		            ->helperText('Cannot contain spaces or special characters.')
-		            ->rules(['required', 'regex:/^[a-zA-Z0-9-]+$/'])
-		            ->unique(ignoreRecord: true)
-		            ->prefixIcon('heroicon-o-at-symbol')
-		            ->suffixAction(
-			            Action::make('PreviewThisUsername')
-				            ->requiresConfirmation()
-				            ->icon('heroicon-o-link')
-//				            ->url(function ($state) {
-//					            return route('contributors.show', $state);
-//				            })
-				            ->openUrlInNewTab()
-				            ->requiresConfirmation()
-		            
-		            )
-		            ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required(),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
-            ]);
+	    return $form
+		    ->schema([
+			    Forms\Components\TextInput::make('name')
+				    ->required()
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('username')
+				    ->required()
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('email')
+				    ->email()
+				    ->required()
+				    ->maxLength(255),
+			    Forms\Components\Textarea::make('bio')
+				    ->columnSpanFull(),
+			    Forms\Components\TextInput::make('phone')
+				    ->tel()
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('student_id')
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('codeforces_username')
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('vjudge_username')
+				    ->maxLength(255),
+			    Forms\Components\TextInput::make('atcoder_username')
+				    ->maxLength(255),
+			    Forms\Components\DateTimePicker::make('email_verified_at'),
+			    Forms\Components\TextInput::make('password')
+				    ->password()
+				    ->required()
+				    ->maxLength(255),
+		    ]);
     }
 
     public static function table(Table $table): Table
