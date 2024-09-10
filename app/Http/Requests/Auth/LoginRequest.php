@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+	        'login' => ['required', 'string'],
+	        'password' => ['required', 'string'],
         ];
     }
 
@@ -38,30 +38,28 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
-    {
-        $this->ensureIsNotRateLimited();
-
-
-        $user = User::where('email', $this->input('email'))->first();
-
-        if ($user && is_null($user->password)) {
-            throw ValidationException::withMessages([
-                'email' => 'This account uses social login. Please log in using your social account.',
-            ]);
-        }
-
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
-
-
-        RateLimiter::clear($this->throttleKey());
-    }
+	public function authenticate(): void
+	{
+		$this->ensureIsNotRateLimited();
+		
+		$login_type = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL )
+			? 'email'
+			: 'username';
+		
+		$this->merge([
+			$login_type => $this->input('login')
+		]);
+		
+		if (! Auth::attempt($this->only($login_type, 'password'), $this->boolean('remember'))) {
+			RateLimiter::hit($this->throttleKey());
+			
+			throw ValidationException::withMessages([
+				'login' => trans('auth.failed'),
+			]);
+		}
+		
+		RateLimiter::clear($this->throttleKey());
+	}
 
     /**
      * Ensure the login request is not rate limited.
