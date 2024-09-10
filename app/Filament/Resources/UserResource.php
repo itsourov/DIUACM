@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Form;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
-class UserResource extends Resource
+class UserResource extends Resource  implements HasShieldPermissions
 {
     protected static ?string $model = User::class;
 
@@ -49,10 +50,16 @@ class UserResource extends Resource
 			    Forms\Components\TextInput::make('atcoder_username')
 				    ->maxLength(255),
 			    Forms\Components\DateTimePicker::make('email_verified_at'),
-			    Forms\Components\TextInput::make('password')
-				    ->password()
-				    ->required()
-				    ->maxLength(255),
+//			    Forms\Components\TextInput::make('password')
+//				    ->password()
+//				    ->required()
+//				    ->maxLength(255),
+			    Forms\Components\Select::make('roles')
+				    ->relationship('roles', 'name')
+				    ->visible(auth()->user()->hasPermissionTo('manage_role_user'))
+				    ->multiple()
+				    ->preload()
+				    ->searchable()
 		    ]);
     }
 
@@ -124,4 +131,23 @@ class UserResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+	
+	public static function getPermissionPrefixes(): array
+	{
+		return [
+			'view',
+			'view_any',
+			'create',
+			'update',
+			'restore',
+			'restore_any',
+			'replicate',
+			'reorder',
+			'delete',
+			'delete_any',
+			'force_delete',
+			'force_delete_any',
+			'manage_role'
+		];
+	}
 }
