@@ -2,6 +2,7 @@
 	
 	namespace App\Models;
 	
+	use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 	use Filament\Models\Contracts\FilamentUser;
 	use Filament\Panel;
 	use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -14,22 +15,17 @@
 	use Spatie\MediaLibrary\HasMedia;
 	use Spatie\MediaLibrary\InteractsWithMedia;
 	use Spatie\MediaLibrary\MediaCollections\Models\Media;
+	use Spatie\Permission\Traits\HasRoles;
 	
 	class User extends Authenticatable implements HasMedia, MustVerifyEmail, FilamentUser
 	{
 		use HasFactory, Notifiable;
 		use InteractsWithMedia, SoftDeletes;
+		use HasRoles;
+		use HasPanelShield;
 		
 		
-		public function canAccessPanel(Panel $panel): bool
-		{
-			return (
-				($this->email == 'sourov2305101004@diu.edu.bd' && $this->hasVerifiedEmail()) ||
-				($this->email == 'sakib22205101951@diu.edu.bd' && $this->hasVerifiedEmail())
-			
-			);
-			// return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
-		}
+		
 		
 		
 		/**

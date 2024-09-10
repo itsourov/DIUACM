@@ -50,10 +50,17 @@
 			<div class="border-t border-gray-200 dark:border-gray-700 py-6 px-4 space-y-4">
 
 				@auth
+					@if(auth()->user()->hasRole('panel_user') || auth()->user()->hasRole('super_admin'))
+						<x-nav-link :href="route('filament.admin.pages.dashboard', auth()->user()->username)">
+							<x-svg.user-circle class="inline w-4 h-4"/>{{ __('Admin Panel') }}
 
+
+						</x-nav-link>
+					@endif
 					<x-nav-link :href="route('my-account.profile.edit', auth()->user()->username)">
 						<x-svg.user-circle class="inline w-4 h-4"/>{{ __('Profile') }}
 					</x-nav-link>
+
 					<!-- Authentication -->
 					<form method="POST" action="{{ route('logout') }}">
 						@csrf
@@ -155,11 +162,12 @@
 										<x-dropdown-link :href="route('my-account.profile.edit')">
 											{{ __('My Profile') }}
 										</x-dropdown-link>
-										{{--                                        @admin--}}
-										{{--                                            <x-dropdown-link :href="route('admin.dashboard')">--}}
-										{{--                                                {{ __('Admin Panel') }}--}}
-										{{--                                            </x-dropdown-link>--}}
-										{{--                                        @endadmin--}}
+										@if(auth()->user()->hasRole('panel_user') || auth()->user()->hasRole('super_admin'))
+											<x-dropdown-link :href="route('filament.admin.pages.dashboard')">
+												{{ __('Admin Panel') }}
+											</x-dropdown-link>
+										@endif
+
 
 										<!-- Authentication -->
 										<form method="POST" action="{{ route('logout') }}">
