@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 class PageController extends Controller
 {
+	public function home()
+	{
+		return view('welcome');
+	}
     public function faq()
     {
         return view('pages.faq');

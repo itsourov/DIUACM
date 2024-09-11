@@ -6,7 +6,7 @@
 	use App\Http\Middleware\EnsureDiuEmail;
 	use Illuminate\Support\Facades\Route;
 	
-	Route::get('/', [EventController::class, 'index'])->name('home');
+	Route::get('/', [PageController::class, 'home'])->name('home');
 	
 	
 	Route::prefix('events')->name('events.')->group(function () {

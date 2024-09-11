@@ -155,12 +155,13 @@
 	</section>
 
 
-	<section class="bg-gray-50 dark:bg-gray-800">
+	<section class="bg-gray-50 dark:bg-gray-900">
 		<div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
 			<!-- Row -->
-			<div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
-				<div class="text-gray-500 sm:text-lg dark:text-gray-400">
-					<h2 class="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">What is DIU
+			<div class="items-center gap-8 lg:grid lg:grid-cols-5 xl:gap-16">
+				<div class="text-gray-500 sm:text-lg dark:text-gray-400 lg:col-span-3">
+					<h2 class="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white font-marry">
+						What is DIU
 						ACM?</h2>
 					<p class="mb-8 font-light lg:text-xl">DIU ACM is the hub for competitive programmers at Daffodil
 						International University, Bangladesh, preparing teams for national and international contests,
@@ -201,15 +202,17 @@
 					<p class="mb-8 font-light lg:text-xl">The club is dedicated to helping both beginners and experts
 						enhance their programming skills and reach new heights in competitive programming.</p>
 				</div>
-				<img class="hidden w-full mb-4 rounded-lg lg:mb-0 lg:flex" src="{{asset('images/diuacm.jpeg')}}"
+				<img class="hidden w-full mb-4 rounded-lg lg:mb-0 lg:flex lg:col-span-2"
+				     src="{{asset('images/diuacm.jpeg')}}"
 				     alt="dashboard feature image">
 			</div>
 			<!-- Row -->
-			<div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
-				<img class="hidden w-full mb-4 rounded-lg lg:mb-0 lg:flex"
+			<div class="items-center gap-8 lg:grid lg:grid-cols-5 xl:gap-16">
+				<img class="hidden w-full mb-4 rounded-lg lg:mb-0 lg:flex lg:col-span-2"
 				     src="{{asset('images/cp-platforms.png')}}" alt="feature image 2">
-				<div class="text-gray-500 sm:text-lg dark:text-gray-400">
-					<h2 class="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">What is
+				<div class="text-gray-500 sm:text-lg dark:text-gray-400 lg:col-span-3">
+					<h2 class="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white font-marry">
+						What is
 						Competitive Programming?</h2>
 					<p class="mb-8 font-light lg:text-xl">
 						Competitive Programming is a type of intellectual sport that involves solving well-defined
@@ -221,19 +224,19 @@
 					<p class="mb-8 font-light lg:text-xl">
 						You can learn more about Competitive Programming from the links below:
 						<a target="_blank"
-						   class="text-blue-600 underline decoration-teal-500 hover:opacity-80 focus:outline-none focus:opacity-80"
+						   class="text-blue-600 underline"
 						   href="https://en.wikipedia.org/wiki/Competitive_programming">
 							[Wikipedia]
 						</a> ,
 
 						<a target="_blank"
-						   class="text-blue-600 underline decoration-teal-500 hover:opacity-80 focus:outline-none focus:opacity-80"
+						   class="text-blue-600 underline"
 						   href="https://youtu.be/ueNT-w7Oluw?si=ev-02Vndw2iZEEqz">
 							[William Lin]
 						</a> ,
 
 						<a target="_blank"
-						   class="text-blue-600 underline decoration-teal-500 hover:opacity-80 focus:outline-none focus:opacity-80"
+						   class="text-blue-600 underline"
 						   href="https://youtu.be/xAeiXy8-9Y8?si=HNBSG2DmncljUWa3">
 							[Errichto]
 						</a>
@@ -245,6 +248,283 @@
 		</div>
 	</section>
 
+	<section class="bg-white dark:bg-gray-950 py-6 lg:py-8">
+		<div class="container mx-auto px-2 ">
+			<h2 class="mb-4 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white font-marry text-center">
+				Competitive Programming Culture in DIU
+			</h2>
+			<div class="grid grid-cols-3 gap-3">
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3">
+						<h3 class="text-lg font-semibold">Take-Off Programming Contest (TOPC)</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							Every semester, DIU CPC (Computer & Programming Club) arranges its signature event: Take-Off
+							Programming Contest. The event is one of the biggest events arranged in Daffodil
+							International University.
+						</p>
+						<div id="topc-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+								DIU ACM, being one of the four wings of CPC & also being the one to contribute to its
+								competitive programming aspect, plays the key role in this event. Students enrolled in
+								the
+								“Programming & Problem Solving” course (generally 1st semester) can participate in the
+								contest. The event is supposed to be your starting point with DIU ACM & competitive
+								programming.
+							</p>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#topc-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3">
+						<h3 class="text-lg font-semibold">Unlock The Algorithm Programming Contest (UTA)</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							UTA is another signature event of DIU CPC and ACM. People enrolled in the “Algorithm” course
+							can
+							participate in the contest. The problem set for this contest generally is more focused on
+							advanced algorithmic techniques.
+						</p>
+						<div id="uta-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+
+							</p>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#uta-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3">
+						<h3 class="text-lg font-semibold">ACM Advanced Camp</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							Every semester, top performers of previous semester’s TakeOff are called in for viva. The
+							selected participants are invited to a months-long camp that includes classes from Seniors
+							and Alumnus of ACM, long or individual contests, discussion sessions, and more.
+						</p>
+						<div id="acamp-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+								The camp is supposed to provide you with the basic to intermediate level knowledge of
+								problem
+								solving. This is also where you get to meet and interact with the whole community.
+							</p>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#acamp-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3 border border-green-500 dark:border-green-800 shadow-xl shadow-green-200 hover:shadow-2xl hover:shadow-green-200  dark:shadow-green-800  dark:hover:shadow-2xl dark:hover:shadow-green-800 ">
+						<h3 class="text-lg font-semibold">Green Sheet</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							Green sheet is a practice tracker consisting of beginner level problems. The sheet has a few
+							sections, covering the basic concepts of a programming language and is really helpful for
+							those who want to master a language or get into competitive programming.
+						</p>
+						<div id="green-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+								Check out the sheet by clicking here:
+								<a target="_blank"
+								   class="text-blue-600 underline"
+								   href="https://docs.google.com/spreadsheets/u/0/d/1TqavRYZeSarIO7-5r0Bi73Ne7EfmzkhMwJLGwa-5Bs8/edit">
+									[Link]
+								</a>
+							</p>
+							<p class="text-gray-500 font-bold dark:text-neutral-400 my-2">
+								Rules:
+							</p>
+							<ul class="marker:text-blue-600 list-disc ps-5 space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+								<li>
+									You are supposed to copy the sheet to your drive and maintain it. Please do not ask
+									for edit access.
+								</li>
+								<li>
+									After solving a problem, write “OK” to the status column. The percentage and overall
+									solve count will update automatically.
+								</li>
+								<li>
+									Be honest.
+								</li>
+							</ul>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#green-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3">
+						<h3 class="text-lg font-semibold">Blue Sheet</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							Blue sheet is the next level of Green Sheet. The whole sheet contains 1000+ problems.
+							However, through viva, you will get to access the latest running Blue sheet. Blue Solvers
+							are assumed to be the regular programmers of DIU ACM.
+						</p>
+						<div id="blue-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+								Check out the previous Blue Sheets -
+							</p>
+							<ul>
+								<li>
+									Blue 10 (Latest):<a target="_blank"
+									                    class="text-blue-600 underline"
+									                    href="https://docs.google.com/spreadsheets/u/0/d/1TqavRYZeSarIO7-5r0Bi73Ne7EfmzkhMwJLGwa-5Bs8/edit">
+										[Link]
+									</a>
+								</li>
+								<li>
+									Blue 9:<a target="_blank"
+									          class="text-blue-600 underline"
+									          href="https://docs.google.com/spreadsheets/u/0/d/1TqavRYZeSarIO7-5r0Bi73Ne7EfmzkhMwJLGwa-5Bs8/edit">
+										[Link]
+									</a>
+								</li>
+								<li>
+									Blue 8:<a target="_blank"
+									          class="text-blue-600 underline"
+									          href="https://docs.google.com/spreadsheets/u/0/d/1TqavRYZeSarIO7-5r0Bi73Ne7EfmzkhMwJLGwa-5Bs8/edit">
+										[Link]
+									</a>
+								</li>
+							</ul>
+
+
+							<p class="text-gray-500 font-bold dark:text-neutral-400 my-2">
+								Rules:
+							</p>
+							<ul class="marker:text-blue-600 list-disc ps-5 space-y-2 text-sm text-gray-600 dark:text-neutral-400">
+								<li>
+									Every Blue sheet has a cut-off. If you are unable to solve the expected number of
+									problems within the deadline you will be removed from the sheet.
+
+								</li>
+								<li>
+									New problems are added regularly based on the current score of the top solver.
+
+								</li>
+
+							</ul>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#blue-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+
+				<div>
+					<x-card class="dark:bg-gray-900 space-y-3">
+						<h3 class="text-lg font-semibold">Regular Contests</h3>
+						<p class="text-gray-500 dark:text-neutral-400">
+							DIU ACM arranges a weekly onsite contest every Friday. The contest is called “DIU Individual
+							Contest”. The contest is hosted on Vjudge.
+							Online contest platforms like Codeforces, AtCoder & CodeChef arrange a few contests every
+							week.
+
+						</p>
+						<div id="contest-details"
+						     class="hs-collapse hidden w-full overflow-hidden transition-[height] duration-300"
+						     aria-labelledby="hs-show-hide-collapse">
+							<p class="text-gray-500 dark:text-neutral-400 mt-2">
+								Codeforces Division 2-4 contests, CodeChef Starters contests and AtCoder Beginner
+								contests are rated for “Individual Tracker Sheet”.
+							</p>
+						</div>
+						<p class="mt-2">
+							<button type="button"
+							        class="hs-collapse-toggle inline-flex items-center gap-x-1 text-sm font-semibold rounded-lg border border-transparent text-blue-600 decoration-2 hover:text-blue-700 hover:underline focus:outline-none focus:underline focus:text-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-600 dark:focus:text-blue-600"
+							        id="hs-show-hide-collapse" aria-expanded="false"
+							        aria-controls="hs-show-hide-collapse-heading" data-hs-collapse="#contest-details">
+								<span class="hs-collapse-open:hidden">Read more</span>
+								<span class="hs-collapse-open:block hidden">Read less</span>
+								<svg class="hs-collapse-open:rotate-180 shrink-0 size-4"
+								     xmlns="http://www.w3.org/2000/svg"
+								     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m6 9 6 6 6-6"></path>
+								</svg>
+							</button>
+						</p>
+					</x-card>
+				</div>
+			</div>
+		</div>
+
+	</section>
 	{{--	<x-filament::tabs x-data="{ activeTab: 'topc' }">--}}
 	{{--		<x-filament::tabs.item--}}
 	{{--				alpine-active="activeTab === 'topc'"--}}
