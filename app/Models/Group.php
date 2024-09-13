@@ -55,4 +55,8 @@
 		{
 			return $this->belongsToMany(Event::class);
 		}
+		public function trackers(): BelongsToMany
+		{
+			return $this->belongsToMany(Event::class);
+		}
 	}

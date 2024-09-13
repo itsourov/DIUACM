@@ -18,7 +18,6 @@
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Model;
 	use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-	use Illuminate\Database\Eloquent\Relations\HasMany;
 	use Illuminate\Database\Eloquent\SoftDeletes;
 	
 	
@@ -32,6 +31,7 @@
 			'description',
 			'starting_time',
 			'ending_time',
+			'contest_link',
 			'password',
 			'open_for_attendance',
 			'type',
@@ -58,6 +58,10 @@
 		public function attenders(): BelongsToMany
 		{
 			return $this->belongsToMany(User::class)->withPivot(['extra_info']);
+		}
+		public function trackers(): BelongsToMany
+		{
+			return $this->belongsToMany(Tracker::class);
 		}
 		
 		public static function getForm(): array
@@ -99,6 +103,7 @@
 						
 						Fieldset::make('Extra')
 							->schema([
+								TextInput::make('contest_link'),
 								TextInput::make('password'),
 								
 								Toggle::make('open_for_attendance'),

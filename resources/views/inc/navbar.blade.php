@@ -1,4 +1,4 @@
-<x-impersonate::banner/>
+<x-impersonate::banner />
 
 <div class="hideInApp" x-data="{ offCanvasMenu: false }">
 
@@ -23,7 +23,7 @@
 					<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
 					     stroke="currentColor" aria-hidden="true">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-						      d="M6 18L18 6M6 6l12 12"/>
+						      d="M6 18L18 6M6 6l12 12" />
 					</svg>
 				</button>
 			</div>
@@ -36,6 +36,9 @@
 				</x-nav-link>
 				<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
 					{{ __('Regular Events') }}
+				</x-nav-link>
+				<x-nav-link :href="route('trackers.index')" :active="request()->routeIs('trackers.index')">
+					{{ __('Trackers') }}
 				</x-nav-link>
 
 
@@ -52,13 +55,13 @@
 				@auth
 					@if(auth()->user()->hasRole('panel_user') || auth()->user()->hasRole('super_admin'))
 						<x-nav-link :href="route('filament.admin.pages.dashboard', auth()->user()->username)">
-							<x-svg.user-circle class="inline w-4 h-4"/>{{ __('Admin Panel') }}
+							<x-svg.user-circle class="inline w-4 h-4" />{{ __('Admin Panel') }}
 
 
 						</x-nav-link>
 					@endif
 					<x-nav-link :href="route('my-account.profile.edit', auth()->user()->username)">
-						<x-svg.user-circle class="inline w-4 h-4"/>{{ __('Profile') }}
+						<x-svg.user-circle class="inline w-4 h-4" />{{ __('Profile') }}
 					</x-nav-link>
 
 					<!-- Authentication -->
@@ -68,15 +71,15 @@
 						<x-nav-link :href="route('logout')"
 						            onclick="event.preventDefault();
                                             this.closest('form').submit();">
-							<x-svg.exit class="inline w-4 h-4"/> {{ __('Log Out') }}
+							<x-svg.exit class="inline w-4 h-4" /> {{ __('Log Out') }}
 						</x-nav-link>
 					</form>
 				@else
 					<x-nav-link :href="route('login')" :active="request()->routeIs('login')">
-						<x-svg.exit class="inline w-4 h-4"/> {{ __('Login') }}
+						<x-svg.exit class="inline w-4 h-4" /> {{ __('Login') }}
 					</x-nav-link>
 					<x-nav-link :href="route('register')" :active="request()->routeIs('register')">
-						<x-svg.user-plus class="inline w-4 h-4"/> {{ __('Register') }}
+						<x-svg.user-plus class="inline w-4 h-4" /> {{ __('Register') }}
 					</x-nav-link>
 				@endauth
 
@@ -111,7 +114,7 @@
 						<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
 						     stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-							      d="M4 6h16M4 12h16M4 18h16"/>
+							      d="M4 6h16M4 12h16M4 18h16" />
 						</svg>
 					</button>
 
@@ -134,6 +137,11 @@
 								{{ __('Regular Events') }}
 							</x-nav-link>
 
+							<x-nav-link :href="route('trackers.index')"
+							            :active="request()->routeIs('trackersweb.index')">
+								{{ __('Trackers') }}
+							</x-nav-link>
+
 							<x-nav-link :href="route('pages.about')" :active="request()->routeIs('pages.about')">
 								{{ __('About') }}
 							</x-nav-link>
@@ -154,7 +162,7 @@
 								<x-dropdown align="right" width="48">
 									<x-slot name="trigger">
 										<x-nav-link href="#">
-											<x-svg.user-circle class="inline w-5 h-5"/> {{ __('Profile') }}
+											<x-svg.user-circle class="inline w-5 h-5" /> {{ __('Profile') }}
 										</x-nav-link>
 									</x-slot>
 									<x-slot name="content">
@@ -184,12 +192,12 @@
 							@else
 								<x-nav-link :href="route('login')" :active="request()->routeIs('login')"
 								            class="border-none">
-									<x-svg.exit class="inline w-4 h-4"/> {{ __('Login') }}
+									<x-svg.exit class="inline w-4 h-4" /> {{ __('Login') }}
 								</x-nav-link>
 								<span class="h-6 w-px bg-gray-200" aria-hidden="true"></span>
 								<x-nav-link :href="route('register')" :active="request()->routeIs('register')"
 								            class="border-none">
-									<x-svg.user-plus class="inline w-4 h-4"/> {{ __('Register') }}
+									<x-svg.user-plus class="inline w-4 h-4" /> {{ __('Register') }}
 								</x-nav-link>
 							@endauth
 						</div>

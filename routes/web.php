@@ -3,6 +3,7 @@
 	use App\Http\Controllers\EventController;
 	use App\Http\Controllers\PageController;
 	use App\Http\Controllers\ProfileController;
+	use App\Http\Controllers\TrackerController;
 	use App\Http\Middleware\EnsureDiuEmail;
 	use Illuminate\Support\Facades\Route;
 	
@@ -12,6 +13,10 @@
 	Route::prefix('events')->name('events.')->group(function () {
 		Route::get('/', [EventController::class, 'index'])->name('index');
 		Route::get('/{event}', [EventController::class, 'show'])->middleware(['auth', 'verified', EnsureDiuEmail::class])->name('show');
+	});
+	Route::prefix('trackers')->name('trackers.')->group(function () {
+		Route::get('/', [TrackerController::class, 'index'])->name('index');
+		Route::get('/{tracker}', [TrackerController::class, 'show'])->name('show');
 	});
 	
 	
