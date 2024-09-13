@@ -16,11 +16,13 @@
 				$table->string('description')->nullable();
 				$table->dateTime('starting_time');
 				$table->dateTime('ending_time');
+				$table->string('contest_link')->nullable();
 				$table->string('password')->nullable();
 				$table->boolean('open_for_attendance');
 				$table->enum('type', EventTypes::toArray())->default(EventTypes::CONTEST);
 				$table->enum('visibility', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
 				$table->enum('organized_for', AccessStatuses::toArray())->default(AccessStatuses::SELECTED_PERSONS);
+				$table->float('weight')->default(1);
 				$table->softDeletes();
 				$table->timestamps();
 			});

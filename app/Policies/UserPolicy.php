@@ -141,15 +141,4 @@ class UserPolicy
     {
         return $user->can('reorder_user');
     }
-	
-	/**
-	 * Determine whether the user can manage roles.
-	 *
-	 * @param  \App\Models\User  $admin
-	 * @return \Illuminate\Auth\Access\Response|bool
-	 */
-	public function manage_role(User $user)
-	{
-		return $user->can('manage_role_user');
-	}
 }

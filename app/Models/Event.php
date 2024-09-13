@@ -18,7 +18,6 @@
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Model;
 	use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-	use Illuminate\Database\Eloquent\Relations\HasMany;
 	use Illuminate\Database\Eloquent\SoftDeletes;
 	
 	
@@ -26,17 +25,19 @@
 	{
 		use SoftDeletes, HasFactory;
 		
-
+		
 		protected $fillable = [
 			'title',
 			'description',
 			'starting_time',
 			'ending_time',
+			'contest_link',
 			'password',
 			'open_for_attendance',
 			'type',
 			'visibility',
 			'organized_for',
+			'weight',
 		];
 		
 		
@@ -55,9 +56,15 @@
 		{
 			return $this->belongsToMany(Group::class);
 		}
+		
 		public function attenders(): BelongsToMany
 		{
 			return $this->belongsToMany(User::class)->withPivot(['extra_info']);
+		}
+		
+		public function trackers(): BelongsToMany
+		{
+			return $this->belongsToMany(Tracker::class);
 		}
 		
 		public static function getForm(): array
@@ -72,7 +79,6 @@
 					->content(fn(?Event $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 				
 				Section::make('Event Details')
-					
 					->schema([
 						
 						
@@ -99,6 +105,7 @@
 						
 						Fieldset::make('Extra')
 							->schema([
+								TextInput::make('contest_link'),
 								TextInput::make('password'),
 								
 								Toggle::make('open_for_attendance'),
@@ -116,6 +123,20 @@
 									->inline()
 									->options(AccessStatuses::class)
 									->required(),
+								Select::make('trackers')
+									->label('Rated For')
+									->relationship('trackers', 'title')
+									->visible(function ($get) {
+										return $get('type') === EventTypes::CONTEST->value;
+									})
+									->multiple()
+									->preload(),
+								Select::make('weight')
+									->options([0.5, 1])
+									->default(1)
+									->visible(function ($get) {
+										return $get('type') === EventTypes::CONTEST->value;
+									})->required(),
 								
 								Select::make('groups')
 									->label('Selected User Groups')
