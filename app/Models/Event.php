@@ -25,7 +25,7 @@
 	{
 		use SoftDeletes, HasFactory;
 		
-
+		
 		protected $fillable = [
 			'title',
 			'description',
@@ -37,6 +37,7 @@
 			'type',
 			'visibility',
 			'organized_for',
+			'weight',
 		];
 		
 		
@@ -55,10 +56,12 @@
 		{
 			return $this->belongsToMany(Group::class);
 		}
+		
 		public function attenders(): BelongsToMany
 		{
 			return $this->belongsToMany(User::class)->withPivot(['extra_info']);
 		}
+		
 		public function trackers(): BelongsToMany
 		{
 			return $this->belongsToMany(Tracker::class);
@@ -76,7 +79,6 @@
 					->content(fn(?Event $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 				
 				Section::make('Event Details')
-					
 					->schema([
 						
 						
@@ -121,6 +123,20 @@
 									->inline()
 									->options(AccessStatuses::class)
 									->required(),
+								Select::make('trackers')
+									->label('Rated For')
+									->relationship('trackers', 'title')
+									->visible(function ($get) {
+										return $get('type') === EventTypes::CONTEST->value;
+									})
+									->multiple()
+									->preload(),
+								Select::make('weight')
+									->options([0.5, 1])
+									->default(1)
+									->visible(function ($get) {
+										return $get('type') === EventTypes::CONTEST->value;
+									})->required(),
 								
 								Select::make('groups')
 									->label('Selected User Groups')

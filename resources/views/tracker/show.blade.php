@@ -67,6 +67,10 @@
 
                             <tbody
                                 class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                @php
+                                    $rank = 1;
+                                @endphp
+
                                 @foreach ($usersData as $key => $value)
                                     @php
                                         $user = $allUsers->find($key);
@@ -94,7 +98,7 @@
                                                 </svg>
                                                 <span
                                                     class="text-sm text-gray-800 dark:text-neutral-200">
-                                                    4
+                                                    {{ $rank++ }}
                                                 </span>
                                             </button>
                                         </td>

@@ -22,6 +22,7 @@
 				$table->enum('type', EventTypes::toArray())->default(EventTypes::CONTEST);
 				$table->enum('visibility', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
 				$table->enum('organized_for', AccessStatuses::toArray())->default(AccessStatuses::SELECTED_PERSONS);
+				$table->float('weight')->default(1);
 				$table->softDeletes();
 				$table->timestamps();
 			});

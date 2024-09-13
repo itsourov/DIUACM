@@ -37,7 +37,7 @@
 			//
 		}
 		
-	
+		
 		/**
 		 * Display the specified resource.
 		 */
@@ -77,8 +77,8 @@
 					try {
 						$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link, $user->codeforces_username);
 						
-						$usersData[$user->id]['solve_score'] += (1 * $usersData[$user->id][$event->id]['solve_count']);
-						$usersData[$user->id]['upsolve_score'] += 0.25 * (1 * $usersData[$user->id][$event->id]['upsolve_count']);
+						$usersData[$user->id]['solve_score'] += ($event->weight * $usersData[$user->id][$event->id]['solve_count']);
+						$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * $usersData[$user->id][$event->id]['upsolve_count']);
 						
 					} catch (ConnectionException $e) {
 						
@@ -96,7 +96,7 @@
 				
 				
 			}
-			uasort($usersData, function($a, $b) {
+			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
 			});
 			
