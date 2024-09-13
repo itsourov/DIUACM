@@ -75,7 +75,7 @@
 					}
 					
 					try {
-						$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link, $user->codeforces_username);
+						$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username ?? "");
 						
 						$usersData[$user->id]['solve_score'] += ($event->weight * $usersData[$user->id][$event->id]['solve_count']);
 						$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * $usersData[$user->id][$event->id]['upsolve_count']);
