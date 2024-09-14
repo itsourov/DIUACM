@@ -1,4 +1,8 @@
 <x-web-layout>
+    @section("seo")
+        {!! seo($SEOData) !!}
+    @endsection
+
     <!-- Table Section -->
     <div class="container mx-auto space-y-6 px-2 py-10">
         <!-- Card -->

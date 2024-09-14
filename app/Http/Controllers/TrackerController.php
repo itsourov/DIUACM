@@ -121,8 +121,12 @@
 			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
 			});
+			$SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
+				title: $tracker->title,
+				description: $tracker->description,
 			
-			return view('tracker.show', compact('tracker', 'usersData', 'allUsers'));
+			);
+			return view('tracker.show', compact('tracker', 'usersData', 'allUsers','SEOData'));
 		}
 		
 		/**
