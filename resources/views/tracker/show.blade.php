@@ -168,7 +168,7 @@
             });
 
         // API for get requests
-        let fetchRes = fetch(
+        fetchRes = fetch(
             'https://kenkoooo.com/atcoder/resources/contests.json',
         );
 
@@ -181,7 +181,7 @@
             });
 
         // API for get requests
-        let fetchRes = fetch('https://vjudge.net/contest/rank/single/654924');
+        fetchRes = fetch('https://vjudge.net/contest/rank/single/654924');
 
         // FetchRes is the promise to resolve
         // it by using.then() method
