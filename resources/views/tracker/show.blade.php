@@ -132,12 +132,12 @@
                                                     <p
                                                         class="text-sm text-gray-800 dark:text-white">
                                                         Solve:
-                                                        {{ $usersData[$user->id][$contest->id]["solve_count"] }}
+                                                        {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
                                                     </p>
                                                     <p
                                                         class="text-sm text-gray-800 dark:text-white">
                                                         Upsolve:
-                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] }}
+                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
                                                     </p>
                                                 </div>
                                             </td>
