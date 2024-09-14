@@ -153,43 +153,6 @@
         </div>
         <!-- End Card -->
     </div>
-    <script>
-        // API for get requests
-        let fetchRes = fetch(
-            'https://codeforces.com/api/contest.status?contestId=2009&handle=sourov.cse',
-        );
 
-        // FetchRes is the promise to resolve
-        // it by using.then() method
-        fetchRes
-            .then((res) => res.json())
-            .then((d) => {
-                console.log(d);
-            });
-
-        // API for get requests
-        fetchRes = fetch(
-            'https://kenkoooo.com/atcoder/resources/contests.json',
-        );
-
-        // FetchRes is the promise to resolve
-        // it by using.then() method
-        fetchRes
-            .then((res) => res.json())
-            .then((d) => {
-                console.log(d);
-            });
-
-        // API for get requests
-        fetchRes = fetch('https://vjudge.net/contest/rank/single/654924');
-
-        // FetchRes is the promise to resolve
-        // it by using.then() method
-        fetchRes
-            .then((res) => res.json())
-            .then((d) => {
-                console.log(d);
-            });
-    </script>
     <!-- End Table Section -->
 </x-web-layout>
