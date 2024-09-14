@@ -29,7 +29,7 @@
 		
 		public function events(): BelongsToMany
 		{
-			return $this->belongsToMany(Event::class)->orderBy('starting_time');
+			return $this->belongsToMany(Event::class)->orderByDesc('starting_time');
 		}
 		public function groups(): BelongsToMany
 		{
