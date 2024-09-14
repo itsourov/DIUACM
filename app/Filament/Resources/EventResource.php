@@ -2,19 +2,10 @@
 	
 	namespace App\Filament\Resources;
 	
-	use App\Enums\VisibilityStatuses;
 	use App\Filament\Resources\EventResource\Pages;
 	use App\Filament\Resources\EventResource\RelationManagers\AttendersRelationManager;
 	use App\Models\Event;
-	use Filament\Forms\Components\Checkbox;
-	use Filament\Forms\Components\DatePicker;
-	use Filament\Forms\Components\DateTimePicker;
-	use Filament\Forms\Components\Placeholder;
-	use Filament\Forms\Components\TextInput;
-	use Filament\Forms\Components\Toggle;
-	use Filament\Forms\Components\ToggleButtons;
 	use Filament\Forms\Form;
-	use Filament\Infolists\Components\TextEntry;
 	use Filament\Resources\Resource;
 	use Filament\Tables\Actions\BulkActionGroup;
 	use Filament\Tables\Actions\DeleteAction;
@@ -22,12 +13,14 @@
 	use Filament\Tables\Actions\EditAction;
 	use Filament\Tables\Actions\ForceDeleteAction;
 	use Filament\Tables\Actions\ForceDeleteBulkAction;
+	use Filament\Tables\Actions\ReplicateAction;
 	use Filament\Tables\Actions\RestoreAction;
 	use Filament\Tables\Actions\RestoreBulkAction;
 	use Filament\Tables\Columns\TextColumn;
 	use Filament\Tables\Filters\TrashedFilter;
 	use Filament\Tables\Table;
 	use Illuminate\Database\Eloquent\Builder;
+	use Illuminate\Database\Eloquent\Model;
 	use Illuminate\Database\Eloquent\SoftDeletingScope;
 	
 	class EventResource extends Resource
@@ -42,12 +35,13 @@
 		{
 			return $form
 				->schema(Event::getForm());
-		
+			
 		}
 		
 		public static function table(Table $table): Table
 		{
 			return $table
+				->defaultSort('starting_time', 'desc')
 				->columns([
 					TextColumn::make('title')
 						->limit(40)
@@ -57,6 +51,7 @@
 					TextColumn::make('description')->html()->limit(20),
 					
 					TextColumn::make('starting_time')
+						->sortable()
 						->date(),
 					
 					TextColumn::make('ending_time')
@@ -78,6 +73,10 @@
 					TrashedFilter::make(),
 				])
 				->actions([
+					ReplicateAction::make()
+						->beforeReplicaSaved(function (Model $replica): void {
+							$replica['title']= $replica['title']. " (Replicated)";
+						}),
 					EditAction::make(),
 					DeleteAction::make(),
 					RestoreAction::make(),
@@ -107,6 +106,7 @@
 				AttendersRelationManager::class,
 			];
 		}
+		
 		public static function getEloquentQuery(): Builder
 		{
 			return parent::getEloquentQuery()
