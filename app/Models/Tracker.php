@@ -17,6 +17,7 @@
 			'keyword',
 			'description',
 			'organized_for',
+			'count_upsolve',
 		];
 		protected function casts()
 		{

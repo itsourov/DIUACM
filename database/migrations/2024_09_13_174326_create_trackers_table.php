@@ -13,6 +13,7 @@
 				$table->string('title');
 				$table->string('keyword')->nullable();
 				$table->string('description')->nullable();
+				$table->boolean('count_upsolve')->default(true);
 				$table->enum('organized_for', AccessStatuses::toArray())->default(AccessStatuses::SELECTED_PERSONS);
 				$table->softDeletes();
 				$table->timestamps();

@@ -99,7 +99,8 @@
 						}
 						
 						$usersData[$user->id]['solve_score'] += ($event->weight * $usersData[$user->id][$event->id]['solve_count']);
-						$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * $usersData[$user->id][$event->id]['upsolve_count']);
+						if ($tracker->count_upsolve)
+							$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * $usersData[$user->id][$event->id]['upsolve_count']);
 						
 					} catch (ConnectionException $e) {
 						

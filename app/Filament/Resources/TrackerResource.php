@@ -9,6 +9,7 @@
 	use Filament\Forms\Components\Placeholder;
 	use Filament\Forms\Components\Select;
 	use Filament\Forms\Components\TextInput;
+	use Filament\Forms\Components\Toggle;
 	use Filament\Forms\Components\ToggleButtons;
 	use Filament\Forms\Form;
 	use Filament\Resources\Resource;
@@ -57,7 +58,7 @@
 						->relationship('events', 'title')
 						->multiple()
 						->preload(),
-					
+					Toggle::make('count_upsolve')->default(true),
 					ToggleButtons::make('organized_for')
 						->live()
 						->inline()
