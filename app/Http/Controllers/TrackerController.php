@@ -3,6 +3,7 @@
 	namespace App\Http\Controllers;
 	
 	use App\Enums\AccessStatuses;
+	use App\Http\Helpers\ContestDataManager\Atcoder;
 	use App\Http\Helpers\ContestDataManager\CF;
 	use App\Models\Tracker;
 	use App\Models\User;
@@ -79,6 +80,12 @@
 								continue;
 							}
 							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username ?? "");
+							
+						}else 	if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
+							if (!$user->atcoder_username) {
+								continue;
+							}
+							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username ?? "");
 							
 						}  else {
 							continue;

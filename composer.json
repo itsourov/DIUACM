@@ -15,7 +15,8 @@
         "laravel/tinker": "^2.9",
         "owenvoke/blade-fontawesome": "^2.6",
         "ralphjsmit/laravel-seo": "^1.6",
-        "stechstudio/filament-impersonate": "^3.14"
+        "stechstudio/filament-impersonate": "^3.14",
+      "ext-curl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",

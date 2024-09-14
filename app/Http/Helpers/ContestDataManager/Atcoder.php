@@ -2,16 +2,44 @@
 	
 	namespace App\Http\Helpers\ContestDataManager;
 	
-	use Illuminate\Support\Facades\Http;
+	use Illuminate\Support\Facades\Cache;
 	
 	class Atcoder
 	{
+		
+		private static function fetchCurl(string $url)
+		{
+			$cacheData = Cache::get("atcoder_fetch_" . $url);
+			if ($cacheData) {
+				return $cacheData;
+			}
+			$curl = curl_init();
+			
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => $url,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => '',
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 0,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => 'GET',
+			));
+			
+			$response = curl_exec($curl);
+			curl_close($curl);
+			Cache::put("atcoder_fetch_" . $url,$response);
+			return $response;
+			
+		}
 		
 		public static function getContestDataOfAUser(string $contestLink, string $username): array
 		{
 			// Validate and parse the contest link
 			$parsedUrl = parse_url($contestLink);
-			
+			if (!isset($parsedUrl['host']) || $parsedUrl['host'] !== 'atcoder.jp') {
+				return ['error' => 'Invalid contest URL'];
+			}
 			
 			$pathSegments = explode('/', trim($parsedUrl['path'], '/'));
 			if ($pathSegments[0] !== 'contests') {
@@ -20,16 +48,13 @@
 			
 			$contestID = $pathSegments[1];
 			
-			// Fetch contest details from the API
-			$contestDataResponse = Http::withHeaders([
-				'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-			])->get('https://kenkoooo.com/atcoder/resources/contests.json');
-			if ($contestDataResponse->failed()) {
-				dump($contestDataResponse->body());
+			// Fetch contest details using cURL
+			$contestDataResponse = self::fetchCurl('https://kenkoooo.com/atcoder/resources/contests.json');
+			if (!$contestDataResponse) {
 				return ['error' => 'Failed to fetch contest data'];
 			}
 			
-			$contestData = $contestDataResponse->json();
+			$contestData = json_decode($contestDataResponse, true);
 			$contestTime = null;
 			$contestDuration = null;
 			
@@ -47,17 +72,13 @@
 			
 			$contestEnd = $contestTime + $contestDuration;
 			
-			// Fetch user submissions from the API
-			$submissionResponse = Http::get("https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions", [
-				'user' => $username,
-				'from_second' => $contestTime,
-			]);
-			
-			if ($submissionResponse->failed()) {
+			// Fetch user submissions using cURL
+			$submissionResponse = self::fetchCurl("https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=$username&from_second=$contestTime");
+			if (!$submissionResponse) {
 				return ['error' => 'Failed to fetch user submissions'];
 			}
 			
-			$submissions = $submissionResponse->json();
+			$submissions = json_decode($submissionResponse, true);
 			
 			// Initialize solve and upsolve counters
 			$solve = [];
