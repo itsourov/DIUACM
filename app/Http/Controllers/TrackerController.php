@@ -5,6 +5,7 @@
 	use App\Enums\AccessStatuses;
 	use App\Http\Helpers\ContestDataManager\Atcoder;
 	use App\Http\Helpers\ContestDataManager\CF;
+	use App\Http\Helpers\ContestDataManager\Vjudge;
 	use App\Models\Tracker;
 	use App\Models\User;
 	use Filament\Notifications\Notification;
@@ -79,15 +80,21 @@
 							if (!$user->codeforces_username) {
 								continue;
 							}
-							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username ?? "");
+							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username);
 							
-						}else 	if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
+						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
 							if (!$user->atcoder_username) {
 								continue;
 							}
-							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username ?? "");
+							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
 							
-						}  else {
+						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
+							if (!$user->vjudge_username) {
+								continue;
+							}
+							$usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($event->contest_link ?? "", $user->vjudge_username);
+							
+						} else {
 							continue;
 						}
 						
@@ -113,7 +120,7 @@
 			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
 			});
-
+			
 			return view('tracker.show', compact('tracker', 'usersData', 'allUsers'));
 		}
 		

@@ -90,9 +90,11 @@
 						Fieldset::make('Time')
 							->schema([
 								DateTimePicker::make('starting_time')
+									->required()
 									->seconds(false),
 								
 								DateTimePicker::make('ending_time')
+									->required()
 									->seconds(false)
 									->after('starting_time'),
 								

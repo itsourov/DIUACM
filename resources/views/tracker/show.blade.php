@@ -148,12 +148,6 @@
                                                                 {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
                                                                 Solve
                                                             </x-filament::badge>
-                                                            <x-filament::badge
-                                                                color="gray"
-                                                                class="w-fit">
-                                                                {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
-                                                                Upsolve
-                                                            </x-filament::badge>
                                                         @else
                                                             <x-filament::badge
                                                                 color="warning"
@@ -162,6 +156,12 @@
                                                             </x-filament::badge>
                                                         @endif
                                                     @endif
+                                                    <x-filament::badge
+                                                        color="gray"
+                                                        class="w-fit">
+                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
+                                                        Upsolve
+                                                    </x-filament::badge>
                                                 </div>
                                             </td>
                                         @endforeach
