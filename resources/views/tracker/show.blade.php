@@ -153,5 +153,19 @@
         </div>
         <!-- End Card -->
     </div>
+    <script>
+        // API for get requests
+        let fetchRes = fetch(
+            'https://codeforces.com/api/contest.status?contestId=2009&handle=sourov.cse',
+        );
+
+        // FetchRes is the promise to resolve
+        // it by using.then() method
+        fetchRes
+            .then((res) => res.json())
+            .then((d) => {
+                console.log(d);
+            });
+    </script>
     <!-- End Table Section -->
 </x-web-layout>

@@ -21,8 +21,11 @@
 			$contestID = $pathSegments[1];
 			
 			// Fetch contest details from the API
-			$contestDataResponse = Http::get('https://kenkoooo.com/atcoder/resources/contests.json');
+			$contestDataResponse = Http::withHeaders([
+				'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+			])->get('https://kenkoooo.com/atcoder/resources/contests.json');
 			if ($contestDataResponse->failed()) {
+				dump($contestDataResponse->body());
 				return ['error' => 'Failed to fetch contest data'];
 			}
 			
