@@ -113,8 +113,7 @@
 			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
 			});
-			
-			
+
 			return view('tracker.show', compact('tracker', 'usersData', 'allUsers'));
 		}
 		

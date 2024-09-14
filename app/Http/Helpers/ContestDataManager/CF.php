@@ -55,10 +55,8 @@
 				}
 			}
 			
-			Cache::put("cf_contest_data_" . $contestID . "_" . $cfUsername, ['solve_count' => count($solve), 'upsolve_count' => count($upsolve)]);
+			 Cache::put("cf_contest_data_" . $contestID . "_" . $cfUsername, ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp]);
 			
-			return ['solve_count' => count($solve), 'upsolve_count' => count($upsolve)];
-			
-			
+			return  ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp];
 		}
 	}

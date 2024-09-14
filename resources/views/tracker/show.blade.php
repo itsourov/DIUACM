@@ -57,9 +57,14 @@
                                             scope="col"
                                             class="whitespace-nowrap px-6 py-3 text-start">
                                             <span
-                                                class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
+                                                class="max-w-5 overflow-ellipsis text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
                                                 {{ $contest->title }}
                                             </span>
+                                            <x-filament::badge
+                                                color="info"
+                                                class="w-fit">
+                                                Weight: {{ $contest->weight }}
+                                            </x-filament::badge>
                                         </th>
                                     @endforeach
                                 </tr>
@@ -128,17 +133,35 @@
                                         @foreach ($tracker->events as $contest)
                                             <td
                                                 class="size-px gap-2 space-x-2 whitespace-nowrap px-6 py-3">
-                                                <div>
-                                                    <p
-                                                        class="text-sm text-gray-800 dark:text-white">
-                                                        Solve:
-                                                        {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
-                                                    </p>
-                                                    <p
-                                                        class="text-sm text-gray-800 dark:text-white">
-                                                        Upsolve:
-                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
-                                                    </p>
+                                                <div class="flex gap-2">
+                                                    @if ($usersData[$user->id][$contest->id]["absent"] ?? false == true)
+                                                        <x-filament::badge
+                                                            color="danger"
+                                                            class="w-fit">
+                                                            Absent
+                                                        </x-filament::badge>
+                                                    @else
+                                                        @if (isset($usersData[$user->id][$contest->id]["solve_count"]))
+                                                            <x-filament::badge
+                                                                color="success"
+                                                                class="w-fit">
+                                                                {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
+                                                                Solve
+                                                            </x-filament::badge>
+                                                            <x-filament::badge
+                                                                color="gray"
+                                                                class="w-fit">
+                                                                {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
+                                                                Upsolve
+                                                            </x-filament::badge>
+                                                        @else
+                                                            <x-filament::badge
+                                                                color="warning"
+                                                                class="w-fit">
+                                                                ??
+                                                            </x-filament::badge>
+                                                        @endif
+                                                    @endif
                                                 </div>
                                             </td>
                                         @endforeach

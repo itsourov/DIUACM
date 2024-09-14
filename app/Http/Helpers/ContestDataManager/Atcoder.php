@@ -28,7 +28,7 @@
 			
 			$response = curl_exec($curl);
 			curl_close($curl);
-			Cache::put("atcoder_fetch_" . $url,$response);
+			Cache::put("atcoder_fetch_" . $url, $response);
 			return $response;
 			
 		}
@@ -83,6 +83,7 @@
 			// Initialize solve and upsolve counters
 			$solve = [];
 			$upsolve = [];
+			$absent = true;
 			
 			foreach ($submissions as $submission) {
 				if ($submission['contest_id'] === $contestID) {
@@ -91,6 +92,7 @@
 					$result = $submission['result'];
 					
 					if ($submissionTime >= $contestTime && $submissionTime <= $contestEnd) {
+						$absent = false;
 						// Solve during contest time
 						if ($result === 'AC' && !in_array($problemID, $solve)) {
 							$solve[] = $problemID;
@@ -108,6 +110,7 @@
 			return [
 				'solve_count' => count($solve),
 				'upsolve_count' => count($upsolve),
+				'absent' => $absent,
 			];
 		}
 	}
