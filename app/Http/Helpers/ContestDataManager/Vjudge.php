@@ -26,7 +26,7 @@
 				$response = curl_exec($curl);
 				
 				curl_close($curl);
-				dump(json_decode($response, true));
+//				dump(json_decode($response, true));
 				return json_decode($response, true);
 			});
 			
