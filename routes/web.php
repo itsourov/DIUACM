@@ -4,11 +4,14 @@
 	use App\Http\Controllers\PageController;
 	use App\Http\Controllers\ProfileController;
 	use App\Http\Controllers\TrackerController;
+	use App\Http\Controllers\VjudgeApiController;
 	use App\Http\Middleware\EnsureDiuEmail;
 	use Illuminate\Support\Facades\Route;
 	
 	Route::get('/', [PageController::class, 'home'])->name('home');
-	
+	Route::get('/vjudge-authenticate', [VjudgeApiController::class, 'authenticateVjudge'])->name('vj-auth');
+	Route::post('/vjudge-authenticate', [VjudgeApiController::class, 'authenticateVjudge'])->name('vj_captcha_verify');
+	Route::get('/vjudge-get-captcha', [VjudgeApiController::class, 'getCaptcha'])->name('vj_get_captcha');
 	
 	Route::prefix('events')->name('events.')->group(function () {
 		Route::get('/', [EventController::class, 'index'])->name('index');

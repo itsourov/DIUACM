@@ -92,8 +92,19 @@
 							if (!$user->vjudge_username) {
 								continue;
 							}
+							
 							$usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($event->contest_link ?? "", $user->vjudge_username);
 							
+							if (isset($usersData[$user->id][$event->id]['error'])) {
+								
+								if ($usersData[$user->id][$event->id]['error'] == 'Need Vjudge Authentication') {
+									Notification::make()
+										->title("Need Vjudge Authentication")
+										->info()
+										->send();
+									return redirect(route('vj-auth'));
+								}
+							}
 						} else {
 							continue;
 						}
