@@ -5,7 +5,6 @@
 	use Illuminate\Http\Client\ConnectionException;
 	use Illuminate\Support\Facades\Cache;
 	use Illuminate\Support\Facades\Http;
-	use Mockery\Exception;
 	
 	class CF
 	{
@@ -21,9 +20,9 @@
 		public static function getContestDataOfAUser(string $contestUrl, string $cfUsername)
 		{
 			$contestID = self::getContestID($contestUrl);
-			if ($contestID == null) throw new Exception("Could not find the contest ID");
+			if ($contestID == null) return ['solve_count' => 0, 'upsolve_count' => 0];
 			
-			$cacheData=Cache::get("cf_contest_data_".$contestID."_".$cfUsername);
+			$cacheData = Cache::get("cf_contest_data_" . $contestID . "_" . $cfUsername);
 			if ($cacheData) {
 				return $cacheData;
 			}
@@ -34,7 +33,7 @@
 			$upsolve = [];
 			$tp = false;
 			
-			foreach ($response['result']??[] as $problem) {
+			foreach ($response['result'] ?? [] as $problem) {
 				$participantType = $problem['author']['participantType'];
 				$verdict = $problem['verdict'];
 				$problemID = $problem['problem']['index'];
@@ -56,10 +55,8 @@
 				}
 			}
 			
-			Cache::put("cf_contest_data_".$contestID."_".$cfUsername, ['solve_count'=>count($solve),'upsolve_count'=>count($upsolve)]);
+			 Cache::put("cf_contest_data_" . $contestID . "_" . $cfUsername, ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp]);
 			
-			return ['solve_count'=>count($solve),'upsolve_count'=>count($upsolve)];
-		
-			
+			return  ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp];
 		}
 	}

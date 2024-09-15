@@ -3,7 +3,9 @@
 	namespace App\Http\Controllers;
 	
 	use App\Enums\AccessStatuses;
+	use App\Http\Helpers\ContestDataManager\Atcoder;
 	use App\Http\Helpers\ContestDataManager\CF;
+	use App\Http\Helpers\ContestDataManager\Vjudge;
 	use App\Models\Tracker;
 	use App\Models\User;
 	use Filament\Notifications\Notification;
@@ -70,15 +72,36 @@
 				
 				foreach ($tracker->events as $event) {
 					
-					if (!$user->codeforces_username) {
-						continue;
-					}
 					
 					try {
-						$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link, $user->codeforces_username);
 						
-						$usersData[$user->id]['solve_score'] += ($event->weight * $usersData[$user->id][$event->id]['solve_count']);
-						$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * $usersData[$user->id][$event->id]['upsolve_count']);
+						$parsedUrl = parse_url($event->contest_link);
+						if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'codeforces.com') {
+							if (!$user->codeforces_username) {
+								continue;
+							}
+							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username);
+							
+						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
+							if (!$user->atcoder_username) {
+								continue;
+							}
+							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
+							
+						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
+							if (!$user->vjudge_username) {
+								continue;
+							}
+							$usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($event->contest_link ?? "", $user->vjudge_username);
+							
+						} else {
+							continue;
+						}
+						
+						
+						$usersData[$user->id]['solve_score'] += ($event->weight * ($usersData[$user->id][$event->id]['solve_count'] ?? 0));
+						if ($tracker->count_upsolve)
+							$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * ($usersData[$user->id][$event->id]['upsolve_count'] ?? 0));
 						
 					} catch (ConnectionException $e) {
 						
@@ -99,9 +122,12 @@
 			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
 			});
+			$SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
+				title: $tracker->title,
+				description: $tracker->description,
 			
-			
-			return view('tracker.show', compact('tracker', 'usersData', 'allUsers'));
+			);
+			return view('tracker.show', compact('tracker', 'usersData', 'allUsers', 'SEOData'));
 		}
 		
 		/**

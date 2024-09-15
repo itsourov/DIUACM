@@ -17,6 +17,7 @@
 			'keyword',
 			'description',
 			'organized_for',
+			'count_upsolve',
 		];
 		protected function casts()
 		{
@@ -29,7 +30,7 @@
 		
 		public function events(): BelongsToMany
 		{
-			return $this->belongsToMany(Event::class);
+			return $this->belongsToMany(Event::class)->orderByDesc('starting_time');
 		}
 		public function groups(): BelongsToMany
 		{

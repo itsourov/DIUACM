@@ -90,9 +90,11 @@
 						Fieldset::make('Time')
 							->schema([
 								DateTimePicker::make('starting_time')
+									->required()
 									->seconds(false),
 								
 								DateTimePicker::make('ending_time')
+									->required()
 									->seconds(false)
 									->after('starting_time'),
 								
@@ -131,12 +133,11 @@
 									})
 									->multiple()
 									->preload(),
-								Select::make('weight')
-									->options([0.5, 1])
-									->default(1)
-									->visible(function ($get) {
-										return $get('type') === EventTypes::CONTEST->value;
-									})->required(),
+								TextInput::make('weight')
+									->numeric()
+									->default(1.0)
+									->minValue(0.0)
+									->maxValue(1.0),
 								
 								Select::make('groups')
 									->label('Selected User Groups')
