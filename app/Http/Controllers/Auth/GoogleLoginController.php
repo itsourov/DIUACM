@@ -7,8 +7,6 @@ use App\Events\NewUserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -52,7 +50,7 @@ class GoogleLoginController extends Controller
                     ->usingFileName($googleUser->name . '.png')
                     ->toMediaCollection('profile-images', 'profile-images');
 
-                return redirect()->intended(route('home'));
+                return redirect()->route('my-account.profile.edit');
             } else {
                 if ($user->deleted_at) {
                     $user->restore();

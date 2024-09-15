@@ -2,32 +2,25 @@
 	
 	namespace App\Http\Helpers\ContestDataManager;
 	
+	use Illuminate\Support\Facades\Cache;
+	use Illuminate\Support\Facades\Http;
+	
 	class Vjudge
 	{
+		private static string $userAgent = 'PostmanRuntime/7.26.10';
+		
 		private static function fetchCurl(string $url)
 		{
-			return cache()->remember('vjudge_fetch_' . $url, now()->addDay(), function () use ($url) {
-				$curl = curl_init();
-				
-				curl_setopt_array($curl, array(
-					CURLOPT_URL => $url,
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => '',
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 0,
-					CURLOPT_FOLLOWLOCATION => true,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => 'GET',
-					CURLOPT_HTTPHEADER => array(
-						'Cookie: JSESSIONID=0FEA6F1A530DC2ED38C838C147FDADCA; Jax.Q=sourov_cse|5UEAFH7JIQTM9D8493TBS7ZOCRJFLN'
-					),
-				));
-				
-				$response = curl_exec($curl);
-				
-				curl_close($curl);
-//				dump(json_decode($response, true));
-				return json_decode($response, true);
+			$cookie = Cache::get('vjudge-cookie');
+			if (!$cookie) {
+				return ['error' => 'Need Vjudge Authentication'];
+			}
+			return \cache()->remember('vjudge_fetch_' . $url, now()->addHours(3), function () use ($cookie, $url) {
+				$contestResponse = Http::withHeaders([
+					'User-Agent' => self::$userAgent,
+					'Cookie' => $cookie,
+				])->get($url);
+				return $contestResponse->json();
 			});
 			
 			
@@ -49,10 +42,15 @@
 			
 			// Get the contest data from VJudge
 			$responseData = self::fetchCurl("https://vjudge.net/contest/rank/single/" . $contestID);
-			
 			if (!$responseData) {
-				return ['error' => 'Failed to fetch VJudge data'];
+				return ['error' => 'Need Vjudge Authentication'];
+				
 			}
+			if (isset($responseData['error'])) {
+				return $responseData;
+				
+			}
+			
 			
 			$time = $responseData['length'] / 1000;
 			$participants = $responseData['participants'];
