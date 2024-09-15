@@ -33,7 +33,7 @@
 			
 		}
 		
-		public static function getContestDataOfAUser(string $contestLink, string $username)
+		public static function getContestDataOfAUser(string $contestLink, string $username): array
 		{
 			// Validate and parse the contest link
 			$parsedUrl = parse_url($contestLink);
