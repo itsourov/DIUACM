@@ -15,7 +15,7 @@
 			if (!$cookie) {
 				return ['error' => 'Need Vjudge Authentication'];
 			}
-			return \cache()->remember('vjudge_fetch_' . $url, now()->addHours(3), function () use ($cookie, $url) {
+			return \cache()->remember('vjudge_get_' . $url, now()->addHours(3), function () use ($cookie, $url) {
 				$contestResponse = Http::withHeaders([
 					'User-Agent' => self::$userAgent,
 					'Cookie' => $cookie,
