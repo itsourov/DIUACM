@@ -62,7 +62,17 @@
 						->send();
 				return view('vjudge_captcha');
 			} else if ($body == 'success') {
-				Cache::put('vjudge-cookie', Cookie::get('captcha_cookie'));
+				if ($request->isMethod('post') && isset($request->captcha))
+					Cache::put('vjudge-cookie', Cookie::get('captcha_cookie'), now()->addMonth());
+				else {
+					preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+					
+					
+					$set_cookies = implode('; ', $matches[1]);
+					
+					
+					Cache::put('vjudge-cookie', $set_cookies, now()->addMonth());
+				}
 				Notification::make()
 					->title("Vjudge Authentication Success")
 					->success()
