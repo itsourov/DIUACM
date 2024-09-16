@@ -21,14 +21,14 @@
 			$curl = curl_init();
 			
 			curl_setopt_array($curl, array(
-				CURLOPT_URL => 'https://vjudge.net/user/login?username=sourov_cse&password=openpass1234&captcha=' . $request->captcha,
+				CURLOPT_URL => 'https://vjudge.net/user/update',
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => '',
 				CURLOPT_MAXREDIRS => 10,
 				CURLOPT_TIMEOUT => 0,
 				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => 'POST',
+				CURLOPT_CUSTOMREQUEST => 'GET',
 				CURLOPT_HTTPHEADER => array(
 					'Cookie: ' . $cookie
 				),
