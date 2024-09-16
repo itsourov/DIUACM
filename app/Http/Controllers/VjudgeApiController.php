@@ -21,7 +21,7 @@
 			$curl = curl_init();
 			
 			curl_setopt_array($curl, array(
-				CURLOPT_URL => 'https://vjudge.net/user/update',
+				CURLOPT_URL => 'https://vjudge.net/contest/rank/single/654923',
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => '',
 				CURLOPT_MAXREDIRS => 10,
