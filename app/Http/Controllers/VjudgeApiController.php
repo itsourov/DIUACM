@@ -21,14 +21,14 @@
 			$curl = curl_init();
 			
 			curl_setopt_array($curl, array(
-				CURLOPT_URL => 'https://vjudge.net/contest/rank/single/654923',
+				CURLOPT_URL => 'https://vjudge.net/user/login?username=sourov_cse&password=openpass1234&captcha=' . $request->captcha,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => '',
 				CURLOPT_MAXREDIRS => 10,
 				CURLOPT_TIMEOUT => 0,
 				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => 'GET',
+				CURLOPT_CUSTOMREQUEST => 'POST',
 				CURLOPT_HTTPHEADER => array(
 					'Cookie: ' . $cookie
 				),
@@ -53,9 +53,6 @@
 			// Close cURL session
 			curl_close($curl);
 			
-			dump($response);
-			dump( Cache::get('vjudge-cookie'));
-			return "testing";
 			
 			if ($body == 'Captcha is wrong') {
 				if ($request->isMethod('post'))
