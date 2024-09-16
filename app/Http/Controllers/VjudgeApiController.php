@@ -53,6 +53,9 @@
 			// Close cURL session
 			curl_close($curl);
 			
+			dump($response);
+			dump( Cache::get('vjudge-cookie'));
+			return "testing";
 			
 			if ($body == 'Captcha is wrong') {
 				if ($request->isMethod('post'))
