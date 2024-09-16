@@ -12,6 +12,7 @@
 	use Illuminate\Http\Client\ConnectionException;
 	use Illuminate\Http\Request;
 	
+	
 	class TrackerController extends Controller
 	{
 		/**
@@ -102,6 +103,9 @@
 										->title("Need Vjudge Authentication")
 										->info()
 										->send();
+									session()->put('url.intended',route('trackers.show', $tracker));
+									
+								
 									return redirect(route('vj-auth'));
 								}
 							}
