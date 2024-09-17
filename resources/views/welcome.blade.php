@@ -1,139 +1,142 @@
 <x-web-layout>
     <!-- Hero -->
-    <div class="container mx-auto px-2 py-10">
-        <!-- Grid -->
-        <div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8">
-            <div class="">
-                <h1
-                    class="block text-3xl font-bold text-gray-800 dark:text-white sm:text-4xl lg:text-6xl lg:leading-tight">
-                    Start your journey with
-                    <span class="text-blue-600">DIU ACM</span>
-                </h1>
-                <p class="mt-3 text-lg text-gray-800 dark:text-neutral-400">
-                    ACM Task Force. Where programmers become Gladiators. We
-                    organize workshops, classes, contests, and many more.
-                </p>
+    <div class="bg-slate-100 dark:bg-gray-950">
+        <div class="container mx-auto px-2 py-14">
+            <!-- Grid -->
+            <div class="grid gap-4 md:grid-cols-2 md:items-center md:gap-8">
+                <div class="">
+                    <h1
+                        class="block text-3xl font-bold text-gray-800 dark:text-white sm:text-4xl lg:text-6xl lg:leading-tight">
+                        Start your journey with
+                        <span class="text-blue-600">DIU ACM</span>
+                    </h1>
+                    <p class="mt-3 text-lg text-gray-800 dark:text-neutral-400">
+                        ACM Task Force. Where programmers become Gladiators. We
+                        organize workshops, classes, contests, and many more.
+                    </p>
 
-                <!-- Buttons -->
-                <div class="mt-7 grid w-full gap-3 sm:inline-flex">
-                    <a
-                        class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                        href="{{ route("trackers.show", 1) }}">
-                        See Leaderboard
-                        <svg
-                            class="size-4 shrink-0"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="m9 18 6-6-6-6" />
-                        </svg>
-                    </a>
-                    <a
-                        class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-                        href="{{ route("events.index") }}">
-                        Participate Events
-                    </a>
+                    <!-- Buttons -->
+                    <div class="mt-7 grid w-full gap-3 sm:inline-flex">
+                        <a
+                            class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                            href="{{ route("trackers.show", 1) }}">
+                            See Leaderboard
+                            <svg
+                                class="size-4 shrink-0"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m9 18 6-6-6-6" />
+                            </svg>
+                        </a>
+                        <a
+                            class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                            href="{{ route("events.index") }}">
+                            Participate Events
+                        </a>
+                    </div>
+                    <!-- End Buttons -->
                 </div>
-                <!-- End Buttons -->
-            </div>
-            <!-- End Col -->
+                <!-- End Col -->
 
-            <div class="">
-                <!-- Slider -->
-                <div
-                    data-hs-carousel='{
+                <div class="">
+                    <!-- Slider -->
+                    <div
+                        data-hs-carousel='{
     "loadingClasses": "opacity-0",
     "isAutoPlay": true
   }'
-                    class="relative">
-                    <div
-                        class="hs-carousel relative min-h-96 w-full overflow-hidden rounded-lg bg-white">
+                        class="relative">
                         <div
-                            class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
-                            <div class="hs-carousel-slide">
-                                <img
-                                    class="h-full w-full bg-red-400 object-cover"
-                                    src="{{ asset("images/diuacm.jpeg") }}"
-                                    alt="ACM LOGO" />
-                            </div>
-                            <div class="hs-carousel-slide">
-                                <img
-                                    class="h-full w-full bg-red-400 object-cover"
-                                    src="{{ asset("images/sakib-billah-Mohimenul.jpg") }}"
-                                    alt="Sakib Billah Mohimenul" />
-                            </div>
-                            <div class="hs-carousel-slide">
-                                <img
-                                    class="h-full w-full bg-red-400 object-cover"
-                                    src="{{ asset("images/group-photo-at-cafe-rio.webp") }}"
-                                    alt="Group Photo" />
+                            class="hs-carousel relative min-h-96 w-full overflow-hidden rounded-lg bg-white">
+                            <div
+                                class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
+                                <div class="hs-carousel-slide">
+                                    <img
+                                        class="h-full w-full bg-red-400 object-cover"
+                                        src="{{ asset("images/diuacm.jpeg") }}"
+                                        alt="ACM LOGO" />
+                                </div>
+                                <div class="hs-carousel-slide">
+                                    <img
+                                        class="h-full w-full bg-red-400 object-cover"
+                                        src="{{ asset("images/sakib-billah-Mohimenul.jpg") }}"
+                                        alt="Sakib Billah Mohimenul" />
+                                </div>
+                                <div class="hs-carousel-slide">
+                                    <img
+                                        class="h-full w-full bg-red-400 object-cover"
+                                        src="{{ asset("images/group-photo-at-cafe-rio.webp") }}"
+                                        alt="Group Photo" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <button
-                        type="button"
-                        class="hs-carousel-prev hs-carousel:disabled:opacity-50 absolute inset-y-0 start-0 inline-flex h-full w-[46px] items-center justify-center rounded-s-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
-                        <span class="text-2xl" aria-hidden="true">
-                            <svg
-                                class="size-5 shrink-0"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="m15 18-6-6 6-6"></path>
-                            </svg>
-                        </span>
-                        <span class="sr-only">Previous</span>
-                    </button>
-                    <button
-                        type="button"
-                        class="hs-carousel-next hs-carousel:disabled:opacity-50 absolute inset-y-0 end-0 inline-flex h-full w-[46px] items-center justify-center rounded-e-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
-                        <span class="sr-only">Next</span>
-                        <span class="text-2xl" aria-hidden="true">
-                            <svg
-                                class="size-5 shrink-0"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="m9 18 6-6-6-6"></path>
-                            </svg>
-                        </span>
-                    </button>
+                        <button
+                            type="button"
+                            class="hs-carousel-prev hs-carousel:disabled:opacity-50 absolute inset-y-0 start-0 inline-flex h-full w-[46px] items-center justify-center rounded-s-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                            <span class="text-2xl" aria-hidden="true">
+                                <svg
+                                    class="size-5 shrink-0"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m15 18-6-6 6-6"></path>
+                                </svg>
+                            </span>
+                            <span class="sr-only">Previous</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="hs-carousel-next hs-carousel:disabled:opacity-50 absolute inset-y-0 end-0 inline-flex h-full w-[46px] items-center justify-center rounded-e-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                            <span class="sr-only">Next</span>
+                            <span class="text-2xl" aria-hidden="true">
+                                <svg
+                                    class="size-5 shrink-0"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m9 18 6-6-6-6"></path>
+                                </svg>
+                            </span>
+                        </button>
 
-                    <div
-                        class="hs-carousel-pagination absolute bottom-3 end-0 start-0 flex justify-center space-x-2">
-                        <span
-                            class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
-                        <span
-                            class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
-                        <span
-                            class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
+                        <div
+                            class="hs-carousel-pagination absolute bottom-3 end-0 start-0 flex justify-center space-x-2">
+                            <span
+                                class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
+                            <span
+                                class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
+                            <span
+                                class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
+                        </div>
                     </div>
+                    <!-- End Slider -->
                 </div>
-                <!-- End Slider -->
+                <!-- End Col -->
             </div>
-            <!-- End Col -->
+            <!-- End Grid -->
         </div>
-        <!-- End Grid -->
     </div>
+
     <!-- End Hero -->
 
     {{-- <section class="bg-white dark:bg-gray-800"> --}}
@@ -316,7 +319,7 @@
 
     <section class="bg-gray-50 dark:bg-gray-900">
         <div
-            class="mx-auto max-w-screen-xl space-y-12 px-4 py-8 lg:space-y-20 lg:px-6 lg:py-24">
+            class="mx-auto max-w-screen-xl space-y-12 px-4 py-8 lg:space-y-20 lg:px-6">
             <!-- Row -->
             <div class="items-center gap-8 lg:grid lg:grid-cols-5 xl:gap-16">
                 <div
