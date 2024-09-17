@@ -659,7 +659,7 @@
                         class="transform transition-all duration-1000"
                         :class="visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'">
                         <x-card
-                            class="space-y-3 border border-green-500 shadow-xl shadow-green-200 hover:shadow-2xl hover:shadow-green-200 dark:border-green-800 dark:bg-gray-900 dark:shadow-green-800 dark:hover:shadow-2xl dark:hover:shadow-green-800">
+                            class="border border-green-500 shadow-green-400 hover:shadow-green-400 dark:bg-gray-900 dark:shadow-green-700 dark:hover:shadow-green-600">
                             <div
                                 class="relative space-y-3 overflow-hidden"
                                 :class="expanded ? 'max-h-full' : 'max-h-40'">
@@ -1309,4 +1309,222 @@
             </div>
         </div>
     </div>
+
+    <section class="bg-white dark:bg-gray-900">
+        <!-- FAQ -->
+        <div class="container mx-auto px-2 py-10 lg:py-14">
+            <!-- Title -->
+            <div class="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
+                <h2
+                    class="text-2xl font-bold dark:text-white md:text-4xl md:leading-tight">
+                    Your questions, answered
+                </h2>
+                <p class="mt-1 text-gray-600 dark:text-neutral-400">
+                    Answers to the most frequently asked questions.
+                </p>
+            </div>
+            <!-- End Title -->
+
+            <div class="mx-auto max-w-2xl">
+                <!-- Accordion -->
+                <div class="hs-accordion-group">
+                    <div
+                        class="hs-accordion active rounded-xl p-6 hs-accordion-active:bg-gray-100 dark:hs-accordion-active:bg-white/10"
+                        id="hs-basic-with-title-and-arrow-stretched-heading-one">
+                        <button
+                            class="hs-accordion-toggle group inline-flex w-full items-center justify-between gap-x-3 rounded-lg pb-3 text-start font-semibold text-gray-800 transition hover:text-gray-500 focus:text-gray-500 focus:outline-none dark:text-neutral-200 dark:hover:text-neutral-400 dark:focus:text-neutral-400 md:text-lg"
+                            aria-expanded="true"
+                            aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-one">
+                            What does “rated” mean? / Individual Contest Tracker
+                            <svg
+                                class="block size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:hidden dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                            <svg
+                                class="hidden size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:block dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m18 15-6-6-6 6" />
+                            </svg>
+                        </button>
+                        <div
+                            id="hs-basic-with-title-and-arrow-stretched-collapse-one"
+                            class="hs-accordion-content w-full space-y-3 overflow-hidden transition-[height] duration-300"
+                            role="region"
+                            aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-one">
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                In online contest platforms (like Codeforces)
+                                there’s a rating system, the more you are rated,
+                                the better. “Rated” means your performance in a
+                                contest will affect your rating. In DIU ACM, we
+                                have a contest tracker named “Individual Contest
+                                Tracker”. We track your performance in Onsite
+                                Individual Contests, Codeforces, AtCoder and
+                                CodeChef. We assign points according to your
+                                performance to your column. “Rated” means your
+                                performance will affect your points on your
+                                column.
+                            </p>
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                The “Individual Tracker Sheet” is really
+                                important as it is necessarily a ranking of all
+                                competitive programmers of DIU. Your rank here
+                                affects the Team Selection process. The sheet
+                                also contains previous trainer class resources &
+                                contests, along with previous programmers
+                                information.
+                            </p>
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                Tracker Sheet Link:
+                                <a
+                                    target="_blank"
+                                    class="text-blue-600 underline"
+                                    href="https://docs.google.com/spreadsheets/u/0/d/1q1ol7O5-zHb4jLCbBOOAV0Q1aw151M7zfOWt4lp1xbY/edit">
+                                    [Link]
+                                </a>
+                            </p>
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                To get your column at the sheet you have to
+                                contact the current manager of the sheet.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="hs-accordion rounded-xl p-6 hs-accordion-active:bg-gray-100 dark:hs-accordion-active:bg-white/10"
+                        id="hs-basic-with-title-and-arrow-stretched-heading-two">
+                        <button
+                            class="hs-accordion-toggle group inline-flex w-full items-center justify-between gap-x-3 rounded-lg pb-3 text-start font-semibold text-gray-800 transition hover:text-gray-500 focus:text-gray-500 focus:outline-none dark:text-neutral-200 dark:hover:text-neutral-400 dark:focus:text-neutral-400 md:text-lg"
+                            aria-expanded="false"
+                            aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-two">
+                            Trainer Classes ?.?
+                            <svg
+                                class="block size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:hidden dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                            <svg
+                                class="hidden size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:block dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m18 15-6-6-6 6" />
+                            </svg>
+                        </button>
+                        <div
+                            id="hs-basic-with-title-and-arrow-stretched-collapse-two"
+                            class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
+                            role="region"
+                            aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-two">
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                DIU ACM arranges specialized trainer classes for
+                                learning advanced topics. You have to be among
+                                the top performing programmers to have the
+                                privilege of attending trainer classes
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="hs-accordion rounded-xl p-6 hs-accordion-active:bg-gray-100 dark:hs-accordion-active:bg-white/10"
+                        id="hs-basic-with-title-and-arrow-stretched-heading-three">
+                        <button
+                            class="hs-accordion-toggle group inline-flex w-full items-center justify-between gap-x-3 rounded-lg pb-3 text-start font-semibold text-gray-800 transition hover:text-gray-500 focus:text-gray-500 focus:outline-none dark:text-neutral-200 dark:hover:text-neutral-400 dark:focus:text-neutral-400 md:text-lg"
+                            aria-expanded="false"
+                            aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-three">
+                            What is DIU ACM CUP?
+                            <svg
+                                class="block size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:hidden dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                            <svg
+                                class="hidden size-5 shrink-0 text-gray-600 group-hover:text-gray-500 hs-accordion-active:block dark:text-neutral-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m18 15-6-6-6 6" />
+                            </svg>
+                        </button>
+                        <div
+                            id="hs-basic-with-title-and-arrow-stretched-collapse-three"
+                            class="hs-accordion-content hidden w-full space-y-3 overflow-hidden transition-[height] duration-300"
+                            role="region"
+                            aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-three">
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                DIU ACM CUP is one of the most fun events that
+                                DIU ACM hosts every semester. This is an event
+                                to crown the current best programmer of ACM. The
+                                top 32 current regular programmers of ACM
+                                participate in the event every semester, they go
+                                up against each other in group stage and 1v1
+                                knockout stages. It is essentially a tournament
+                                filled with loads of prediction, hype and
+                                excitement.
+                            </p>
+                            <p class="text-gray-800 dark:text-neutral-200">
+                                A teamed up version of ACM Cup is currently
+                                under discussion.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <p class="textbase mt-9 text-center text-gray-600">
+                    Many more questions are answered on our
+                    <a
+                        href="{{ route("pages.faq") }}"
+                        title=""
+                        class="font-medium text-blue-600 transition-all duration-200 hover:text-blue-700 hover:underline focus:text-blue-700">
+                        FAQ page
+                    </a>
+                </p>
+                <!-- End Accordion -->
+            </div>
+        </div>
+        <!-- End FAQ -->
+    </section>
 </x-web-layout>
