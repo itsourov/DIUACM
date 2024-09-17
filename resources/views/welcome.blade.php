@@ -1154,9 +1154,7 @@
                             <div class="p-3">
                                 <ul class="space-y-3 text-sm">
                                     @php
-                                        $rules = [
-                                            "There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly.",
-                                        ];
+                                        $rules = ["There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly."];
                                     @endphp
 
                                     @foreach ($rules as $rule)
@@ -1189,6 +1187,123 @@
                                 </ul>
                             </div>
                         </x-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative py-16">
+        <div
+            class="absolute inset-x-0 top-0 hidden h-1/2 bg-gray-50 dark:bg-gray-950 lg:block"
+            aria-hidden="true"></div>
+        <div class="container mx-auto bg-indigo-600 lg:bg-transparent lg:px-2">
+            <div class="lg:grid lg:grid-cols-12">
+                <div
+                    class="relative z-10 lg:col-span-4 lg:col-start-1 lg:row-start-1 lg:bg-transparent lg:py-16">
+                    <div
+                        class="absolute inset-x-0 h-1/2 bg-gray-50 dark:bg-gray-950 lg:hidden"
+                        aria-hidden="true"></div>
+                    <div
+                        class="mx-auto max-w-md px-4 sm:max-w-3xl sm:px-6 lg:max-w-none lg:p-0">
+                        <div
+                            class="aspect-w-10 aspect-h-6 sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1">
+                            <img
+                                class="rounded-3xl object-cover object-center shadow-2xl"
+                                src="https://images.unsplash.com/photo-1507207611509-ec012433ff52?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=934&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative bg-indigo-600 lg:col-span-10 lg:col-start-3 lg:row-start-1 lg:grid lg:grid-cols-10 lg:items-center lg:rounded-3xl">
+                    <div
+                        class="absolute inset-0 hidden overflow-hidden rounded-3xl lg:block"
+                        aria-hidden="true">
+                        <svg
+                            class="absolute bottom-full left-full -translate-x-2/3 translate-y-1/3 transform xl:bottom-auto xl:top-0 xl:translate-y-0"
+                            width="404"
+                            height="384"
+                            fill="none"
+                            viewBox="0 0 404 384"
+                            aria-hidden="true">
+                            <defs>
+                                <pattern
+                                    id="64e643ad-2176-4f86-b3d7-f2c5da3b6a6d"
+                                    x="0"
+                                    y="0"
+                                    width="20"
+                                    height="20"
+                                    patternUnits="userSpaceOnUse">
+                                    <rect
+                                        x="0"
+                                        y="0"
+                                        width="4"
+                                        height="4"
+                                        class="text-indigo-500"
+                                        fill="currentColor" />
+                                </pattern>
+                            </defs>
+                            <rect
+                                width="404"
+                                height="384"
+                                fill="url(#64e643ad-2176-4f86-b3d7-f2c5da3b6a6d)" />
+                        </svg>
+                        <svg
+                            class="absolute top-full -translate-x-1/3 -translate-y-1/3 transform xl:-translate-y-1/2"
+                            width="404"
+                            height="384"
+                            fill="none"
+                            viewBox="0 0 404 384"
+                            aria-hidden="true">
+                            <defs>
+                                <pattern
+                                    id="64e643ad-2176-4f86-b3d7-f2c5da3b6a6d"
+                                    x="0"
+                                    y="0"
+                                    width="20"
+                                    height="20"
+                                    patternUnits="userSpaceOnUse">
+                                    <rect
+                                        x="0"
+                                        y="0"
+                                        width="4"
+                                        height="4"
+                                        class="text-indigo-500"
+                                        fill="currentColor" />
+                                </pattern>
+                            </defs>
+                            <rect
+                                width="404"
+                                height="384"
+                                fill="url(#64e643ad-2176-4f86-b3d7-f2c5da3b6a6d)" />
+                        </svg>
+                    </div>
+                    <div
+                        class="relative mx-auto max-w-md space-y-6 px-4 py-12 sm:max-w-3xl sm:px-6 sm:py-16 lg:col-span-6 lg:col-start-4 lg:max-w-none lg:p-0">
+                        <h2
+                            class="text-3xl font-extrabold text-white"
+                            id="join-heading">
+                            How do I join DIU ACM?
+                        </h2>
+                        <p class="text-lg text-white">
+                            “We don’t have a membership system, you can’t just
+                            fill up a form and join the club. If you are
+                            passionate about competitive programming, your goal
+                            is to reach ICPC and you are pursuing problem
+                            solving on a regular basis, then you are already a
+                            member. To get into the community we suggest that
+                            you regularly take part in onsite Individual
+                            Contests & reach out to ACM LAB (at KT_310) for your
+                            issues regarding competitive programming problems.”
+                        </p>
+                        <a
+                            target="_blank"
+                            class="block w-full rounded-md border border-transparent bg-white px-5 py-3 text-center text-base font-medium text-indigo-700 shadow-md hover:bg-gray-50 sm:inline-block sm:w-auto"
+                            href="https://t.me/+X94KLytY-Kk5NzU9">
+                            Join our Telegram
+                        </a>
                     </div>
                 </div>
             </div>

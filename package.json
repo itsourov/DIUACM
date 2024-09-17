@@ -20,6 +20,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "@tailwindcss/aspect-ratio": "^0.4.2",
         "preline": "^2.4.1",
         "spotlight.js": "^0.7.8"
     }
