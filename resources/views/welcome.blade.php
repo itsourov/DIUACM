@@ -956,6 +956,19 @@
                             @focus="activeTab = 3">
                             Lab rules
                         </button>
+
+                        <!-- Button #4 -->
+                        <button
+                            id="tab-4"
+                            class="h-8 flex-1 whitespace-nowrap rounded-2xl px-4 text-sm font-medium transition-colors duration-150 ease-in-out focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300"
+                            :class="activeTab === 4 ? 'bg-white text-slate-900' : 'text-slate-600 dark:text-slate-300 dark:hover:text-slate-100 hover:text-slate-900'"
+                            :tabindex="activeTab === 4 ? 0 : -1"
+                            :aria-selected="activeTab === 4"
+                            aria-controls="tabpanel-4"
+                            @click="activeTab = 4"
+                            @focus="activeTab = 4">
+                            Other
+                        </button>
                     </div>
                 </div>
 
@@ -1092,6 +1105,57 @@
                                             "You can’t enter the lab at your will and use PCs unless you're a regular ACM programmer. Initially you have to take permission from the authority.",
                                             "Make sure you respect seniors and teachers.",
                                             "Do not disturb others while using the lab facility.",
+                                        ];
+                                    @endphp
+
+                                    @foreach ($rules as $rule)
+                                        <li class="flex gap-x-3">
+                                            <div>
+                                                <span
+                                                    class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500">
+                                                    <svg
+                                                        class="size-3.5 shrink-0"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="24"
+                                                        height="24"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline
+                                                            points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <span
+                                                class="text-gray-800 dark:text-neutral-400">
+                                                {{ $rule }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </x-card>
+                        <!-- Panel #4 -->
+                        <x-card
+                            id="tabpanel-4"
+                            role="tabpanel"
+                            tabindex="0"
+                            aria-labelledby="tab-4"
+                            x-show="activeTab === 4"
+                            x-transition:enter="order-first transform transition duration-700 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:enter-start="-translate-y-8 opacity-0"
+                            x-transition:enter-end="translate-y-0 opacity-100"
+                            x-transition:leave="absolute transform transition duration-300 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:leave-start="translate-y-0 opacity-100"
+                            x-transition:leave-end="translate-y-12 opacity-0">
+                            <div class="p-3">
+                                <ul class="space-y-3 text-sm">
+                                    @php
+                                        $rules = [
+                                            "There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly.",
                                         ];
                                     @endphp
 
