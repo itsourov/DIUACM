@@ -452,13 +452,14 @@
         </div>
     </section>
 
-    <section class="bg-white py-10 dark:bg-gray-950 md:py-20">
+    <section class="bg-slate-100 py-10 dark:bg-gray-950 md:py-20">
         <div class="container mx-auto px-2">
             <h2
-                class=" text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                 Competitive Programming Culture in DIU
             </h2>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+            <div
+                class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div
                     x-data="{ expanded: false, visible: false }"
                     x-intersect="visible = true">
@@ -901,22 +902,229 @@
     </section>
 
     <div class="dark:bg-gray-900">
-        <div class="container mx-auto px-2 py-10 md:py-20">asd</div>
+        <div class="container mx-auto space-y-4 px-2 py-10 md:py-20">
+            <h2
+                class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                Rules & Regulations
+            </h2>
+            <div x-data="{ activeTab: 1 }">
+                <!-- Buttons -->
+                <div class="flex justify-center">
+                    <div
+                        role="tablist"
+                        class="mb-4 inline-flex flex-wrap justify-center rounded-[20px] bg-slate-200 p-1 dark:bg-black max-[480px]:max-w-[180px]"
+                        @keydown.right.prevent.stop="$focus.wrap().next()"
+                        @keydown.left.prevent.stop="$focus.wrap().prev()"
+                        @keydown.home.prevent.stop="$focus.first()"
+                        @keydown.end.prevent.stop="$focus.last()">
+                        <!-- Button #1 -->
+                        <button
+                            id="tab-1"
+                            class="h-8 flex-1 whitespace-nowrap rounded-2xl px-4 text-sm font-medium transition-colors duration-150 ease-in-out focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300"
+                            :class="activeTab === 1 ? 'bg-white text-slate-900' : 'text-slate-600 dark:text-slate-300 dark:hover:text-slate-100 hover:text-slate-900'"
+                            :tabindex="activeTab === 1 ? 0 : -1"
+                            :aria-selected="activeTab === 1"
+                            aria-controls="tabpanel-1"
+                            @click="activeTab = 1"
+                            @focus="activeTab = 1">
+                            Onsite Contest Rules
+                        </button>
+                        <!-- Button #2 -->
+                        <button
+                            id="tab-2"
+                            class="h-8 flex-1 whitespace-nowrap rounded-2xl px-4 text-sm font-medium transition-colors duration-150 ease-in-out focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300"
+                            :class="activeTab === 2 ? 'bg-white text-slate-900' : 'text-slate-600 dark:text-slate-300 dark:hover:text-slate-100 hover:text-slate-900'"
+                            :tabindex="activeTab === 2 ? 0 : -1"
+                            :aria-selected="activeTab === 2"
+                            aria-controls="tabpanel-2"
+                            @click="activeTab = 2"
+                            @focus="activeTab = 2">
+                            Online Contest Rules
+                        </button>
+                        <!-- Button #3 -->
+                        <button
+                            id="tab-3"
+                            class="h-8 flex-1 whitespace-nowrap rounded-2xl px-4 text-sm font-medium transition-colors duration-150 ease-in-out focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300"
+                            :class="activeTab === 3 ? 'bg-white text-slate-900' : 'text-slate-600 dark:text-slate-300 dark:hover:text-slate-100 hover:text-slate-900'"
+                            :tabindex="activeTab === 3 ? 0 : -1"
+                            :aria-selected="activeTab === 3"
+                            aria-controls="tabpanel-3"
+                            @click="activeTab = 3"
+                            @focus="activeTab = 3">
+                            Lab rules
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab panels -->
+                <div class="mx-auto max-w-[640px]">
+                    <div class="relative flex flex-col">
+                        <!-- Panel #1 -->
+                        <x-card
+                            id="tabpanel-1"
+                            class=""
+                            role="tabpanel"
+                            tabindex="0"
+                            aria-labelledby="tab-1"
+                            x-show="activeTab === 1"
+                            x-transition:enter="transition ease-[cubic-bezier(0.68,-0.3,0.32,1)] duration-700 transform order-first"
+                            x-transition:enter-start="opacity-0 -translate-y-8"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-[cubic-bezier(0.68,-0.3,0.32,1)] duration-300 transform absolute"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-12">
+                            <div class="p-3">
+                                <ul class="space-y-3 text-sm">
+                                    @php
+                                        $rules = [
+                                            "No one is allowed to participate online.",
+                                            "Usage of any online websites other than contest platforms is prohibited.",
+                                            "If it is a Vjudge contest, keep your code shared",
+                                            "Hard copy templates are allowed. However, in certain cases, there might be a limit to how many pages you can bring.",
+                                            "Any kind of copy/paste or plagiarism will lead you to a permanent ban from DIU ACM.",
+                                        ];
+                                    @endphp
+
+                                    @foreach ($rules as $rule)
+                                        <li class="flex gap-x-3">
+                                            <div>
+                                                <span
+                                                    class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500">
+                                                    <svg
+                                                        class="size-3.5 shrink-0"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="24"
+                                                        height="24"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline
+                                                            points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <span
+                                                class="text-gray-800 dark:text-neutral-400">
+                                                {{ $rule }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </x-card>
+
+                        <!-- Panel #2 -->
+                        <x-card
+                            id="tabpanel-2"
+                            role="tabpanel"
+                            tabindex="0"
+                            aria-labelledby="tab-2"
+                            x-show="activeTab === 2"
+                            x-transition:enter="order-first transform transition duration-700 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:enter-start="-translate-y-8 opacity-0"
+                            x-transition:enter-end="translate-y-0 opacity-100"
+                            x-transition:leave="absolute transform transition duration-300 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:leave-start="translate-y-0 opacity-100"
+                            x-transition:leave-end="translate-y-12 opacity-0">
+                            <div class="p-3">
+                                <ul class="space-y-3 text-sm">
+                                    @php
+                                        $rules = [
+                                            "In online contests, it is prohibited to use any forum, QnA or real time messaging platform. You can, however, use Google Searches, GFG, CPAlgo and similar websites.",
+                                            "Any kind of copy/paste or plagiarism will lead you to a permanent ban from ACM.",
+                                        ];
+                                    @endphp
+
+                                    @foreach ($rules as $rule)
+                                        <li class="flex gap-x-3">
+                                            <div>
+                                                <span
+                                                    class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500">
+                                                    <svg
+                                                        class="size-3.5 shrink-0"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="24"
+                                                        height="24"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline
+                                                            points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <span
+                                                class="text-gray-800 dark:text-neutral-400">
+                                                {{ $rule }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </x-card>
+
+                        <!-- Panel #3 -->
+                        <x-card
+                            id="tabpanel-3"
+                            role="tabpanel"
+                            tabindex="0"
+                            aria-labelledby="tab-3"
+                            x-show="activeTab === 3"
+                            x-transition:enter="order-first transform transition duration-700 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:enter-start="-translate-y-8 opacity-0"
+                            x-transition:enter-end="translate-y-0 opacity-100"
+                            x-transition:leave="absolute transform transition duration-300 ease-[cubic-bezier(0.68,-0.3,0.32,1)]"
+                            x-transition:leave-start="translate-y-0 opacity-100"
+                            x-transition:leave-end="translate-y-12 opacity-0">
+                            <div class="p-3">
+                                <ul class="space-y-3 text-sm">
+                                    @php
+                                        $rules = [
+                                            "You can’t enter the lab at your will and use PCs unless you're a regular ACM programmer. Initially you have to take permission from the authority.",
+                                            "Make sure you respect seniors and teachers.",
+                                            "Do not disturb others while using the lab facility.",
+                                        ];
+                                    @endphp
+
+                                    @foreach ($rules as $rule)
+                                        <li class="flex gap-x-3">
+                                            <div>
+                                                <span
+                                                    class="flex size-5 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500">
+                                                    <svg
+                                                        class="size-3.5 shrink-0"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="24"
+                                                        height="24"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline
+                                                            points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <span
+                                                class="text-gray-800 dark:text-neutral-400">
+                                                {{ $rule }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </x-card>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    {{-- <x-filament::tabs x-data="{ activeTab: 'topc' }"> --}}
-    {{-- <x-filament::tabs.item --}}
-    {{-- alpine-active="activeTab === 'topc'" --}}
-    {{-- x-on:click="activeTab = 'topc'" --}}
-    {{-- > --}}
-    {{-- Take-Off --}}
-    {{-- </x-filament::tabs.item> --}}
-
-    {{-- <x-filament::tabs.item --}}
-    {{-- alpine-active="activeTab === 'uta'" --}}
-    {{-- x-on:click="activeTab = 'uta'" --}}
-    {{-- > --}}
-    {{-- UTA --}}
-    {{-- </x-filament::tabs.item> --}}
-    {{-- </x-filament::tabs> --}}
 </x-web-layout>
