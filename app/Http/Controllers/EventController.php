@@ -2,6 +2,7 @@
 	
 	namespace App\Http\Controllers;
 	
+	use App\Events\EventNotification;
 	use App\Models\Event;
 	
 	class EventController extends Controller
@@ -21,6 +22,7 @@
 		 */
 		public function show(Event $event)
 		{
+			
 			$SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
 				title: $event->title,
 				description: $event->description,

@@ -19,7 +19,7 @@
                     <div class="mt-7 grid w-full gap-3 sm:inline-flex">
                         <a
                             class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                            href="{{ route("trackers.show", 1) }}">
+                            href="#rules_section">
                             See Leaderboard
                             <svg
                                 class="size-4 shrink-0"
@@ -904,7 +904,7 @@
         </div>
     </section>
 
-    <div class="dark:bg-gray-900">
+    <div class="dark:bg-gray-900" id="rules_section">
         <div class="container mx-auto space-y-4 px-2 py-10 md:py-20">
             <h2
                 class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
