@@ -1,6 +1,7 @@
 <?php
 	
 	use App\Http\Controllers\EventController;
+	use App\Http\Controllers\GalleryController;
 	use App\Http\Controllers\PageController;
 	use App\Http\Controllers\ProfileController;
 	use App\Http\Controllers\TrackerController;
@@ -21,6 +22,11 @@
 		Route::get('/', [TrackerController::class, 'index'])->name('index');
 		Route::get('/{tracker}', [TrackerController::class, 'show'])->name('show');
 	});
+	Route::prefix('gallery')->name('gallery.')->group(function () {
+		Route::get('/', [GalleryController::class, 'index'])->name('index');
+		Route::get('/{gallery}', [GalleryController::class, 'show'])->name('show');
+	});
+	
 	
 	
 	Route::prefix('my-account')->name('my-account.')->middleware(['auth'])->group(function () {

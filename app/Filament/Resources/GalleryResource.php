@@ -53,7 +53,7 @@
 						->columnSpan(2)
 						->collection('gallery-images')
 						->preserveFilenames()
-						->maxSize(1024*20)
+						->maxSize(1024*3)
 						->image()
 						->imageEditor()
 						->multiple()
