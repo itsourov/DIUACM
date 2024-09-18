@@ -42,7 +42,10 @@
 			} else {
 				//nothing
 			}
-			Mail::bcc($user)->queue(new EventNotificationMail($event));
+			foreach ($user as $email) {
+				Mail::to($email)->queue(new EventNotificationMail($event));
+			}
+			
 			
 		}
 	}
