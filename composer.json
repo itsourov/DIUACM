@@ -6,7 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "bezhansalleh/filament-shield": "^3.2",
+        "croustibat/filament-jobs-monitor": "^2.5",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
         "geo-sot/filament-env-editor": "^0.0.4",
@@ -15,8 +17,7 @@
         "laravel/tinker": "^2.9",
         "owenvoke/blade-fontawesome": "^2.6",
         "ralphjsmit/laravel-seo": "^1.6",
-        "stechstudio/filament-impersonate": "^3.14",
-      "ext-curl": "*"
+        "stechstudio/filament-impersonate": "^3.14"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
