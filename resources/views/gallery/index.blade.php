@@ -2,7 +2,7 @@
     <section class="container mx-auto px-2 py-10">
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 xl:gap-8">
             @foreach ($galleries as $gallery)
-                @if ($loop->iteration % 2 == 1)
+                @if (($loop->iteration/2) % 2 == 1)
                     <a
                         href="{{ route("gallery.show", $gallery) }}"
                         class="group relative flex h-48 items-end overflow-hidden rounded-lg bg-gray-100 shadow-lg md:h-80">
