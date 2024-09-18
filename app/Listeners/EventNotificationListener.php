@@ -42,7 +42,7 @@
 			} else {
 				//nothing
 			}
-			Mail::bcc($user)->sendNow(new EventNotificationMail($event));
+			Mail::bcc($user)->queue(new EventNotificationMail($event));
 			
 		}
 	}
