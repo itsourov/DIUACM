@@ -3,6 +3,7 @@
 	namespace App\Providers\Filament;
 	
 	use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+	use Croustibat\FilamentJobsMonitor\FilamentJobsMonitorPlugin;
 	use Filament\Http\Middleware\Authenticate;
 	use Filament\Http\Middleware\DisableBladeIconComponents;
 	use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -57,8 +58,9 @@
 					
 					FilamentShieldPlugin::make(),
 					FilamentEnvEditorPlugin::make()->authorize(
-						fn () => auth()->user()->hasPermissionTo('page_ViewEnv')
+						fn() => auth()->user()->hasPermissionTo('page_ViewEnv')
 					)
+					, FilamentJobsMonitorPlugin::make()
 				])
 				->authMiddleware([
 					Authenticate::class,
