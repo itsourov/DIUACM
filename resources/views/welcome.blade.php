@@ -58,7 +58,7 @@
 				            <div
 						            class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
 					            @foreach ($medias as $media)
-						            <div class="hs-carousel-slide spotlight" data-src="{{ $media['medium'] }}">
+						            <div class="hs-carousel-slide spotlight" data-src="{{ $media['original'] }}">
 							            <img
 									            class="h-full w-full bg-red-400 object-cover "
 									            src="{{ $media['medium'] }}"

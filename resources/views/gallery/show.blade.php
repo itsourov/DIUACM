@@ -14,7 +14,7 @@
 		    @foreach ($gallery->getMedia("gallery-images") as $image)
 			    <a
 					    class="group relative block overflow-hidden rounded-lg spotlight"
-					    href="{{$image->getUrl('medium')}}">
+					    href="{{$image->getUrl()}}">
 				    <img
 						    class="aspect-1.5  w-full rounded-lg bg-gray-100 object-cover dark:bg-neutral-800"
 						    src="{{$image->getUrl('medium')}}"
