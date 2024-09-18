@@ -49,7 +49,7 @@
 					TextInput::make('description'),
 					
 					SpatieMediaLibraryFileUpload::make('Gallery Images')
-						->hint("upload images")
+						->hint("use https://imagecompressor.com/ compressor if larger file size.")
 						->columnSpan(2)
 						->collection('gallery-images')
 						->preserveFilenames()
