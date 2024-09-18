@@ -17,22 +17,20 @@
 
         }
     </script>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "ade55d02-a1e5-4cd0-a9d0-b64e4f448aa6",
+                safari_web_id: "web.onesignal.auto.5b1b15a7-d107-41ff-b02e-c379c8847bd2",
+                notifyButton: {
+                    enable: true,
+                },
+            });
+        });
+    </script>
 
-    @production
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-QPKSEMRTZ2"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-
-            gtag('js', new Date());
-
-            gtag('config', 'G-QPKSEMRTZ2');
-        </script>
-    @endproduction
 
     @hasSection('seo')
         @yield('seo')
