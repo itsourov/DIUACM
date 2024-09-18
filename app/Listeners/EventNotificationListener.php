@@ -10,9 +10,9 @@
 	use Illuminate\Queue\InteractsWithQueue;
 	use Illuminate\Support\Facades\Mail;
 	
-	class EventNotificationListener implements ShouldQueue
+	class EventNotificationListener
 	{
-		use InteractsWithQueue;
+//		use InteractsWithQueue;
 		
 		/**
 		 * Create the event listener.
@@ -42,7 +42,7 @@
 			} else {
 				//nothing
 			}
-			Mail::bcc($user)->queue(new EventNotificationMail($event));
+			Mail::bcc($user)->sendNow(new EventNotificationMail($event));
 			
 		}
 	}
