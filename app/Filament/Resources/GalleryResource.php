@@ -53,6 +53,7 @@
 						->columnSpan(2)
 						->collection('gallery-images')
 						->preserveFilenames()
+						->responsiveImages()
 						->maxSize(1024*3)
 						->image()
 						->imageEditor()

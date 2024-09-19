@@ -8,25 +8,10 @@
 	{
 		public function home()
 		{
-		
-			$medias = cache()->rememberForever('homepage-gallery', function () {
-				return Gallery::find(1)?->getMedia('gallery-images')
-					->map(function ($media) {
-						return [
-							'medium' => $media->getUrl('medium'),
-							'original' => $media->getUrl(),
-							'name' => $media->name,
-						];
-					})
-					->toArray();
+			$medias = cache()->rememberForever('homepage-galleries', function () {
+				return Gallery::find(7)?->getMedia('gallery-images') ?? [];
 			});
-			if (!$medias) {
-				$medias[0] = [
-					'medium' => asset('images/diuacm.jpeg'),
-					'original' => asset('images/diuacm.jpeg'),
-				];
-			}
-	
+			
 			
 			return view('welcome', compact('medias'));
 		}

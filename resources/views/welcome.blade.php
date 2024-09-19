@@ -57,14 +57,21 @@
 					            class="hs-carousel relative min-h-96 w-full overflow-hidden rounded-lg bg-white">
 				            <div
 						            class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
-					            @foreach ($medias as $media)
-						            <div class="hs-carousel-slide spotlight" data-src="{{ $media['original'] }}">
+					            @forelse ($medias as $media)
+						            <div class="hs-carousel-slide spotlight" data-src="{{ $media->getUrl() }}">
 							            <img
 									            class="h-full w-full bg-red-400 object-cover "
-									            src="{{ $media['medium'] }}"
+									            src="{{ $media->getUrl('medium') }}"
 									            alt="{{$media['name']??""}}" />
 						            </div>
-					            @endforeach
+					            @empty
+							            <div class="hs-carousel-slide">
+								            <img
+										            class="h-full w-full bg-red-400 object-cover spotlight"
+										            src="{{ asset('images/diuacm.jpeg') }}"
+										            alt="DIU ACM LOGO" />
+							            </div>
+					            @endforelse
 				            </div>
 			            </div>
 
