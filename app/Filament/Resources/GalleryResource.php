@@ -51,6 +51,7 @@
 					SpatieMediaLibraryFileUpload::make('Gallery Images')
 						->hint("use https://imagecompressor.com/ compressor if larger file size.")
 						->columnSpan(2)
+						->disk('gallery-images')
 						->collection('gallery-images')
 						->preserveFilenames()
 						->responsiveImages()
