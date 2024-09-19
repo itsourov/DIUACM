@@ -34,11 +34,14 @@
 				<x-nav-link :href="route('home')" :active="request()->routeIs('home')">
 					{{ __('Home') }}
 				</x-nav-link>
-				<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
+				<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
 					{{ __('Regular Events') }}
 				</x-nav-link>
-				<x-nav-link :href="route('trackers.index')" :active="request()->routeIs('trackers.index')">
+				<x-nav-link :href="route('trackers.index')" :active="request()->routeIs('trackers.*')">
 					{{ __('Trackers') }}
+				</x-nav-link>
+				<x-nav-link :href="route('gallery.index')" :active="request()->routeIs('gallery.*')">
+					{{ __('Galleries') }}
 				</x-nav-link>
 
 
@@ -133,13 +136,18 @@
 							<x-nav-link :href="route('home')" :active="request()->routeIs('home')">
 								{{ __('Home') }}
 							</x-nav-link>
-							<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.index')">
+							<x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
 								{{ __('Regular Events') }}
 							</x-nav-link>
 
 							<x-nav-link :href="route('trackers.index')"
-							            :active="request()->routeIs('trackersweb.index')">
+							            :active="request()->routeIs('trackers.*')">
 								{{ __('Trackers') }}
+							</x-nav-link>
+
+							<x-nav-link :href="route('gallery.index')"
+							            :active="request()->routeIs('gallery.*')">
+								{{ __('Galleries') }}
 							</x-nav-link>
 
 							<x-nav-link :href="route('pages.about')" :active="request()->routeIs('pages.about')">
