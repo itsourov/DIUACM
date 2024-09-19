@@ -9,7 +9,7 @@
 		public function home()
 		{
 			$medias = cache()->rememberForever('homepage-galleries', function () {
-				return Gallery::find(7)?->getMedia('gallery-images') ?? [];
+				return Gallery::find(1)?->getMedia('gallery-images') ?? [];
 			});
 			
 			
