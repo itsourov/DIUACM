@@ -45,9 +45,7 @@
 						->searchable()
 						->sortable(),
 					
-					TextColumn::make('slug')
-						->searchable()
-						->sortable(),
+					
 					
 					TextColumn::make('sub_title'),
 					
@@ -92,6 +90,6 @@
 		
 		public static function getGloballySearchableAttributes(): array
 		{
-			return ['title', 'slug'];
+			return ['title'];
 		}
 	}
