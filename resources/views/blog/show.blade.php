@@ -117,10 +117,10 @@
                                     </span>
                                 </div>
 
-                                <div
-                                    class="relative size-20 flex-shrink-0 overflow-hidden rounded-lg">
-                                    {{ $relatedPost->getFirstMedia("post-featured-images")->img()->attributes(["class" => "size-full absolute top-0 start-0 object-cover rounded-lg"]) }}
-                                </div>
+{{--                                <div--}}
+{{--                                    class="relative size-20 flex-shrink-0 overflow-hidden rounded-lg">--}}
+{{--                                    {{ $relatedPost->getFirstMedia("post-featured-images")->img()->attributes(["class" => "size-full absolute top-0 start-0 object-cover rounded-lg"]) }}--}}
+{{--                                </div>--}}
                             </a>
                             <!-- End Media -->
                         @endforeach
