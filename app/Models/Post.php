@@ -10,6 +10,7 @@
 	use Illuminate\Database\Eloquent\Factories\HasFactory;
 	use Illuminate\Database\Eloquent\Model;
 	use Illuminate\Database\Eloquent\Relations\BelongsTo;
+	use Illuminate\Database\Eloquent\Relations\MorphMany;
 	use Illuminate\Database\Eloquent\SoftDeletes;
 	use Spatie\Image\Enums\Fit;
 	use Spatie\MediaLibrary\HasMedia;
@@ -84,7 +85,7 @@
 			return $this->whereHas('categories', function ($query) {
 				$query->whereIn( 'categories.id', $this->categories->pluck('id'))
 					->whereNotIn('posts.id', [$this->id]);
-			})->published()->with('user')->take($take)->get();
+			})->published()->take($take)->get();
 		}
 		
 		public static function getForm()
@@ -97,5 +98,10 @@
 				->addMediaConversion('preview')
 				->fit(Fit::Contain, 400, 300)
 				->nonQueued();
+		}
+		
+		public function comments(): MorphMany
+		{
+			return $this->morphMany(Comment::class, 'commentable');
 		}
 	}

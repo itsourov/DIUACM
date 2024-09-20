@@ -17,7 +17,7 @@
 	
 	Route::prefix('events')->name('events.')->group(function () {
 		Route::get('/', [EventController::class, 'index'])->name('index');
-		Route::get('/{event}', [EventController::class, 'show'])->middleware(['auth', 'verified', EnsureDiuEmail::class])->name('show');
+		Route::get('/{event}', [EventController::class, 'show'])->middleware([])->name('show');
 	});
 	Route::prefix('trackers')->name('trackers.')->group(function () {
 		Route::get('/', [TrackerController::class, 'index'])->name('index');

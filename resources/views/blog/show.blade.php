@@ -67,6 +67,7 @@
 
 
                         </div>
+                        <livewire:comment-section cardClass="dark:bg-gray-900" :commentable="$post"/>
                     </div>
                 </div>
             </div>

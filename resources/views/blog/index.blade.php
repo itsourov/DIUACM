@@ -12,7 +12,7 @@
                       <a class="" href="{{ route("blog.show", $post) }}">
                           <x-card class="group flex flex-col h-full ">
                               <div class="aspect-w-16 aspect-h-11">
-                                  {{ $post->getFirstMedia("post-featured-images")->img()->attributes(["class" => "w-full object-cover rounded-xl"]) }}
+                                  {{ $post->getFirstMedia("post-featured-images")?->img()->attributes(["class" => "w-full object-cover rounded-xl"]) }}
                               </div>
                               <div class="my-6">
                                   <h3
