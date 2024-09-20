@@ -71,7 +71,8 @@
 						TinyEditor::make('content')
 							->fileAttachmentsDisk('blog-images')
 							->fileAttachmentsVisibility('public')
-							->profile('default')
+							->profile('full')
+							->showMenuBar()
 							->columnSpan('full')
 							->required(),
 						
@@ -86,7 +87,7 @@
 									->preserveFilenames()
 									->imageEditor()
 									->maxSize(1024 * 5)
-									->rules('dimensions:max_width=1920,max_height=1004')
+//									->rules('dimensions:max_width=1920,max_height=1004')
 									->required(),
 							])->columns(1),
 						

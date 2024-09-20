@@ -53,7 +53,7 @@
 		
 		public function scopePublished(Builder $query)
 		{
-			return $query->where('status', VisibilityStatuses::PUBLISHED)->latest('published_at');
+			return $query->where('status', VisibilityStatuses::PUBLISHED)->latest('created_at');
 		}
 		public function scopeScheduled(Builder $query)
 		{
