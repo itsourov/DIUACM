@@ -96,7 +96,7 @@
 			$this
 				->addMediaConversion('preview')
 				->fit(Fit::Contain, 400, 300)
-				->nonQueued();
+				->queued();
 		}
 		
 		public function comments(): MorphMany
