@@ -13,9 +13,9 @@
 				$table->string('title');
 				$table->string('slug');
 				$table->string('sub_title')->nullable();
-				$table->json('content');
+				$table->text('content');
 				$table->enum('status', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
-				$table->unsignedInteger('user_id');
+				$table->foreignId('user_id')->constrained()->onDelete('cascade');
 				$table->softDeletes();
 				$table->timestamps();
 			});

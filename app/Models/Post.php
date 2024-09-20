@@ -4,7 +4,6 @@
 	
 
 	use App\Enums\AccessStatuses;
-	use App\Enums\PostStatus;
 	use App\Enums\VisibilityStatuses;
 	use App\Forms\PostForm;
 	use Illuminate\Database\Eloquent\Builder;
@@ -34,7 +33,6 @@
 		protected function casts(): array
 		{
 			return [
-				'content' => 'array',
 				'status' => VisibilityStatuses::class,
 			];
 		}
@@ -55,7 +53,7 @@
 		
 		public function scopePublished(Builder $query)
 		{
-			return $query->where('status', PostStatus::PUBLISHED)->latest('published_at');
+			return $query->where('status', VisibilityStatuses::PUBLISHED)->latest('published_at');
 		}
 		public function scopeScheduled(Builder $query)
 		{

@@ -3,6 +3,7 @@
 	namespace App\Forms;
 	
 
+	use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 	use App\Enums\VisibilityStatuses;
 	use App\Models\Category;
 
@@ -67,52 +68,13 @@
 //									->columnSpanFull(),
 							]),
 						
-						Builder::make('content')
-							->blocks([
-								Builder\Block::make('heading')
-									->schema([
-										TextInput::make('content')
-											->label('Heading')
-											->required(),
-										Select::make('level')
-											->options([
-												'h1' => 'Heading 1',
-												'h2' => 'Heading 2',
-												'h3' => 'Heading 3',
-												'h4' => 'Heading 4',
-												'h5' => 'Heading 5',
-												'h6' => 'Heading 6',
-											])
-											->required(),
-									])
-									->columns(2),
-								Builder\Block::make('paragraph')
-									->schema([
-										Textarea::make('content')
-											->label('Paragraph')
-											->required(),
-									]),
-								Builder\Block::make('image')
-									->schema([
-										SpatieMediaLibraryFileUpload::make('image')
-											// uses the hidden image field path OR the current path
-											->collection(function (FileUpload $component, Get $get) {
-												return $get('image_collection_id') ?? $component->getContainer()->getStatePath();
-											})
-											->afterStateHydrated(null)
-											->mutateDehydratedStateUsing(null)
-											->responsiveImages()
-											// sets the hidden image field to the state path OR the previous path
-											->afterStateUpdated(function (FileUpload $component, Set $set) {
-												$set('image_collection_id', $component->getContainer()->getStatePath());
-											})
-											->live(),
-										// we can now call $yourModel->getMedia($value_in_image_collection_id)->first()
-										Hidden::make('image_collection_id'),
-									
-									]),
-							])
-						,
+						TinyEditor::make('content')
+							->fileAttachmentsDisk('blog-images')
+							->fileAttachmentsVisibility('public')
+							->profile('default')
+							->columnSpan('full')
+							->required(),
+						
 						Fieldset::make('Feature Image')
 							->schema([
 								SpatieMediaLibraryFileUpload::make('Featured Image')
