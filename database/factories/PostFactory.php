@@ -17,7 +17,7 @@
 			return [
 				'created_at' => Carbon::now(),
 				'updated_at' => Carbon::now(),
-				'title' => $this->faker->word(),
+				'title' => $this->faker->words(10,asText: true),
 				'slug' => $this->faker->slug(),
 				'sub_title' => $this->faker->word(),
 				'content' => $this->faker->paragraph(),

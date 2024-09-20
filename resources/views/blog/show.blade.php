@@ -1,4 +1,7 @@
 <x-web-layout>
+    @section("seo")
+        {!! seo($SEOData) !!}
+    @endsection
     <!-- Blog Article -->
     <div class="container mx-auto px-2">
         <div class="grid gap-y-8 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-0">

@@ -32,28 +32,20 @@
 					->schema([
 						Fieldset::make('Titles')
 							->schema([
+								
+								TextInput::make('title')
+									->required()
+									->unique(ignoreRecord: true)
+									->maxLength(255),
 								Select::make('category_id')
 									->multiple()
 									->preload()
 									->createOptionForm(Category::getForm())
 									->searchable()
-									->relationship('categories', 'title')
-									->columnSpanFull(),
+									->relationship('categories', 'title'),
+							
 								
-								TextInput::make('title')
-									->live(true)
-									->afterStateUpdated(
-										fn(Set $set, ?string $state) => $set(
-											'slug',
-											Str::slug($state)
-										)
-									)
-									->required()
-									->unique(ignoreRecord: true)
-									->maxLength(255),
-								
-								TextInput::make('slug')
-									->maxLength(255),
+							
 								
 								Textarea::make('sub_title')
 									->maxLength(255)
@@ -80,6 +72,7 @@
 							->schema([
 								SpatieMediaLibraryFileUpload::make('Featured Image')
 									->collection('post-featured-images')
+									->disk('post-featured-images')
 									->hint('This cover image is used in your blog post as a feature image. Recommended image size 1200 X 628')
 									->image()
 									->responsiveImages()

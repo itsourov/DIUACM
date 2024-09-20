@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -41,7 +42,14 @@ class PostController extends Controller
     {
 	    $relatedPosts = $post->relatedPosts();
 		$post->loadMissing(['categories', 'user.media', 'media']);
-	    return view('blog.show', compact('post','relatedPosts'));
+	    
+	    $SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
+		    title: $post->title,
+		    description:  Str::limit(strip_tags($post->content)) ,
+	    
+	    );
+		
+	    return view('blog.show', compact('post','relatedPosts','SEOData'));
     }
 
     /**

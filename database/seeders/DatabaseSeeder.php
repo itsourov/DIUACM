@@ -28,25 +28,25 @@ class DatabaseSeeder extends Seeder
 	    dump("Event Done");
 	    Post::factory(10)->create();
 	    dump("Post Done");
-		foreach (Event::all() as $event) {
-			
-			for( $i = 1; $i <= 100; $i++ ) {
-				$newComent =$event->comments()->create([
-					'comment' => "asdasd asdsad",
-					'parent_id' => null,
-					'user_id' => User::all()->random()->id, // Assuming comments are made by authenticated users
-				]);
-				for($j = 1; $j <= 30; $j++) {
-					$event->comments()->create([
-						'comment' => "Reply text",
-						'parent_id' => $newComent->id,
-						'user_id' => User::all()->random()->id, // Assuming comments are made by authenticated users
-					]);
-				}
-			}
-			
-		}
-	    
+//		foreach (Event::all() as $event) {
+//
+//			for( $i = 1; $i <= 100; $i++ ) {
+//				$newComent =$event->comments()->create([
+//					'comment' => "asdasd asdsad",
+//					'parent_id' => null,
+//					'user_id' => User::all()->random()->id, // Assuming comments are made by authenticated users
+//				]);
+//				for($j = 1; $j <= 30; $j++) {
+//					$event->comments()->create([
+//						'comment' => "Reply text",
+//						'parent_id' => $newComent->id,
+//						'user_id' => User::all()->random()->id, // Assuming comments are made by authenticated users
+//					]);
+//				}
+//			}
+//
+//		}
+//
 	    
 	    dump("Comment Done");
 		foreach (User::all() as $user) {
@@ -54,6 +54,11 @@ class DatabaseSeeder extends Seeder
 			$user->addMediaFromUrl('https://picsum.photos/300/300')
 				->toMediaCollection('profile-images', 'profile-images');;
 		}
+	    foreach (Post::all() as $post) {
+		    
+		    $post->addMediaFromUrl('https://picsum.photos/300/300')
+			    ->toMediaCollection('post-featured-images', 'post-featured-images');;
+	    }
 	
     }
 }
