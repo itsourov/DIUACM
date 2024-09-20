@@ -40,6 +40,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
 	    $relatedPosts = $post->relatedPosts();
+		$post->loadMissing(['categories', 'user.media', 'media']);
 	    return view('blog.show', compact('post','relatedPosts'));
     }
 

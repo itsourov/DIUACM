@@ -7,7 +7,7 @@
                 <div class="py-8 lg:pe-8">
                     <div class="space-y-5 lg:space-y-8">
                         <a
-                            href="{{ route("home") }}"
+                            href="{{ route('blog.index') }}"
                             class="inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline dark:text-blue-500">
                             <svg
                                 class="size-4 flex-shrink-0"
@@ -250,47 +250,21 @@
                         <a class="block flex-shrink-0" href="#">
                             <img
                                 class="size-10 rounded-full"
-                                src="https://images.unsplash.com/photo-1669837401587-f9a4cfe3126e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80"
+                                src="{{$post->user->getFirstMediaUrl('profile-images','preview')}}"
                                 alt="Image Description" />
                         </a>
 
                         <a class="group block grow" href="">
                             <h5
                                 class="text-sm font-semibold text-gray-800 group-hover:text-gray-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
-                                Leyla Ludic
+                                {{$post->user->name}}
                             </h5>
                             <p
                                 class="text-sm text-gray-500 dark:text-neutral-500">
-                                UI/UX enthusiast
+                                will put something dynamic here"
                             </p>
                         </a>
 
-                        <div class="grow">
-                            <div class="flex justify-end">
-                                <button
-                                    type="button"
-                                    class="inline-flex items-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50">
-                                    <svg
-                                        class="size-4 flex-shrink-0"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path
-                                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <line x1="19" x2="19" y1="8" y2="14" />
-                                        <line x1="22" x2="16" y1="11" y2="11" />
-                                    </svg>
-                                    Follow
-                                </button>
-                            </div>
-                        </div>
                     </div>
                     <!-- End Avatar Media -->
 
