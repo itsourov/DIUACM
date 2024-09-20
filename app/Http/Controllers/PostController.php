@@ -15,7 +15,7 @@ class PostController extends Controller
     {
 	    $posts = Post::query()->with(['categories', 'user.media', 'media'])
 		    ->published()
-		    ->paginate(10);
+		    ->paginate(9);
 		return view('blog.index',compact('posts'));
     }
 
