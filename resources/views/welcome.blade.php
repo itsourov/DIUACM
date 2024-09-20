@@ -750,7 +750,7 @@
                 Competitive Programming Culture in DIU
             </h2>
             <div
-                class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($programmingCultures as $post)
                     <a
                         class="group flex flex-col"
