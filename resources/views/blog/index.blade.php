@@ -43,7 +43,9 @@
               </div>
 	          <!-- End Grid -->
 
-	          {{$posts->links()}}
+	         <div class="mt-2">
+		         {{$posts->links()}}
+	         </div>
           </div>
           <!-- End Card Blog -->
       </div>
