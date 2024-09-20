@@ -702,7 +702,9 @@
                             <div class="p-3">
                                 <ul class="space-y-3 text-sm">
                                     @php
-                                        $rules = ["There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly."];
+                                        $rules = [
+                                            "There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly.",
+                                        ];
                                     @endphp
 
                                     @foreach ($rules as $rule)
@@ -753,9 +755,9 @@
                     <a
                         class="group flex flex-col"
                         href="{{ route("blog.show", $post) }}">
-                        <x-card class="flex h-full p-4 md:p-5">
+                        <x-card class="flex h-full p-4 md:p-5 group-hover:scale-105 transition duration-100">
                             <div
-                                class="flex items-center justify-between gap-x-3 w-full">
+                                class="flex w-full items-center justify-between gap-x-3">
                                 <div class="grow">
                                     <div class="flex items-center gap-x-3">
                                         <img
