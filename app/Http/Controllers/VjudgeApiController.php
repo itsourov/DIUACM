@@ -79,7 +79,7 @@
 					->send();
 				return redirect()->intended(route('home'));
 			}
-			return "i didnt think of this case. send the screenshot and and the url to Sourov Biswas";
+			return " i didnt think of this case. send the screenshot and and the url to Sourov Biswas";
 			
 			
 		}
