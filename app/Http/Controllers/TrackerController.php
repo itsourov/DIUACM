@@ -78,15 +78,11 @@
 						
 						$parsedUrl = parse_url($event->contest_link);
 						if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'codeforces.com') {
-							if (!$user->codeforces_username) {
-								continue;
-							}
+							
 							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username);
 							
 						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
-							if (!$user->atcoder_username) {
-								continue;
-							}
+						
 							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
 							
 						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
@@ -121,7 +117,7 @@
 					} catch (ConnectionException $e) {
 						
 						Notification::make()
-							->title("There was an error while calling CF API")
+							->title("There was an error while calling API")
 							->body($e->getMessage())
 							->warning()
 							->send();

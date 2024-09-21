@@ -138,34 +138,48 @@
                                             <td
                                                 class="size-px gap-2 space-x-2 whitespace-nowrap px-6 py-3">
                                                 <div class="flex gap-2">
-                                                    @if ($usersData[$user->id][$contest->id]["absent"] ?? false == true)
+                                                    @if ($usersData[$user->id][$contest->id]["loading"] ?? false == true)
                                                         <x-filament::badge
-                                                            color="danger"
+                                                            color="info"
                                                             class="w-fit">
-                                                            Absent
+                                                            Loading...
+                                                        </x-filament::badge>
+                                                    @elseif ($usersData[$user->id][$contest->id]["error"] ?? false == true)
+                                                        <x-filament::badge
+                                                            color="warning"
+                                                            class="w-fit">
+                                                            {{ $usersData[$user->id][$contest->id]["message"] ?? "error" }}
                                                         </x-filament::badge>
                                                     @else
-                                                        @if (isset($usersData[$user->id][$contest->id]["solve_count"]))
+                                                        @if ($usersData[$user->id][$contest->id]["absent"] ?? false == true)
                                                             <x-filament::badge
-                                                                color="success"
+                                                                color="danger"
                                                                 class="w-fit">
-                                                                {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
-                                                                Solve
+                                                                Absent
                                                             </x-filament::badge>
                                                         @else
-                                                            <x-filament::badge
-                                                                color="warning"
-                                                                class="w-fit">
-                                                                ??
-                                                            </x-filament::badge>
+                                                            @if (isset($usersData[$user->id][$contest->id]["solve_count"]))
+                                                                <x-filament::badge
+                                                                    color="success"
+                                                                    class="w-fit">
+                                                                    {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
+                                                                    Solve
+                                                                </x-filament::badge>
+                                                            @else
+                                                                <x-filament::badge
+                                                                    color="warning"
+                                                                    class="w-fit">
+                                                                    ??
+                                                                </x-filament::badge>
+                                                            @endif
                                                         @endif
+                                                        <x-filament::badge
+                                                            color="gray"
+                                                            class="w-fit">
+                                                            {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
+                                                            Upsolve
+                                                        </x-filament::badge>
                                                     @endif
-                                                    <x-filament::badge
-                                                        color="gray"
-                                                        class="w-fit">
-                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
-                                                        Upsolve
-                                                    </x-filament::badge>
                                                 </div>
                                             </td>
                                         @endforeach

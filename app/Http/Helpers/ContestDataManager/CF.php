@@ -2,9 +2,9 @@
 	
 	namespace App\Http\Helpers\ContestDataManager;
 	
+	use App\Jobs\ProcessCFApi;
 	use Illuminate\Http\Client\ConnectionException;
 	use Illuminate\Support\Facades\Cache;
-	use Illuminate\Support\Facades\Http;
 	
 	class CF
 	{
@@ -17,46 +17,32 @@
 		/**
 		 * @throws ConnectionException
 		 */
-		public static function getContestDataOfAUser(string $contestUrl, string $cfUsername)
+		public static function getContestDataOfAUser(string $contestUrl, ?string $cfUsername)
 		{
+			if (!$cfUsername) {
+				return ['error' => true, 'message' => 'invalid username'];
+			}
+			if (!$contestUrl) {
+				return ['error' => true, 'message' => 'invalid ContestLink'];
+			}
 			$contestID = self::getContestID($contestUrl);
 			if ($contestID == null) return ['solve_count' => 0, 'upsolve_count' => 0];
 			
-			$cacheData = Cache::get("cf_contest_data_" . $contestID . "_" . $cfUsername);
-			if ($cacheData) {
-				return $cacheData;
-			}
-			$contestAPI = "http://codeforces.com/api/contest.status?contestId=$contestID&handle=$cfUsername";
-			$response = Http::get($contestAPI)->json();
 			
-			$solve = [];
-			$upsolve = [];
-			$tp = false;
 			
-			foreach ($response['result'] ?? [] as $problem) {
-				$participantType = $problem['author']['participantType'];
-				$verdict = $problem['verdict'];
-				$problemID = $problem['problem']['index'];
+			if (Cache::has("cf_contest_data_" . $contestID . "_" . $cfUsername,)) {
 				
-				if ($participantType === "CONTESTANT") $tp = true;
+				return Cache::get("cf_contest_data_" . $contestID . "_" . $cfUsername,);
+			} else {
 				
-				if ($verdict === "OK") {
-					if ($participantType === "CONTESTANT" || $participantType === "OUT_OF_COMPETITION") {
-						if (!isset($solve[$problemID])) {
-							$solve[$problemID] = true;
-							$tp = true;
-							unset($upsolve[$problemID]);
-						}
-					} elseif ($participantType === "PRACTICE" || $participantType === "VIRTUAL") {
-						if (!isset($solve[$problemID]) && !isset($upsolve[$problemID])) {
-							$upsolve[$problemID] = true;
-						}
-					}
+				if (!Cache::has("cf_contest_data_loading_" . $contestID . "_" . $cfUsername)) {
+					
+					Cache::put("cf_contest_data_loading_" . $contestID . "_" . $cfUsername, true);
+					ProcessCFApi::dispatch($contestID, $cfUsername);
 				}
+				return ['solve_count' => 0, 'upsolve_count' => 0, 'absent' => false, 'loading' => true];
 			}
 			
-			 Cache::put("cf_contest_data_" . $contestID . "_" . $cfUsername, ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp]);
 			
-			return  ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => !$tp];
 		}
 	}
