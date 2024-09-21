@@ -451,6 +451,37 @@
             </div>
         </div>
     </section>
+    <section class="bg-slate-100 py-10 dark:bg-gray-950 md:py-20">
+        <div class="container mx-auto px-2">
+            <h2
+                    class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                Competitive Programming Culture in DIU
+            </h2>
+            <div
+                    class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($programmingCultures as $post)
+                    <a class="" href="{{ route("blog.show", $post) }}">
+                        <x-card class="group flex flex-col h-full ">
+                            <div class="aspect-w-16 aspect-h-11">
+                                {{ $post->getFirstMedia("post-featured-images")?->img()->attributes(["class" => "w-full object-cover rounded-xl"]) }}
+                            </div>
+                            <div class="my-6">
+                                <h3
+                                        class="text-xl font-semibold text-gray-800 dark:text-neutral-300 dark:group-hover:text-white line-clamp-2">
+                                    {{ $post->title }}
+                                </h3>
+                                <p
+                                        class="mt-5 text-gray-600 dark:text-neutral-400">
+                                    {!! Str::limit(strip_tags($post->content)) !!}
+                                </p>
+                            </div>
+
+                        </x-card>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
 
     <section class="dark:bg-gray-900" id="rules_section">
         <div class="container mx-auto space-y-4 px-2 py-10 md:py-20">
@@ -743,57 +774,7 @@
         </div>
     </section>
 
-    <section class="bg-slate-100 py-10 dark:bg-gray-950 md:py-20">
-        <div class="container mx-auto px-2">
-            <h2
-                class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                Competitive Programming Culture in DIU
-            </h2>
-            <div
-                class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($programmingCultures as $post)
-                    <a
-                        class="group flex flex-col"
-                        href="{{ route("blog.show", $post) }}">
-                        <x-card class="flex h-full p-4 md:p-5 group-hover:scale-105 transition duration-100">
-                            <div
-                                class="flex w-full items-center justify-between gap-x-3">
-                                <div class="grow">
-                                    <div class="flex items-center gap-x-3">
-                                        <img
-                                            class="size-[38px] rounded-full"
-                                            src="{{ $post->getFirstMediaUrl("post-featured-images") }}"
-                                            alt="Avatar" />
-                                        <div class="grow">
-                                            <h3
-                                                class="font-semibold text-gray-800 group-hover:text-blue-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
-                                                {{ $post->title }}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <svg
-                                        class="size-5 shrink-0 text-gray-800 dark:text-neutral-200"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path d="m9 18 6-6-6-6" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </x-card>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
+
 
     <div class="relative py-16">
         <div
