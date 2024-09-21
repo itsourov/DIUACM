@@ -17,26 +17,26 @@
 		{{$user->bio??"..."}}
 	</p>
 
-	<!-- Social Brands -->
-	<div class="mt-3 flex gap-2">
+{{--	<!-- Social Brands -->--}}
+{{--	<div class="mt-3 flex gap-2">--}}
 
 
-		<a href="https://codeforces.com/profile/{{$user->codeforces_username}}" target="_blank">
-			<x-filament::badge color="info">
-				Codeforces
-			</x-filament::badge>
-		</a>
+{{--		<a href="https://codeforces.com/profile/{{$user->codeforces_username}}" target="_blank">--}}
+{{--			<x-filament::badge color="info">--}}
+{{--				Codeforces--}}
+{{--			</x-filament::badge>--}}
+{{--		</a>--}}
 
-		<a href="https://vjudge.net/user/{{$user->vjudge_username}}" target="_blank">
-			<x-filament::badge color="info">
-				Vjudge
-			</x-filament::badge>
-		</a>
-		<a href="https://atcoder.jp/users/{{$user->atcoder_username}}" target="_blank">
-			<x-filament::badge color="info">
-				Atcoder
-			</x-filament::badge>
-		</a>
-	</div>
-	<!-- End Social Brands -->
+{{--		<a href="https://vjudge.net/user/{{$user->vjudge_username}}" target="_blank">--}}
+{{--			<x-filament::badge color="info">--}}
+{{--				Vjudge--}}
+{{--			</x-filament::badge>--}}
+{{--		</a>--}}
+{{--		<a href="https://atcoder.jp/users/{{$user->atcoder_username}}" target="_blank">--}}
+{{--			<x-filament::badge color="info">--}}
+{{--				Atcoder--}}
+{{--			</x-filament::badge>--}}
+{{--		</a>--}}
+{{--	</div>--}}
+{{--	<!-- End Social Brands -->--}}
 </x-card>
