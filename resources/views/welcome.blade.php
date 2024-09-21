@@ -451,7 +451,7 @@
             </div>
         </div>
     </section>
-    <section class="bg-slate-100 py-10 dark:bg-gray-950 md:py-20">
+    <section class="bg-slate-100 py-10 dark:bg-gray-900 md:py-20">
         <div class="container mx-auto px-2">
             <h2
                     class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
