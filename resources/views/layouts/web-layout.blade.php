@@ -31,6 +31,8 @@
         });
     </script>
 
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=66ee4da2d219590019f5eaa6&product=sop' async='async'></script>
+
 
     @hasSection('seo')
         @yield('seo')
@@ -49,8 +51,7 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900 dark:text-gray-100 dark:bg-gray-950 antialiased flex flex-col min-h-screen">
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v20.0&appId=925219729385881" nonce="2F4MIsAr"></script>
+
 @include('inc.navbar')
 {{ $slot }}
 @include('inc.footer')
