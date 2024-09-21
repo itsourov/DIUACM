@@ -2,6 +2,7 @@
     @section("seo")
         {!! seo($SEOData) !!}
     @endsection
+
     <!-- Blog Article -->
     <div class="container mx-auto px-2">
         <div class="grid gap-y-8 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-0">
@@ -10,7 +11,7 @@
                 <div class="py-8 lg:pe-8">
                     <div class="space-y-5 lg:space-y-8">
                         <a
-                            href="{{ route('blog.index') }}"
+                            href="{{ route("blog.index") }}"
                             class="inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline dark:text-blue-500">
                             <svg
                                 class="size-4 flex-shrink-0"
@@ -51,26 +52,27 @@
                         <article
                             class="prose prose-base mx-auto mt-5 max-w-none dark:prose-invert prose-a:text-primary-600">
                             {!! $post->content !!}
-
-
                         </article>
                         <div
                             class="grid gap-y-5 lg:flex lg:items-center lg:justify-between lg:gap-y-0">
                             <!-- Badges/Tags -->
-{{--                            <div>--}}
-{{--                                @foreach ($post->tags as $tag)--}}
-{{--                                    <a--}}
-{{--                                        class="m-0.5 inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-2 text-sm text-gray-800 hover:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"--}}
-{{--                                        href="#">--}}
-{{--                                        {{ $tag->name }}--}}
-{{--                                    </a>--}}
-{{--                                @endforeach--}}
-{{--                            </div>--}}
+                            {{-- <div> --}}
+                            {{-- @foreach ($post->tags as $tag) --}}
+                            {{-- <a --}}
+                            {{-- class="m-0.5 inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-2 text-sm text-gray-800 hover:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700" --}}
+                            {{-- href="#"> --}}
+                            {{-- {{ $tag->name }} --}}
+                            {{-- </a> --}}
+                            {{-- @endforeach --}}
+                            {{-- </div> --}}
                             <!-- End Badges/Tags -->
-
-
                         </div>
-                        <livewire:comment-section cardClass="dark:bg-gray-900" :commentable="$post"/>
+                        <!-- ShareThis BEGIN -->
+                        <div class="sharethis-inline-reaction-buttons"></div>
+                        <!-- ShareThis END -->
+                        <livewire:comment-section
+                            cardClass="dark:bg-gray-900"
+                            :commentable="$post" />
                     </div>
                 </div>
             </div>
@@ -86,21 +88,20 @@
                         <a class="block flex-shrink-0" href="#">
                             <img
                                 class="size-10 rounded-full"
-                                src="{{$post->user->getFirstMediaUrl('profile-images','preview')}}"
+                                src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
                                 alt="Image Description" />
                         </a>
 
                         <a class="group block grow" href="">
                             <h5
                                 class="text-sm font-semibold text-gray-800 group-hover:text-gray-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
-                                {{$post->user->name}}
+                                {{ $post->user->name }}
                             </h5>
                             <p
                                 class="text-sm text-gray-500 dark:text-neutral-500">
                                 will put something dynamic here"
                             </p>
                         </a>
-
                     </div>
                     <!-- End Avatar Media -->
 
@@ -117,10 +118,10 @@
                                     </span>
                                 </div>
 
-{{--                                <div--}}
-{{--                                    class="relative size-20 flex-shrink-0 overflow-hidden rounded-lg">--}}
-{{--                                    {{ $relatedPost->getFirstMedia("post-featured-images")->img()->attributes(["class" => "size-full absolute top-0 start-0 object-cover rounded-lg"]) }}--}}
-{{--                                </div>--}}
+                                {{-- <div --}}
+                                {{-- class="relative size-20 flex-shrink-0 overflow-hidden rounded-lg"> --}}
+                                {{-- {{ $relatedPost->getFirstMedia("post-featured-images")->img()->attributes(["class" => "size-full absolute top-0 start-0 object-cover rounded-lg"]) }} --}}
+                                {{-- </div> --}}
                             </a>
                             <!-- End Media -->
                         @endforeach
