@@ -31,6 +31,8 @@
         });
     </script>
 
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=66ee4da2d219590019f5eaa6&product=sop' async='async'></script>
+
 
     @hasSection('seo')
         @yield('seo')
@@ -49,6 +51,7 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900 dark:text-gray-100 dark:bg-gray-950 antialiased flex flex-col min-h-screen">
+
 @include('inc.navbar')
 {{ $slot }}
 @include('inc.footer')

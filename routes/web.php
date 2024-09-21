@@ -3,6 +3,7 @@
 	use App\Http\Controllers\EventController;
 	use App\Http\Controllers\GalleryController;
 	use App\Http\Controllers\PageController;
+	use App\Http\Controllers\PostController;
 	use App\Http\Controllers\ProfileController;
 	use App\Http\Controllers\TrackerController;
 	use App\Http\Controllers\VjudgeApiController;
@@ -16,11 +17,15 @@
 	
 	Route::prefix('events')->name('events.')->group(function () {
 		Route::get('/', [EventController::class, 'index'])->name('index');
-		Route::get('/{event}', [EventController::class, 'show'])->middleware(['auth', 'verified', EnsureDiuEmail::class])->name('show');
+		Route::get('/{event}', [EventController::class, 'show'])->middleware([])->name('show');
 	});
 	Route::prefix('trackers')->name('trackers.')->group(function () {
 		Route::get('/', [TrackerController::class, 'index'])->name('index');
 		Route::get('/{tracker}', [TrackerController::class, 'show'])->name('show');
+	});
+	Route::prefix('blog')->name('blog.')->group(function () {
+		Route::get('/', [PostController::class, 'index'])->name('index');
+		Route::get('/{post}', [PostController::class, 'show'])->name('show');
 	});
 	Route::prefix('gallery')->name('gallery.')->group(function () {
 		Route::get('/', [GalleryController::class, 'index'])->name('index');

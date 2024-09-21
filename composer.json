@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "ext-curl": "*",
+        "amidesfahani/filament-tinyeditor": "^2.0",
         "bezhansalleh/filament-shield": "^3.2",
         "croustibat/filament-jobs-monitor": "^2.5",
         "filament/filament": "^3.2",

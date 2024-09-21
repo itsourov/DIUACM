@@ -43,6 +43,9 @@
 				<x-nav-link :href="route('gallery.index')" :active="request()->routeIs('gallery.*')">
 					{{ __('Galleries') }}
 				</x-nav-link>
+				<x-nav-link :href="route('blog.index')" :active="request()->routeIs('blog.*')">
+					{{ __('Blog') }}
+				</x-nav-link>
 
 
 				<x-nav-link :href="route('pages.about')" :active="request()->routeIs('pages.about')">
@@ -150,6 +153,10 @@
 								{{ __('Galleries') }}
 							</x-nav-link>
 
+							<x-nav-link :href="route('blog.index')"
+							            :active="request()->routeIs('blog.*')">
+								{{ __('Blog') }}
+							</x-nav-link>
 							<x-nav-link :href="route('pages.about')" :active="request()->routeIs('pages.about')">
 								{{ __('About') }}
 							</x-nav-link>

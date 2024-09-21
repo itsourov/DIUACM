@@ -2,6 +2,7 @@
 	
 	namespace App\Http\Controllers;
 	
+	use App\Models\Category;
 	use App\Models\Gallery;
 	
 	class PageController extends Controller
@@ -12,8 +13,12 @@
 				return Gallery::find(1)?->getMedia('gallery-images') ?? [];
 			});
 			
+			$programmingCultures = cache()->rememberForever('programmingCultures', function () {
+					return Category::find(1)?->posts()->with('media')->get() ?? [];
+			});
 			
-			return view('welcome', compact('medias'));
+			
+			return view('welcome', compact('medias', 'programmingCultures'));
 		}
 		
 		public function faq()
