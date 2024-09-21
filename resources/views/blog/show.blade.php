@@ -68,6 +68,9 @@
                             <!-- End Badges/Tags -->
                         </div>
                         <!-- ShareThis BEGIN -->
+                        <div class="sharethis-inline-share-buttons"></div>
+                        <!-- ShareThis END -->
+                        <!-- ShareThis BEGIN -->
                         <div class="sharethis-inline-reaction-buttons"></div>
                         <!-- ShareThis END -->
                         <livewire:comment-section
