@@ -15,6 +15,7 @@
 				$table->text('content');
 				$table->enum('status', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
 				$table->foreignId('user_id')->constrained()->onDelete('cascade');
+				$table->unsignedBigInteger('view_count')->default(0);
 				$table->softDeletes();
 				$table->timestamps();
 			});

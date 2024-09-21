@@ -48,6 +48,7 @@ class PostController extends Controller
 		    description:  Str::limit(strip_tags($post->content)) ,
 	    
 	    );
+	    $post->increment('view_count');
 		
 	    return view('blog.show', compact('post','relatedPosts','SEOData'));
     }

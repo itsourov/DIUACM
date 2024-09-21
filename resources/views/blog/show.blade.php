@@ -47,6 +47,9 @@
                                 class="text-xs text-gray-800 dark:text-neutral-200 sm:text-sm">
                                 {{ $post->formattedPublishedDate() }}
                             </p>
+                            <x-filament::badge color="info">
+                                {{$post->view_count??0}} Views
+                            </x-filament::badge>
                         </div>
 
                         <article
@@ -68,11 +71,13 @@
                             <!-- End Badges/Tags -->
                         </div>
                         <!-- ShareThis BEGIN -->
-                        <div class="sharethis-inline-share-buttons"></div>
-                        <!-- ShareThis END -->
-                        <!-- ShareThis BEGIN -->
                         <div class="sharethis-inline-reaction-buttons"></div>
                         <!-- ShareThis END -->
+
+                        <!-- ShareThis BEGIN -->
+                        <div class="sharethis-inline-share-buttons"></div>
+                        <!-- ShareThis END -->
+
                         <livewire:comment-section
                             cardClass="dark:bg-gray-900"
                             :commentable="$post" />
