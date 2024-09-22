@@ -57,23 +57,24 @@
                             class="hs-carousel relative min-h-96 w-full overflow-hidden rounded-lg bg-white">
                             <div
                                 class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
-                                @forelse ($medias as $media)
+                                <div class="hs-carousel-slide">
+                                    <img
+                                        loading="lazy"
+                                        class="spotlight h-full w-full bg-red-400 object-cover"
+                                        src="{{ asset("images/diuacm.jpeg") }}"
+                                        alt="DIU ACM LOGO" />
+                                </div>
+                                @foreach ($medias as $media)
                                     <div
                                         class="hs-carousel-slide spotlight"
                                         data-src="{{ $media->getUrl() }}">
                                         <img
+                                            loading="lazy"
                                             class="h-full w-full bg-red-400 object-cover"
                                             src="{{ $media->getUrl("medium") }}"
                                             alt="{{ $media["name"] ?? "" }}" />
                                     </div>
-                                @empty
-                                    <div class="hs-carousel-slide">
-                                        <img
-                                            class="spotlight h-full w-full bg-red-400 object-cover"
-                                            src="{{ asset("images/diuacm.jpeg") }}"
-                                            alt="DIU ACM LOGO" />
-                                    </div>
-                                @endforelse
+                                @endforeach
                             </div>
                         </div>
 
@@ -120,10 +121,10 @@
 
                         <div
                             class="hs-carousel-pagination absolute bottom-3 end-0 start-0 flex justify-center space-x-2">
-                            @foreach ($medias as $media)
+                            @for ($i=0; $i<count($medias)+1; $i++)
                                 <span
                                     class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
-                            @endforeach
+                            @endfor
                         </div>
                     </div>
                     <!-- End Slider -->
@@ -454,28 +455,27 @@
     <section class="bg-slate-100 py-10 dark:bg-gray-900 md:py-20">
         <div class="container mx-auto px-2">
             <h2
-                    class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                class="text-center font-marry text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                 Competitive Programming Culture in DIU
             </h2>
             <div
-                    class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($programmingCultures as $post)
                     <a class="" href="{{ route("blog.show", $post) }}">
-                        <x-card class="group flex flex-col h-full ">
+                        <x-card class="group flex h-full flex-col">
                             <div class="aspect-w-16 aspect-h-11">
-                                {{ $post->getFirstMedia("post-featured-images")?->img()->attributes(["class" => "w-full object-cover rounded-xl"]) }}
+                                {{ $post->getFirstMedia("post-featured-images") ?->img()->attributes(["class" => "w-full object-cover rounded-xl"]) }}
                             </div>
                             <div class="my-6">
                                 <h3
-                                        class="text-xl font-semibold text-gray-800 dark:text-neutral-300 dark:group-hover:text-white line-clamp-2">
+                                    class="line-clamp-2 text-xl font-semibold text-gray-800 dark:text-neutral-300 dark:group-hover:text-white">
                                     {{ $post->title }}
                                 </h3>
                                 <p
-                                        class="mt-5 text-gray-600 dark:text-neutral-400">
+                                    class="mt-5 text-gray-600 dark:text-neutral-400">
                                     {!! Str::limit(strip_tags($post->content)) !!}
                                 </p>
                             </div>
-
                         </x-card>
                     </a>
                 @endforeach
@@ -733,9 +733,7 @@
                             <div class="p-3">
                                 <ul class="space-y-3 text-sm">
                                     @php
-                                        $rules = [
-                                            "There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly.",
-                                        ];
+                                        $rules = ["There are other rules and regulations appointed by the coaches and advisors. You have to follow them regularly."];
                                     @endphp
 
                                     @foreach ($rules as $rule)
@@ -773,8 +771,6 @@
             </div>
         </div>
     </section>
-
-
 
     <div class="relative py-16">
         <div
