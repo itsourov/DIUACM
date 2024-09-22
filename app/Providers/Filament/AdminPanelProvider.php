@@ -57,7 +57,7 @@
 					
 					FilamentShieldPlugin::make(),
 					FilamentEnvEditorPlugin::make()->authorize(
-						fn() => auth()->user()->hasPermissionTo('page_ViewEnv')
+						fn() => auth()->user()?->hasPermissionTo('page_ViewEnv')
 					)
 					, FilamentJobsMonitorPlugin::make()
 				])
