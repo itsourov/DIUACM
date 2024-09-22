@@ -29,7 +29,10 @@
 		
 		protected static ?string $slug = 'events';
 		
-		protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+		protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+		public static ?int $navigationSort = -2;
+		
+		
 		
 		public static function form(Form $form): Form
 		{

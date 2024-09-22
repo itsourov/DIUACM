@@ -29,7 +29,14 @@
 		
 		protected static ?string $slug = 'posts';
 		
-		protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+		protected static ?string $navigationIcon = 'heroicon-o-document-text';
+		
+		
+		public static ?int $navigationSort = -4;
+		protected static ?string $navigationGroup = 'Blog';
+		
+		
+		
 		
 		public static function form(Form $form): Form
 		{
