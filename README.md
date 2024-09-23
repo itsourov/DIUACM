@@ -44,10 +44,38 @@ To set up the project locally, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   https://github.com/itsourov/DIUACM.git
+   git clone https://github.com/itsourov/DIUACM.git
+   cd DIUACM
    ```
-1. **Install php libraries**:
+2. **Install php libraries**:
     ```bash
     composer install
+    ```
+3. **Setup Project**:
+    ```bash
+    composer install
+    cp .env.example .env
+    php artisan key:generate
+    ```
+4. **Setup Database**:
+    ```bash
+    php artisan migrate
+    ```
+    run this if you need a fresh database
+    ```bash
+    php artisan migrate:fresh
+    ```
+    run this if you need a fresh database with random dummy data
+    ```bash
+    php artisan migrate:fresh --seed
+    ```
+5. **install npm packages**:
+    ```bash
+    npm install
+    npm run dev
+    ```
+6. **Run local server**:
+    ```bash
+    php artisan serve
     ```
 
