@@ -23,5 +23,8 @@
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "preline": "^2.4.1",
         "spotlight.js": "^0.7.8"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "^4.22.4"
     }
 }
