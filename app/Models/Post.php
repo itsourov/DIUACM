@@ -24,6 +24,7 @@
 		
 		protected $fillable = [
 			'title',
+			'slug',
 			'sub_title',
 			'content',
 			'status',

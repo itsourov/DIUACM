@@ -25,7 +25,7 @@
 	});
 	Route::prefix('blog')->name('blog.')->group(function () {
 		Route::get('/', [PostController::class, 'index'])->name('index');
-		Route::get('/{post}', [PostController::class, 'show'])->name('show');
+		Route::get('/{post:slug}', [PostController::class, 'show'])->name('show');
 	});
 	Route::prefix('gallery')->name('gallery.')->group(function () {
 		Route::get('/', [GalleryController::class, 'index'])->name('index');

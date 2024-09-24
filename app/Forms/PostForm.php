@@ -20,6 +20,7 @@
 	use Filament\Forms\Components\ToggleButtons;
 	use Filament\Forms\Get;
 	use Filament\Forms\Set;
+	use Illuminate\Database\Eloquent\Model;
 	use Illuminate\Support\Str;
 	
 	class PostForm
@@ -34,8 +35,17 @@
 							->schema([
 								
 								TextInput::make('title')
+									->live(true)
+									->afterStateUpdated(
+										fn (Set $set, ?string $state, ?Model $record) => $record
+											? null
+											: $set('slug', Str::slug($state))
+									)
 									->required()
 									->unique(ignoreRecord: true)
+									->maxLength(255),
+								
+								TextInput::make('slug')
 									->maxLength(255),
 								Select::make('category_id')
 									->multiple()
@@ -80,8 +90,7 @@
 									->preserveFilenames()
 									->imageEditor()
 									->maxSize(1024 * 5)
-//									->rules('dimensions:max_width=1920,max_height=1004')
-									->required(),
+//									->rules('dimensions:max_width=1920,max_height=1004'),
 							])->columns(1),
 						
 						Fieldset::make('Status')

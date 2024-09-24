@@ -11,6 +11,7 @@
 			Schema::create('posts', function (Blueprint $table) {
 				$table->id();
 				$table->string('title');
+				$table->string('slug')->unique();
 				$table->string('sub_title')->nullable();
 				$table->text('content');
 				$table->enum('status', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
