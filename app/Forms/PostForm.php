@@ -46,6 +46,11 @@
 									->maxLength(255),
 								
 								TextInput::make('slug')
+									->placeholder('cse')
+									->helperText('Cannot contain spaces or special characters.')
+									->rules(['required', 'regex:/^[a-zA-Z0-9-]+$/'])
+									->required()
+									->unique(ignoreRecord: true)
 									->maxLength(255),
 								Select::make('category_id')
 									->multiple()
