@@ -2,9 +2,9 @@
 
 @php
     if ($active ?? false) {
-        $classes = 'flex items-center text-sm font-medium text-primary-800 dark:text-primary-500 lg:border-b-2 border-primary-700 transition-all gap-1';
+        $classes = 'p-2 flex  items-center text-sm font-semibold bg-gray-100 text-gray-800 hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100 dark:bg-gray-900 dark:text-neutral-200 dark:hover:bg-gray-900 dark:focus:bg-gray-900';
     } else {
-        $classes = 'flex items-center text-sm font-medium hover:text-primary-800 dark:hover:text-primary-500 transition-all gap-1';
+        $classes = 'p-2 flex  items-center text-sm font-semibold text-gray-800 hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100  dark:text-neutral-200 dark:hover:bg-gray-800 dark:focus:bg-gray-800';
     }
 
 @endphp
