@@ -36,7 +36,7 @@
             </div>
 
             <article
-                class="prose prose-lg mx-auto mt-5 max-w-none dark:prose-invert prose-a:text-primary-600">
+                class="prose prose-lg mx-auto mt-5 max-w-none prose-img:rounded prose-img:w-full dark:prose-invert prose-a:text-primary-600">
                 {!! $post->content !!}
             </article>
                 <div>
