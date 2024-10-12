@@ -39,15 +39,17 @@
                 class="prose prose-lg mx-auto mt-5 max-w-none dark:prose-invert prose-a:text-primary-600">
                 {!! $post->content !!}
             </article>
-            <x-card class="max-w-md flex  items-center gap-1">
-                <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images")}}">
-                    <img
-                        class="size-10 rounded-full"
-                        src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
-                        alt="Image Description" />
-                </a>
+                <div>
+                    <p class="text-sm ml-1">Author:</p>
+                    <x-card class="max-w-md flex  items-center gap-1">
+                        <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images")}}">
+                            <img
+                                class="size-10 rounded-full"
+                                src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
+                                alt="Image Description" />
+                        </a>
 
-                <span class="group block grow" >
+                        <span class="group block grow">
                     <h5
                         class="text-sm font-semibold text-gray-800 group-hover:text-gray-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
                         {{ $post->user->name }}
@@ -57,7 +59,10 @@
                         {{ $post->user->bio }}
                     </p>
                 </span>
-            </x-card>
+                    </x-card>
+                </div>
+
+
             <div
                 class="grid gap-y-5 lg:flex lg:items-center lg:justify-between lg:gap-y-0">
                 <!-- Badges/Tags -->
