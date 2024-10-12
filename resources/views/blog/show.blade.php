@@ -39,7 +39,7 @@
                 class="prose prose-lg mx-auto mt-5 max-w-none dark:prose-invert prose-a:text-primary-600">
                 {!! $post->content !!}
             </article>
-            <x-card class="max-w-md">
+            <x-card class="max-w-md flex  items-center gap-1">
                 <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images", "preview")}}">
                     <img
                         class="size-10 rounded-full"
