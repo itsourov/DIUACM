@@ -34,6 +34,15 @@
 				</p>
 				{{ $event->starting_time->diff($event->ending_time)->forHumans() }}
 			</div>
+            @if($event->contest_link)
+                <div class="flex items-center gap-2">
+                    <p>
+                        <b>Contest Link: </b>
+                    </p>
+                   <a class="text-blue-500" target="_blank" href="{{ $event->contest_link }}"> {{ $event->contest_link }}</a>
+                </div>
+            @endif
+
 
 		</div>
 		<div>
