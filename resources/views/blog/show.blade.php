@@ -40,7 +40,7 @@
                 {!! $post->content !!}
             </article>
             <x-card class="max-w-md flex  items-center gap-1">
-                <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images", "preview")}}">
+                <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images")}}">
                     <img
                         class="size-10 rounded-full"
                         src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
