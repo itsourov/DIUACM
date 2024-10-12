@@ -17,21 +17,7 @@
 
         }
     </script>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: "ade55d02-a1e5-4cd0-a9d0-b64e4f448aa6",
-                safari_web_id: "web.onesignal.auto.5b1b15a7-d107-41ff-b02e-c379c8847bd2",
-                notifyButton: {
-                    enable: true,
-                },
-            });
-        });
-    </script>
 
-    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=66ee4da2d219590019f5eaa6&product=sop' async='async'></script>
 
 
     @hasSection('seo')
