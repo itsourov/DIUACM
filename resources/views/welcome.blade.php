@@ -855,9 +855,7 @@
             document.querySelector('.next').addEventListener('click', () => {
                 showItem(currentItem + 1);
             });
-            setInterval(function(){
-                showItem(currentItem + 1);
-            }, 4000);
+
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft') {
