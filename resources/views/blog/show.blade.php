@@ -2,6 +2,10 @@
     @section("seo")
         {!! seo($SEOData) !!}
     @endsection
+    <script type='text/javascript'
+            src='https://platform-api.sharethis.com/js/sharethis.js#property=66ee4da2d219590019f5eaa6&product=sop'
+            async='async'></script>
+
 
     <!-- Blog Article -->
     <div class="container mx-auto px-2 py-14">
@@ -35,25 +39,25 @@
                 class="prose prose-lg mx-auto mt-5 max-w-none dark:prose-invert prose-a:text-primary-600">
                 {!! $post->content !!}
             </article>
-                <x-card class="max-w-md">
-                    <a class="block flex-shrink-0" href="#">
-                        <img
-                            class="size-10 rounded-full"
-                            src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
-                            alt="Image Description" />
-                    </a>
+            <x-card class="max-w-md">
+                <a class="block flex-shrink-0 spotlight" href="{{$post->user->getFirstMediaUrl("profile-images", "preview")}}">
+                    <img
+                        class="size-10 rounded-full"
+                        src="{{ $post->user->getFirstMediaUrl("profile-images", "preview") }}"
+                        alt="Image Description" />
+                </a>
 
-                    <a class="group block grow" href="">
-                        <h5
-                            class="text-sm font-semibold text-gray-800 group-hover:text-gray-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
-                            {{ $post->user->name }}
-                        </h5>
-                        <p
-                            class="text-sm text-gray-500 dark:text-neutral-500">
-                            {{ $post->user->bio }}
-                        </p>
-                    </a>
-                </x-card>
+                <span class="group block grow" >
+                    <h5
+                        class="text-sm font-semibold text-gray-800 group-hover:text-gray-600 dark:text-neutral-200 dark:group-hover:text-neutral-400">
+                        {{ $post->user->name }}
+                    </h5>
+                    <p
+                        class="text-sm text-gray-500 dark:text-neutral-500">
+                        {{ $post->user->bio }}
+                    </p>
+                </span>
+            </x-card>
             <div
                 class="grid gap-y-5 lg:flex lg:items-center lg:justify-between lg:gap-y-0">
                 <!-- Badges/Tags -->
@@ -71,7 +75,6 @@
             <!-- ShareThis BEGIN -->
             <div class="sharethis-inline-reaction-buttons"></div>
             <!-- ShareThis END -->
-
 
 
             <livewire:comment-section
