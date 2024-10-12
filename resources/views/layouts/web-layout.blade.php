@@ -60,7 +60,7 @@
     </script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 dark:text-gray-100 dark:bg-gray-950 antialiased flex flex-col min-h-screen">
+<body class="bg-gray-50 text-gray-900 dark:text-gray-100 dark:bg-gray-950 antialiased flex flex-col min-h-screen font-poppins">
 
 @include('inc.navbar')
 {{ $slot }}
