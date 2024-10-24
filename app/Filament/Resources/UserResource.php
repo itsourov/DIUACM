@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources;
 
+
+use App\Enums\UserType;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -54,6 +57,10 @@ class UserResource extends Resource  implements HasShieldPermissions
 //				    ->password()
 //				    ->required()
 //				    ->maxLength(255),
+                ToggleButtons::make('type')
+                    ->inline()
+                    ->options(UserType::class)
+                    ->required(),
 			    Forms\Components\Select::make('roles')
 				    ->relationship('roles', 'name')
 				    ->visible(auth()->user()->hasPermissionTo('manage_role_user'))
@@ -131,7 +138,7 @@ class UserResource extends Resource  implements HasShieldPermissions
                 SoftDeletingScope::class,
             ]);
     }
-	
+
 	public static function getPermissionPrefixes(): array
 	{
 		return [

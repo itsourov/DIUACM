@@ -42,14 +42,13 @@ class PostController extends Controller
     {
 	    $relatedPosts = $post->relatedPosts();
 		$post->loadMissing(['categories', 'user.media', 'media']);
-	    
+
 	    $SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
 		    title: $post->title,
 		    description:  Str::limit(strip_tags($post->content)) ,
-	    
 	    );
 	    $post->increment('view_count');
-		
+
 	    return view('blog.show', compact('post','relatedPosts','SEOData'));
     }
 
