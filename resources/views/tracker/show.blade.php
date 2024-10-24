@@ -60,10 +60,10 @@
                                         <th
                                             scope="col"
                                             class="whitespace-nowrap px-6 py-3 text-start">
-                                            <span
-                                                class="max-w-5 overflow-ellipsis text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
+                                            <a target="_blank" href="{{$contest->contest_link}}"
+                                                class="max-w-5 overflow-ellipsis text-xs font-semibold uppercase tracking-wide text-blue-600">
                                                 {{ $contest->title }}
-                                            </span>
+                                            </a>
                                             <x-filament::badge
                                                 color="info"
                                                 class="w-fit">

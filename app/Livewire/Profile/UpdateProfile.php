@@ -41,7 +41,6 @@
 						->schema([
 
 							SpatieMediaLibraryFileUpload::make('profile Image')
-
 								->collection('profile-images')
 								->disk('profile-images')
 								->preserveFilenames()
@@ -53,12 +52,9 @@
 								])
 								->visibility('public'),
 
-
-                            Forms\Components\TextInput::make('email')
-                                ->email()
-                                ->disabled()
-                                ->required()
+                            Forms\Components\Textarea::make('bio')
                                 ->maxLength(255),
+
 							Forms\Components\TextInput::make('name')
 								->required()
 								->maxLength(255),
@@ -82,6 +78,11 @@
 								)
 								->maxLength(255),
 
+							Forms\Components\TextInput::make('email')
+								->email()
+								->disabled()
+								->required()
+								->maxLength(255),
 
 							Forms\Components\TextInput::make('student_id')
 								->prefixIcon('heroicon-o-identification')
@@ -135,8 +136,7 @@
 								)
 								->maxLength(255),
 
-							Forms\Components\Textarea::make('bio')
-								->maxLength(255),
+
 
 
 						])
