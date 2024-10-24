@@ -1,7 +1,7 @@
 <?php
-	
+
 	namespace App\Providers\Filament;
-	
+
 	use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 	use Croustibat\FilamentJobsMonitor\FilamentJobsMonitorPlugin;
 	use Filament\Http\Middleware\Authenticate;
@@ -20,7 +20,7 @@
 	use Illuminate\Session\Middleware\AuthenticateSession;
 	use Illuminate\Session\Middleware\StartSession;
 	use Illuminate\View\Middleware\ShareErrorsFromSession;
-	
+
 	class AdminPanelProvider extends PanelProvider
 	{
 		public function panel(Panel $panel): Panel
@@ -54,12 +54,14 @@
 					DispatchServingFilamentEvent::class,
 				])
 				->plugins([
-					
+
 					FilamentShieldPlugin::make(),
 					FilamentEnvEditorPlugin::make()->authorize(
 						fn() => auth()->user()?->hasPermissionTo('page_ViewEnv')
 					)
-					, FilamentJobsMonitorPlugin::make()
+					, FilamentJobsMonitorPlugin::make()->enableNavigation(
+                        fn() => auth()->user()?->hasPermissionTo('view_any_queue::monitor')
+                    )
 				])
 				->authMiddleware([
 					Authenticate::class,
