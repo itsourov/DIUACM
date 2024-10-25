@@ -38,7 +38,7 @@ class EventAttendancePage extends Component implements HasForms, HasActions
         return Action::make('attendance')
             ->label("I am present here")
             ->form($this->getFormComponent())
-            ->hidden($this->isPresent || now() >= $this->event->starting_time && now() <= $this->event->ending_time)
+            ->hidden($this->isPresent || now() > $this->event->ending_time)
             ->fillForm(['vjudge_username' => auth()->user()?->vjudge_username])
             ->action(function (array $data) {
                 $this->markAsPresent($data);
