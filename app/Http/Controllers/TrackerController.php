@@ -1,9 +1,10 @@
 <?php
-	
+
 	namespace App\Http\Controllers;
-	
+
 	use App\Enums\AccessStatuses;
-	use App\Http\Helpers\ContestDataManager\Atcoder;
+    use App\Enums\UserType;
+    use App\Http\Helpers\ContestDataManager\Atcoder;
 	use App\Http\Helpers\ContestDataManager\CF;
 	use App\Http\Helpers\ContestDataManager\Vjudge;
 	use App\Models\Tracker;
@@ -11,8 +12,8 @@
 	use Filament\Notifications\Notification;
 	use Illuminate\Http\Client\ConnectionException;
 	use Illuminate\Http\Request;
-	
-	
+
+
 	class TrackerController extends Controller
 	{
 		/**
@@ -23,7 +24,7 @@
 			$trackers = Tracker::paginate(10);
 			return view('tracker.index', compact('trackers'));
 		}
-		
+
 		/**
 		 * Show the form for creating a new resource.
 		 */
@@ -31,7 +32,7 @@
 		{
 			//
 		}
-		
+
 		/**
 		 * Store a newly created resource in storage.
 		 */
@@ -39,16 +40,16 @@
 		{
 			//
 		}
-		
-		
+
+
 		/**
 		 * Display the specified resource.
 		 */
 		public function show(Tracker $tracker)
 		{
-			
+
 			if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-				$allUsers = User::with('media')->get();
+				$allUsers = User::with('media')->whereNot('type',UserType::MENTOR)->get();
 			} else
 				$allUsers = User::whereIn('id', function ($query) use ($tracker) {
 					$query->select('user_id')
@@ -60,75 +61,75 @@
 								->where('tracker_id', $tracker->id);
 						});
 				})->with('media')->get();
-			
-			
+
+
 			$usersData = [];
-			
+
 			$tracker->loadMissing('events');
-			
-			
+
+
 			foreach ($allUsers as $user) {
 				$usersData[$user->id]['solve_score'] = 0;
 				$usersData[$user->id]['upsolve_score'] = 0;
-				
+
 				foreach ($tracker->events as $event) {
-					
-					
+
+
 					try {
-						
+
 						$parsedUrl = parse_url($event->contest_link);
 						if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'codeforces.com') {
-							
+
 							$usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username);
-							
+
 						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
-						
+
 							$usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
-							
+
 						} else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
 							if (!$user->vjudge_username) {
 								continue;
 							}
-							
+
 							$usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($event->contest_link ?? "", $user->vjudge_username);
-							
+
 							if (isset($usersData[$user->id][$event->id]['error'])) {
-								
+
 								if ($usersData[$user->id][$event->id]['error'] == 'Need Vjudge Authentication') {
 									Notification::make()
 										->title("Need Vjudge Authentication")
 										->info()
 										->send();
 									session()->put('url.intended',route('trackers.show', $tracker));
-									
-								
+
+
 									return redirect(route('vj-auth'));
 								}
 							}
 						} else {
 							continue;
 						}
-						
-						
+
+
 						$usersData[$user->id]['solve_score'] += ($event->weight * ($usersData[$user->id][$event->id]['solve_count'] ?? 0));
 						if ($tracker->count_upsolve)
 							$usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * ($usersData[$user->id][$event->id]['upsolve_count'] ?? 0));
-						
+
 					} catch (ConnectionException $e) {
-						
+
 						Notification::make()
 							->title("There was an error while calling API")
 							->body($e->getMessage())
 							->warning()
 							->send();
-						
+
 					}
-					
+
 				}
-				
+
 				$usersData[$user->id]['score'] = $usersData[$user->id]['solve_score'] + $usersData[$user->id]['upsolve_score'];
-				
-				
+
+
 			}
 			uasort($usersData, function ($a, $b) {
 				return $b['score'] <=> $a['score'];
@@ -136,11 +137,11 @@
 			$SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
 				title: $tracker->title,
 				description: $tracker->description,
-			
+
 			);
 			return view('tracker.show', compact('tracker', 'usersData', 'allUsers', 'SEOData'));
 		}
-		
+
 		/**
 		 * Show the form for editing the specified resource.
 		 */
@@ -148,7 +149,7 @@
 		{
 			//
 		}
-		
+
 		/**
 		 * Update the specified resource in storage.
 		 */
@@ -156,7 +157,7 @@
 		{
 			//
 		}
-		
+
 		/**
 		 * Remove the specified resource from storage.
 		 */
