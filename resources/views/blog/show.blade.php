@@ -60,7 +60,15 @@
             <div class="sharethis-inline-reaction-buttons"></div>
             <!-- ShareThis END -->
 
+            <style>
+                #st-1 .st-btn > svg {
 
+
+                    height: 35px;
+                    width: 35px;
+
+                }
+            </style>
             <livewire:comment-section
                 cardClass="dark:bg-gray-900"
                 :commentable="$post" />
