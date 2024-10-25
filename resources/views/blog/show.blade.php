@@ -19,7 +19,7 @@
 
             <div class="flex items-center gap-x-2">
 
-                <p class="text-xs text-gray-800 dark:text-neutral-200 sm:text-sm">By: {{$post->user->name}}</p>|
+                <p class="text-xs text-gray-800 dark:text-neutral-200 sm:text-sm">By {{$post->user->name}}</p>|
                 <p
                     class="text-xs text-gray-800 dark:text-neutral-200 sm:text-sm">
                     {{ $post->formattedPublishedDate() }}
