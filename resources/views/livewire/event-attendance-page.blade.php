@@ -51,7 +51,7 @@
 
 	</x-card>
 
-	@if($event->open_for_attendance && now()>=$event->starting_time && now()<=$event->ending_time )
+	@if($event->open_for_attendance  )
 		<div class="space-y-1">
 			@auth()
 				@if(!$isPresent)
