@@ -3,8 +3,7 @@
         <h3 class="text-center text-4xl font-marry font-semibold">About Us
         </h3>
         <x-card class="box space-y-5 prose-base">
-            <p><strong>DIU ACM</strong>&nbsp;is a dedicated wing under the DIU CPC (Daffodil International University
-                Competitive Programming Community), focused on fostering a thriving competitive programming culture
+            <p><strong>DIU ACM</strong>&nbsp;is a dedicated wing under the DIU CPC, focused on fostering a thriving competitive programming culture
                 within the university. Our community comprises passionate problem solvers and coding enthusiasts who
                 regularly participate in programming contests, take classes from expert trainers, and mentor selected
                 juniors in their journey to mastering competitive programming.</p>
