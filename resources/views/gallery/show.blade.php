@@ -12,8 +12,8 @@
 	    <!-- Image Grid -->
 	    <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
 		    @foreach ($gallery->getMedia("gallery-images") as $image)
-			    <div class="group rounded-lg overflow-clip">
-				    {{$image->img()->attributes(['class'=>" spotlight aspect-2 object-cover  group-hover:scale-110 transition duration-200"])}}
+			    <div class="group rounded-lg overflow-clip bg-red-100 aspect-w-16 aspect-h-12">
+				    {{$image->img()->attributes(['class'=>" spotlight  object-cover  group-hover:scale-110 transition duration-200"])}}
 			    </div>
 
 		    @endforeach
