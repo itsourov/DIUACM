@@ -33,14 +33,18 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class,
+                function ($attribute, $value, $fail) {
+                    if (!(Str::endsWith($value, '@diu.edu.bd') || Str::endsWith($value, '@s.diu.edu.bd'))) {
+                        $fail('You must register with a DIU email address.');
+                    }
+                },],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $i = 0;
         $username = Str::slug($request->name);
-        while(User::where('username','=',$username)->exists())
-        {
+        while (User::where('username', '=', $username)->exists()) {
             $i++;
             $username = $username . $i;
         }
