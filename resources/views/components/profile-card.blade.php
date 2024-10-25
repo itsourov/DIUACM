@@ -7,15 +7,12 @@
 			<h3 class="font-medium text-gray-800 dark:text-neutral-200">
 				{{$user->name}}
 			</h3>
-			<p class="text-xs uppercase text-gray-500 dark:text-neutral-500">
-				Posh ACM Programmer
+			<p class="text-xs  text-gray-500 dark:text-neutral-500">
+                {{$user->bio}}
 			</p>
 		</div>
 	</div>
 
-	<p class="mt-3 text-gray-500 dark:text-neutral-500">
-		{{$user->bio??"..."}}
-	</p>
 
 {{--	<!-- Social Brands -->--}}
 {{--	<div class="mt-3 flex gap-2">--}}
