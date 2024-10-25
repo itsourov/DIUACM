@@ -103,7 +103,7 @@
 				<p class="text-sm font-semibold tracking-widest text-gray-400 uppercase">
 					{{ __('Request') }}</p>
 
-				<p>Join Our Telegram Chanel</p>
+				<p>Join Our Telegram channel</p>
 
 				<a href="https://t.me/+X94KLytY-Kk5NzU9" class="block">
 					<x-button.primary type="button" class=" px-4">Join</x-button.primary>
