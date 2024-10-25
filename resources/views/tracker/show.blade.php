@@ -7,8 +7,8 @@
     <div class="container mx-auto space-y-6 px-2 py-10">
         <!-- Card -->
         <div class="flex flex-col">
-            <div class="-m-1.5 overflow-x-auto">
-                <div class="inline-block min-w-full p-1.5 align-middle">
+            <div class="-m-1.5 overflow-x-auto parent">
+                <div class="inline-block min-w-full p-1.5 align-middle  child cursor-grab">
                     <div
                         class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                         <!-- Header -->
@@ -195,5 +195,34 @@
         <!-- End Card -->
     </div>
 
+        <script>
+            let mouseDown = false;
+            let startX, scrollLeft;
+            const slider = document.querySelector('.parent');
+
+            const startDragging = (e) => {
+                mouseDown = true;
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            }
+
+            const stopDragging = (e) => {
+                mouseDown = false;
+            }
+
+            const move = (e) => {
+                e.preventDefault();
+                if(!mouseDown) { return; }
+                const x = e.pageX - slider.offsetLeft;
+                const scroll = x - startX;
+                slider.scrollLeft = scrollLeft - scroll;
+            }
+
+            // Add the event listeners
+            slider.addEventListener('mousemove', move, false);
+            slider.addEventListener('mousedown', startDragging, false);
+            slider.addEventListener('mouseup', stopDragging, false);
+            slider.addEventListener('mouseleave', stopDragging, false);
+        </script>
     <!-- End Table Section -->
 </x-web-layout>
