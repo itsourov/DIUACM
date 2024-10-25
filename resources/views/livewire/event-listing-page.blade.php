@@ -27,6 +27,13 @@
 					{{$runningCount}}
 				</x-slot>
 			</x-filament::tabs.item>
+            <x-filament::tabs.item icon="heroicon-m-clock" :active="$activeTab === 'upcoming'"
+			                       wire:click="$set('activeTab', 'upcoming')">
+                Upcoming
+				<x-slot name="badge">
+					{{$upcomingCount}}
+				</x-slot>
+			</x-filament::tabs.item>
 		</x-filament::tabs>
 	</div>
 	@if($search)
