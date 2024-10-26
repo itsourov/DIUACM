@@ -91,7 +91,7 @@ class TrackerController extends Controller
 
             foreach ($tracker->events as $event) {
 
-                if ($event->ending_time <= now()) continue;
+                if ($event->ending_time > now()) continue;
                 try {
 
                     $parsedUrl = parse_url($event->contest_link);
