@@ -84,14 +84,14 @@ class TrackerController extends Controller
 
         $tracker->loadMissing('events');
 
-        $usersData =[];
+        $usersData = [];
         foreach ($allUsers as $user) {
             $usersData[$user->id]['solve_score'] = 0;
             $usersData[$user->id]['upsolve_score'] = 0;
 
             foreach ($tracker->events as $event) {
 
-
+                if ($event->ending_time <= now()) continue;
                 try {
 
                     $parsedUrl = parse_url($event->contest_link);
