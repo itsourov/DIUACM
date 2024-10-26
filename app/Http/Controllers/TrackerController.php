@@ -104,6 +104,8 @@ class TrackerController extends Controller
                         $usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
 
                     } else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
+//                        $usersData[$user->id][$event->id]['error']=['asd'];
+                        continue;
                         if (!$user->vjudge_username) {
                             continue;
                         }
