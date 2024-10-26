@@ -26,26 +26,17 @@ class Vjudge
 
     }
 
-    public static function getContestDataOfAUser(string $contestLink, string $username): array
+    public static function getContestDataOfAUser(string $contestData, string $username): array
     {
         // Validate and parse the contest link
-        $parsedUrl = parse_url($contestLink);
-
-
-        $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
-
-        if ($pathSegments[0] !== 'contest') {
-            return ['error' => 'Not a valid contest URL'];
-        }
-        $contestID = $pathSegments[1];
 
 
         // Get the contest data from VJudge
-        $responseData = self::fetchCurl("https://vjudge.net/contest/rank/single/" . $contestID);
-			if (!$responseData) {
-				return ['error' => 'i see blank'];
+        $responseData = json_decode($contestData,true);
+        if (!$responseData) {
+            return ['error' => 'i see blank'];
 
-			}
+        }
         if (isset($responseData['error'])) {
             return $responseData;
 
@@ -53,9 +44,9 @@ class Vjudge
 
 
         $time = $responseData['length'] ?? 0 / 1000;
-        $participants = $responseData['participants']??[];
+        $participants = $responseData['participants'] ?? [];
         $participantsData = $participants;
-        $submissions = $responseData['submissions']??[];
+        $submissions = $responseData['submissions'] ?? [];
         $participantsObj = $participants;
 
         foreach ($participantsObj as $participantId => $participant) {

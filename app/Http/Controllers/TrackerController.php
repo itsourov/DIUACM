@@ -12,6 +12,7 @@ use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 
 class TrackerController extends Controller
@@ -104,27 +105,35 @@ class TrackerController extends Controller
                         $usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
 
                     } else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
-//                        $usersData[$user->id][$event->id]['error']=['asd'];
-                        continue;
+
                         if (!$user->vjudge_username) {
                             continue;
                         }
-
-                        $usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($event->contest_link ?? "", $user->vjudge_username);
-
-                        if (isset($usersData[$user->id][$event->id]['error'])) {
-
-                            if ($usersData[$user->id][$event->id]['error'] == 'Need Vjudge Authentication') {
-                                Notification::make()
-                                    ->title("Need Vjudge Authentication")
-                                    ->info()
-                                    ->send();
-                                session()->put('url.intended', route('trackers.show', $tracker));
+//                        #############################
 
 
-                                return redirect(route('vj-auth'));
-                            }
+                        $parsedUrl = parse_url($event->contest_link ?? "");
+
+                        $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
+                        if ($pathSegments[0] !== 'contest') {
+                            $usersData[$user->id][$event->id]['error'] = true;
+                            $usersData[$user->id][$event->id]['message'] = 'Invalid contest URL';
+                            continue;
                         }
+
+
+                        $contestData = cache()->remember('vjudge_' . $pathSegments[1], 60, function () use ($pathSegments) {
+
+                            $res = Http::get('https://vjudge.net/contest/rank/single/' . $pathSegments[1]);;
+                            return $res->body() ?? "";
+                        });
+
+                        $usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($contestData, $user->vjudge_username);
+
+
+
+
+
                     } else {
                         continue;
                     }
