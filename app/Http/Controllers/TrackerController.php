@@ -49,7 +49,8 @@
 		{
 
 			if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-				$allUsers = User::with('media')->whereNot('type',UserType::MENTOR)->get();
+				$allUsers = User::with('media')->whereNot('type',UserType::MENTOR)
+                    ->whereNot('type',UserType::Veteran)->get();
 			} else
 				$allUsers = User::whereIn('id', function ($query) use ($tracker) {
 					$query->select('user_id')
