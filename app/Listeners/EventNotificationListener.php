@@ -39,7 +39,8 @@
 					->toArray();
 
 			} else if ($event->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-				$user = User::where('type',UserType::CURRENT_CODERS)
+				$user = User::whereNot('type',UserType::MENTOR)
+                    ->whereNot('type',UserType::Veteran)
                 ->select('email')->pluck('email')->toArray();
 			} else {
 				//nothing
