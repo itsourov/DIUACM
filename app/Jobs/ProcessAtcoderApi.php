@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Cache;
 class ProcessAtcoderApi implements ShouldQueue
 {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-	
+
 	protected $contestID, $username;
-	
+
 	/**
 	 * Create a new job instance.
 	 */
@@ -23,8 +23,8 @@ class ProcessAtcoderApi implements ShouldQueue
 		$this->contestID = $contestID;
 		$this->username = $username;
 	}
-	
-	
+
+
 	/**
      * Execute the job.
      */
@@ -37,11 +37,11 @@ class ProcessAtcoderApi implements ShouldQueue
 		    Cache::put("atcoder_contest_data_" . $this->contestID . "_" . $this->username, ['error'=>true,'message'=>'Failed to fetch contest data']);
 		    return;
 	    }
-	    
+
 	    $contestData = json_decode($contestDataResponse, true);
 	    $contestTime = null;
 	    $contestDuration = null;
-	    
+
 	    foreach ($contestData as $contest) {
 		    if ($contest['id'] === $this->contestID) {
 			    $contestTime = $contest['start_epoch_second'];
@@ -49,15 +49,15 @@ class ProcessAtcoderApi implements ShouldQueue
 			    break;
 		    }
 	    }
-	    
+
 	    if (is_null($contestTime) || is_null($contestDuration)) {
 		    Cache::put("atcoder_contest_data_loading_" . $this->contestID . "_" . $this->username, false);
-		    Cache::put("atcoder_contest_data_" . $this->contestID . "_" . $this->username, ['error'=>true,'message'=>'Contest Not Found']);
+		    Cache::put("atcoder_contest_data_" . $this->contestID . "_" . $this->username, ['error'=>true,'message'=>'Info not updated yet']);
 		    return;
 	    }
-	    
+
 	    $contestEnd = $contestTime + $contestDuration;
-	    
+
 	    // Fetch user submissions using cURL
 	    $submissionResponse = $this->fetchCurl("https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=$this->username&from_second=$contestTime");
 	    if (!$submissionResponse) {
@@ -65,20 +65,20 @@ class ProcessAtcoderApi implements ShouldQueue
 		    Cache::put("atcoder_contest_data_" . $this->contestID . "_" . $this->username, ['error'=>true,'message'=>'Failed to fetch user submission']);
 		    return;
 	    }
-	    
+
 	    $submissions = json_decode($submissionResponse, true);
-	    
+
 	    // Initialize solve and upsolve counters
 	    $solve = [];
 	    $upsolve = [];
 	    $absent = true;
-	    
+
 	    foreach ($submissions as $submission) {
 		    if ($submission['contest_id'] === $this->contestID) {
 			    $submissionTime = $submission['epoch_second'];
 			    $problemID = $submission['problem_id'];
 			    $result = $submission['result'];
-			    
+
 			    if ($submissionTime >= $contestTime && $submissionTime <= $contestEnd) {
 				    $absent = false;
 				    // Solve during contest time
@@ -93,12 +93,12 @@ class ProcessAtcoderApi implements ShouldQueue
 			    }
 		    }
 	    }
-	    
+
 	    Cache::put("atcoder_contest_data_loading_" . $this->contestID . "_" . $this->username, false);
 	    Cache::put("atcoder_contest_data_" . $this->contestID . "_" . $this->username, ['solve_count' => count($solve), 'upsolve_count' => count($upsolve), 'absent' => $absent]);
-	    
+
     }
-	
+
 	private function fetchCurl(string $url)
 	{
 		$cacheData = Cache::get("atcoder_fetch_" . $url);
@@ -106,7 +106,7 @@ class ProcessAtcoderApi implements ShouldQueue
 			return $cacheData;
 		}
 		$curl = curl_init();
-		
+
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => true,
@@ -117,7 +117,7 @@ class ProcessAtcoderApi implements ShouldQueue
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => 'GET',
 		));
-		
+
 		$response = curl_exec($curl);
 		curl_close($curl);
 		Cache::put("atcoder_fetch_" . $url, $response);
