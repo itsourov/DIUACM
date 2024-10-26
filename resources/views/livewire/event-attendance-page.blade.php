@@ -57,7 +57,7 @@
     @if($event->open_for_attendance  )
         <div class="space-y-1">
             @auth()
-                @if(!$isPresent && now()<=$event->ending_time)
+                @if(!$isPresent)
                     <x-profile-card :user="auth()->user()->loadMissing('media')" />
                 @endif
 

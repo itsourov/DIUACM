@@ -38,7 +38,7 @@ class EventAttendancePage extends Component implements HasForms, HasActions
         return Action::make('attendance')
             ->label("I am present here")
             ->form($this->getFormComponent())
-            ->hidden($this->isPresent || now() > $this->event->ending_time)
+            ->hidden($this->isPresent)
             ->fillForm(['vjudge_username' => auth()->user()?->vjudge_username])
             ->action(function (array $data) {
                 $this->markAsPresent($data);
@@ -70,6 +70,14 @@ class EventAttendancePage extends Component implements HasForms, HasActions
                 ->warning()
                 ->send();
             redirect(route('my-account.profile.edit'));
+            return;
+        }
+        if(now()>$this->event->ending_time){
+            Notification::make()
+                ->title("Event Ended.")
+                ->body('You can give attendance only while the event is running. Contact someone from ACM for manual attendance')
+                ->warning()
+                ->send();
             return;
         }
         if ($this->event->password != $data['password']) {
