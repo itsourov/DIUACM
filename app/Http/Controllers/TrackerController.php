@@ -57,14 +57,14 @@ class TrackerController extends Controller
         $usersData = \Cache::get('usersData');
         $allUsersCached = \Cache::get('allUsers');
         $trackerCached = \Cache::get('tracker');
-        if ($trackerCached && $usersData && $allUsersCached) {
-            return view('tracker.show', [
-                'tracker'=>$trackerCached,
-                'allUsers'=>$allUsersCached,
-                'usersData'=>$usersData,
-                'SEOData'=>$SEOData,
-            ]);
-        }
+//        if ($trackerCached && $usersData && $allUsersCached) {
+//            return view('tracker.show', [
+//                'tracker'=>$trackerCached,
+//                'allUsers'=>$allUsersCached,
+//                'usersData'=>$usersData,
+//                'SEOData'=>$SEOData,
+//            ]);
+//        }
 
         if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
             $allUsers = User::with('media')->whereNot('type', UserType::MENTOR)
