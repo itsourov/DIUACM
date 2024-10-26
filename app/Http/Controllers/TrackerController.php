@@ -54,17 +54,17 @@ class TrackerController extends Controller
 
         );
 
-//        $usersData = \Cache::get('usersData');
-//        $allUsersCached = \Cache::get('allUsers');
-//        $trackerCached = \Cache::get('tracker');
-////        if ($trackerCached && $usersData && $allUsersCached) {
-////            return view('tracker.show', [
-////                'tracker'=>$trackerCached,
-////                'allUsers'=>$allUsersCached,
-////                'usersData'=>$usersData,
-////                'SEOData'=>$SEOData,
-////            ]);
-////        }
+        $usersData = \Cache::get('usersData');
+        $allUsersCached = \Cache::get('allUsers');
+        $trackerCached = \Cache::get('tracker');
+//        if ($trackerCached && $usersData && $allUsersCached) {
+//            return view('tracker.show', [
+//                'tracker'=>$trackerCached,
+//                'allUsers'=>$allUsersCached,
+//                'usersData'=>$usersData,
+//                'SEOData'=>$SEOData,
+//            ]);
+//        }
 
         if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
             $allUsers = User::with('media')->whereNot('type', UserType::MENTOR)
@@ -104,7 +104,8 @@ class TrackerController extends Controller
                         $usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
 
                     } else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
-//
+//                        $usersData[$user->id][$event->id]['error']=['asd'];
+                        continue;
                         if (!$user->vjudge_username) {
                             continue;
                         }
@@ -153,9 +154,9 @@ class TrackerController extends Controller
             return $b['score'] <=> $a['score'];
         });
 
-//        \Cache::put('usersData', $usersData);
-//        \Cache::put('allUsers', $allUsers);
-//        \Cache::put('tracker', $tracker);
+        \Cache::put('usersData', $usersData);
+        \Cache::put('allUsers', $allUsers);
+        \Cache::put('tracker', $tracker);
         return view('tracker.show', compact('tracker', 'usersData', 'allUsers', 'SEOData'));
     }
 
