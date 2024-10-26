@@ -10,16 +10,16 @@
             <div class="-m-1.5 overflow-x-auto parent">
                 <div class="inline-block min-w-full p-1.5 align-middle  child cursor-grab">
                     <div
-                        class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+                            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
                         <!-- Header -->
                         <div
-                            class="border-b border-gray-200 px-6 py-4 dark:border-neutral-700">
+                                class="border-b border-gray-200 px-6 py-4 dark:border-neutral-700">
                             <h2
-                                class="text-xl font-semibold text-gray-800 dark:text-neutral-200">
+                                    class="text-xl font-semibold text-gray-800 dark:text-neutral-200">
                                 {{ $tracker->title }}
                             </h2>
                             <p
-                                class="text-sm text-gray-600 dark:text-neutral-400">
+                                    class="text-sm text-gray-600 dark:text-neutral-400">
                                 {{ $tracker->description }}
                             </p>
                         </div>
@@ -27,71 +27,71 @@
 
                         <!-- Table -->
                         <table
-                            class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+                                class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
                             <thead class="bg-gray-50 dark:bg-neutral-800">
-                                <tr>
-                                    <th
+                            <tr>
+                                <th
                                         scope="col"
                                         class="whitespace-nowrap px-6 py-3 text-start">
                                         <span
-                                            class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
+                                                class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
                                             #
                                         </span>
-                                    </th>
+                                </th>
 
-                                    <th
+                                <th
                                         scope="col"
                                         class="min-w-64 whitespace-nowrap px-6 py-3 text-start">
                                         <span
-                                            class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
+                                                class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
                                             Name
                                         </span>
-                                    </th>
+                                </th>
 
-                                    <th
+                                <th
                                         scope="col"
                                         class="whitespace-nowrap px-6 py-3 text-start">
                                         <span
-                                            class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
+                                                class="text-xs font-semibold uppercase tracking-wide text-gray-800 dark:text-neutral-200">
                                             Points
                                         </span>
-                                    </th>
-                                    @foreach ($tracker->events as $contest)
-                                        <th
+                                </th>
+                                @foreach ($tracker->events->where('ending_time','<',now()) as $contest)
+                                    <th
                                             scope="col"
                                             class="whitespace-nowrap px-6 py-3 text-start">
-                                            <a target="_blank" href="{{$contest->contest_link}}"
-                                                class="max-w-5 overflow-ellipsis text-xs font-semibold uppercase tracking-wide text-blue-600">
-                                                {{ $contest->title }}
-                                            </a>
-                                            <x-filament::badge
+                                        <a target="_blank" href="{{$contest->contest_link}}"
+                                           class="max-w-5 overflow-ellipsis text-xs font-semibold uppercase tracking-wide text-blue-600">
+                                            {{ $contest->title }}
+                                        </a>
+                                        <x-filament::badge
                                                 color="info"
                                                 class="w-fit">
-                                                Weight: {{ $contest->weight }}
-                                            </x-filament::badge>
-                                        </th>
-                                    @endforeach
-                                </tr>
+                                            Weight: {{ $contest->weight }}
+                                        </x-filament::badge>
+                                    </th>
+                                @endforeach
+                            </tr>
                             </thead>
 
                             <tbody
-                                class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                    class="divide-y divide-gray-200 dark:divide-neutral-700">
+                            @php
+                                $rank = 1;
+                            @endphp
+
+                            @foreach ($usersData as $key => $value)
                                 @php
-                                    $rank = 1;
+                                    $user = $allUsers->find($key);
                                 @endphp
 
-                                @foreach ($usersData as $key => $value)
-                                    @php
-                                        $user = $allUsers->find($key);
-                                    @endphp
-
-                                    <tr>
-                                        <td
+                                <tr>
+                                    <td
                                             class="size-px whitespace-nowrap px-6 py-3">
-                                            <button
+                                        <button
                                                 type="button"
                                                 class="flex items-center gap-x-2 text-gray-800 hover:text-gray-600 focus:text-gray-600 focus:outline-none dark:text-neutral-200 dark:hover:text-neutral-400 dark:focus:text-neutral-400">
-                                                <svg
+                                            <svg
                                                     class="size-4 shrink-0"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     width="24"
@@ -102,89 +102,89 @@
                                                     stroke-width="2"
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round">
-                                                    <polygon
+                                                <polygon
                                                         points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                                                </svg>
-                                                <span
+                                            </svg>
+                                            <span
                                                     class="text-sm text-gray-800 dark:text-neutral-200">
                                                     {{ $rank++ }}
                                                 </span>
-                                            </button>
-                                        </td>
-                                        <td
+                                        </button>
+                                    </td>
+                                    <td
                                             class="size-px whitespace-nowrap px-6 py-3">
-                                            <div
+                                        <div
                                                 class="flex items-center gap-x-3">
-                                                <img
+                                            <img
                                                     class="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300"
                                                     src="{{ $user->getFirstMediaUrl("profile-images", "preview") }}"
                                                     alt="" />
 
-                                                <span
+                                            <span
                                                     class="text-sm font-semibold text-gray-800 dark:text-white">
                                                     {{ $user->name }}
                                                 </span>
-                                            </div>
-                                        </td>
-                                        <td
+                                        </div>
+                                    </td>
+                                    <td
                                             class="size-px whitespace-nowrap px-6 py-3">
                                             <span
-                                                class="text-sm text-gray-800 dark:text-white">
+                                                    class="text-sm text-gray-800 dark:text-white">
                                                 {{ $usersData[$user->id]["score"] }}
                                             </span>
-                                        </td>
+                                    </td>
 
-                                        @foreach ($tracker->events as $contest)
-                                            <td
+                                    @foreach ($tracker->events->where('ending_time','<',now()) as $contest)
+                                        <td
                                                 class="size-px gap-2 space-x-2 whitespace-nowrap px-6 py-3">
-                                                <div class="flex gap-2">
-                                                    @if ($usersData[$user->id][$contest->id]["loading"] ?? false == true)
-                                                        <x-filament::badge
+                                            <div class="flex gap-2">
+                                                @if ($usersData[$user->id][$contest->id]["loading"] ?? false == true)
+                                                    <x-filament::badge
                                                             color="info"
                                                             class="w-fit">
-                                                            Loading...
-                                                        </x-filament::badge>
-                                                    @elseif ($usersData[$user->id][$contest->id]["error"] ?? false == true)
-                                                        <x-filament::badge
+                                                        Loading...
+                                                    </x-filament::badge>
+                                                @elseif ($usersData[$user->id][$contest->id]["error"] ?? false == true)
+                                                    <x-filament::badge
                                                             color="warning"
                                                             class="w-fit">
-                                                            {{ $usersData[$user->id][$contest->id]["message"] ?? "error" }}
-                                                        </x-filament::badge>
-                                                    @else
-                                                        @if ($usersData[$user->id][$contest->id]["absent"] ?? false == true)
-                                                            <x-filament::badge
+                                                        {{ $usersData[$user->id][$contest->id]["message"] ?? "error" }}
+                                                    </x-filament::badge>
+                                                @else
+                                                    @if ($usersData[$user->id][$contest->id]["absent"] ?? false == true)
+                                                        <x-filament::badge
                                                                 color="danger"
                                                                 class="w-fit">
-                                                                Absent
-                                                            </x-filament::badge>
-                                                        @else
-                                                            @if (isset($usersData[$user->id][$contest->id]["solve_count"]))
-                                                                <x-filament::badge
+                                                            Absent
+                                                        </x-filament::badge>
+                                                    @else
+                                                        @if (isset($usersData[$user->id][$contest->id]["solve_count"]))
+                                                            <x-filament::badge
                                                                     color="success"
                                                                     class="w-fit">
-                                                                    {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
-                                                                    Solve
-                                                                </x-filament::badge>
-                                                            @else
-                                                                <x-filament::badge
+                                                                {{ $usersData[$user->id][$contest->id]["solve_count"] ?? "?" }}
+                                                                Solve
+                                                            </x-filament::badge>
+                                                        @else
+                                                            <x-filament::badge
                                                                     color="warning"
                                                                     class="w-fit">
-                                                                    ??
-                                                                </x-filament::badge>
-                                                            @endif
+                                                                ??
+                                                            </x-filament::badge>
                                                         @endif
-                                                        <x-filament::badge
+                                                    @endif
+                                                    <x-filament::badge
                                                             color="gray"
                                                             class="w-fit">
-                                                            {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
-                                                            Upsolve
-                                                        </x-filament::badge>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        @endforeach
-                                    </tr>
-                                @endforeach
+                                                        {{ $usersData[$user->id][$contest->id]["upsolve_count"] ?? "?" }}
+                                                        Upsolve
+                                                    </x-filament::badge>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
                         <!-- End Table -->
