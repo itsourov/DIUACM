@@ -43,7 +43,7 @@ class Vjudge
         }
 
 
-        $time = $responseData['length'] ?? 0 / 1000;
+        $time = ($responseData['length'] ?? 0) / 1000;
         $participants = $responseData['participants'] ?? [];
         $participantsData = $participants;
         $submissions = $responseData['submissions'] ?? [];
