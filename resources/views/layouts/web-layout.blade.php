@@ -36,8 +36,8 @@
     @vite('resources/css/app.css')
 
     @production
-        <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-        <script>
+        <script data-cfasync="false" src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+        <script data-cfasync="false">
             window.OneSignalDeferred = window.OneSignalDeferred || [];
             OneSignalDeferred.push(async function(OneSignal) {
                 await OneSignal.init({
