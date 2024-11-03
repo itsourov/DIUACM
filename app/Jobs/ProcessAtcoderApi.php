@@ -34,8 +34,6 @@ class ProcessAtcoderApi implements ShouldQueue
      */
     public function handle(): void
     {
-        // Fetch contest details using cURL
-
         $contestDataResponse = cache()->remember('atcoder_main', 60 * 60 * 2, function () {
             return $this->fetchCurl('https://kenkoooo.com/atcoder/resources/contests.json');
         });
@@ -43,6 +41,7 @@ class ProcessAtcoderApi implements ShouldQueue
         if (!$contestDataResponse) {
             return;
         }
+
         $parsedUrl = parse_url($this->event->contest_link);
         $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
         $contestID = $pathSegments[1] ?? null;
@@ -51,8 +50,6 @@ class ProcessAtcoderApi implements ShouldQueue
                 'event_id' => $this->event->id,
                 'user_id' => $this->user->id,
             ], [
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
                 'solve_count' => 0,
                 'upsolve_count' => 0,
                 'error' => 'invalid contest info',
@@ -66,15 +63,12 @@ class ProcessAtcoderApi implements ShouldQueue
                 'event_id' => $this->event->id,
                 'user_id' => $this->user->id,
             ], [
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
                 'solve_count' => 0,
                 'upsolve_count' => 0,
                 'error' => 'username missing',
             ]);
             return;
         }
-
 
         $contestData = json_decode($contestDataResponse, true);
         $contestTime = null;
@@ -94,28 +88,24 @@ class ProcessAtcoderApi implements ShouldQueue
 
         $contestEnd = $contestTime + $contestDuration;
 
-        // Fetch user submissions using cURL
         $submissionResponse = $this->fetchCurl("https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=$atcoder_username&from_second=$contestTime");
         if (!$submissionResponse) {
             SolveCount::updateOrCreate([
                 'event_id' => $this->event->id,
                 'user_id' => $this->user->id,
             ], [
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
                 'solve_count' => 0,
                 'upsolve_count' => 0,
                 'error' => 'no info found',
             ]);
             return;
-
         }
 
         $submissions = json_decode($submissionResponse, true);
 
-        // Initialize solve and upsolve counters
-        $solve = [];
-        $upsolve = [];
+        // Step 1: Track unique problems solved during contest time
+        $solvedProblems = [];
+        $upsolvedProblems = [];
         $absent = true;
 
         foreach ($submissions as $submission) {
@@ -126,14 +116,23 @@ class ProcessAtcoderApi implements ShouldQueue
 
                 if ($submissionTime >= $contestTime && $submissionTime <= $contestEnd) {
                     $absent = false;
-                    // Solve during contest time
-                    if ($result === 'AC' && !in_array($problemID, $solve)) {
-                        $solve[] = $problemID;
+                    if ($result === 'AC' && !isset($solvedProblems[$problemID])) {
+                        $solvedProblems[$problemID] = true; // Mark as solved during contest
                     }
-                } else {
-                    // Upsolve after contest ends
-                    if ($result === 'AC' && !in_array($problemID, $upsolve)) {
-                        $upsolve[] = $problemID;
+                }
+            }
+        }
+
+        // Step 2: Count upsolves only for problems not solved during contest time
+        foreach ($submissions as $submission) {
+            if ($submission['contest_id'] === $contestID) {
+                $submissionTime = $submission['epoch_second'];
+                $problemID = $submission['problem_id'];
+                $result = $submission['result'];
+
+                if ($submissionTime > $contestEnd) {
+                    if ($result === 'AC' && !isset($solvedProblems[$problemID]) && !isset($upsolvedProblems[$problemID])) {
+                        $upsolvedProblems[$problemID] = true; // Mark as upsolved after contest
                     }
                 }
             }
@@ -143,16 +142,13 @@ class ProcessAtcoderApi implements ShouldQueue
             'event_id' => $this->event->id,
             'user_id' => $this->user->id,
         ], [
-            'event_id' => $this->event->id,
-            'user_id' => $this->user->id,
-            'solve_count' => count($solve),
-            'upsolve_count' => count($upsolve),
-            'absent' =>  $absent,
+            'solve_count' => count($solvedProblems),
+            'upsolve_count' => count($upsolvedProblems),
+            'absent' => $absent,
             'error' => null,
         ]);
-
-
     }
+
 
     private function fetchCurl(string $url)
     {
