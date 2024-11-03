@@ -152,10 +152,6 @@ class ProcessAtcoderApi implements ShouldQueue
 
     private function fetchCurl(string $url): false|string
     {
-        $cacheData = Cache::get("atcoder_fetch_" . $url);
-        if ($cacheData) {
-            return (string) $cacheData;
-        }
 
         $curl = curl_init();
 
@@ -173,14 +169,6 @@ class ProcessAtcoderApi implements ShouldQueue
         $response = curl_exec($curl);
         curl_close($curl);
 
-        // Convert JSON response to a string if it's an array
-        if (is_array($response) || is_object($response)) {
-            $response = json_encode($response);
-        } else {
-            $response = (string) $response;
-        }
-
-        Cache::put("atcoder_fetch_" . $url, $response);
         return $response;
     }
 
