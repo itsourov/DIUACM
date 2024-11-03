@@ -2,22 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AccessStatuses;
-use App\Enums\UserType;
-use App\Http\Helpers\ContestDataManager\Atcoder;
-use App\Http\Helpers\ContestDataManager\CF;
-use App\Http\Helpers\ContestDataManager\Vjudge;
-use App\Jobs\ProcessAtcoderApi;
-use App\Jobs\ProcessCFApi;
 use App\Jobs\ProcessTracker;
-use App\Jobs\ProcessVjudgeApi;
-use App\Models\SolveCount;
 use App\Models\Tracker;
-use App\Models\User;
-use Filament\Notifications\Notification;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 
 class TrackerController extends Controller
