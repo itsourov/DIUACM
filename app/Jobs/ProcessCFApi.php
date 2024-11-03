@@ -64,11 +64,9 @@ class ProcessCFApi implements ShouldQueue
             return;
         }
 
-        $contestAPI = "https://codeforces.com/api/contest.status?contestId=$contestID&handle=$codeforces_username";
+        $contestAPI = "http://codeforces.com/api/contest.status?contestId=$contestID&handle=$codeforces_username";
 
-        $response = cache()->remember('cf+'.$contestID."+".$codeforces_username, 60 * 60 * 2, function () use ($contestAPI) {
-            return Http::get($contestAPI)->json();
-        });
+        $response = Http::get($contestAPI)->json();
 
 
         $solve = [];
