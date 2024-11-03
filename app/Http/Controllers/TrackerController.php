@@ -9,6 +9,7 @@ use App\Http\Helpers\ContestDataManager\CF;
 use App\Http\Helpers\ContestDataManager\Vjudge;
 use App\Jobs\ProcessAtcoderApi;
 use App\Jobs\ProcessCFApi;
+use App\Jobs\ProcessTracker;
 use App\Jobs\ProcessVjudgeApi;
 use App\Models\SolveCount;
 use App\Models\Tracker;
@@ -66,31 +67,8 @@ class TrackerController extends Controller
     public function fetch(Tracker $tracker)
     {
 
-        $users = User::get();
-        $contests = $tracker->events;
-
-
-        foreach ($contests as $contest) {
-            if (str_contains($contest->contest_link, 'vjudge.net')) {
-                ProcessVjudgeApi::dispatch($tracker, $contest);
-            } elseif (str_contains($contest->contest_link, 'codeforces.com')) {
-                foreach ($users as $user) {
-                    ProcessCFApi::dispatch($user, $contest);
-                }
-            } elseif (str_contains($contest->contest_link, 'atcoder.jp')) {
-                foreach ($users as $user) {
-                    ProcessAtcoderApi::dispatch($user, $contest);
-                }
-            }
-        }
-
-        $solveCounts = SolveCount::whereIn('user_id', $users->pluck('id'))->whereIn('event_id', $contests->pluck('id'))->get();
-        return [
-            'solveCounts' => $solveCounts,
-            'users' => $users,
-            'contests' => $contests,
-
-        ];
+        ProcessTracker::dispatch($tracker);
+        return "asd";
     }
 
     /**
