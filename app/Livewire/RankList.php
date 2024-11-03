@@ -40,7 +40,7 @@ class RankList extends Component
         $users = User::select(['id', 'name'])
             ->with(['solveCounts' => function ($query) use ($eventIds) {
                 $query->whereIn('event_id', $eventIds);
-            }])
+            }, 'media'])
             ->get()
             ->map(function ($user) use ($eventWeights) {
                 $score = 0;
@@ -62,7 +62,7 @@ class RankList extends Component
                 return $user;
             })
             ->sortByDesc('score') // Sort by score after mapping
-            ->values() ;
+            ->values();
 
         return view('livewire.rank-list', compact('users', 'contests'));
     }

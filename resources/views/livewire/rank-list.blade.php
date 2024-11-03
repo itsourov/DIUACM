@@ -144,7 +144,7 @@
                                     @foreach ($contests as $contest)
                                         <td
                                             class="size-px gap-2 space-x-2 whitespace-nowrap px-4 py-2">
-                                            <div class="flex gap-2">
+                                            <div class="flex gap-2 w-max">
                                                 @if(!isset($user->solveCounts[$contest->id]))
                                                     <x-filament::badge
                                                         color="warning"
