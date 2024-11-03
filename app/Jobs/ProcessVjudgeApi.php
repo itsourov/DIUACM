@@ -40,13 +40,15 @@ class ProcessVjudgeApi implements ShouldQueue
     public function handle(): void
     {
 
+        $sourovID = 823685;
+
         $tracker = $this->tracker;
         $event = $this->event;
 
 
         if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
             $users = User::whereNot('type', UserType::MENTOR)
-                ->whereNot('type', UserType::Veteran)->select(['id','vjudge_username'])->get();
+                ->whereNot('type', UserType::Veteran)->select(['id', 'vjudge_username'])->get();
         } else
             $users = User::whereIn('id', function ($query) use ($tracker) {
                 $query->select('user_id')
@@ -57,7 +59,7 @@ class ProcessVjudgeApi implements ShouldQueue
                             ->from('group_tracker')
                             ->where('tracker_id', $tracker->id);
                     });
-            })->select(['id','vjudge_username'])->get();
+            })->select(['id', 'vjudge_username'])->get();
 
 
         $parsedUrl = parse_url($event->contest_link ?? "");
@@ -102,53 +104,49 @@ class ProcessVjudgeApi implements ShouldQueue
 
         $time = ($responseData['length'] ?? 0) / 1000;
         $participants = $responseData['participants'] ?? [];
-        $participantsData = $participants;
         $submissions = $responseData['submissions'] ?? [];
-        $participantsObj = $participants;
-
-        foreach ($participantsObj as $participantId => $participant) {
-            $dist = [
-                'participantId' => $participantId,
-                'userName' => $participant[0],
-                'name' => $participant[1],
-                'solveCount' => 0,
-                'upSolveCount' => 0,
-                'isPresent' => false,
-                'solves' => self::problemIndexGenerate(),
-            ];
-            $participantsData[$participantId] = $dist;
-        }
-
-        foreach ($submissions as $submission) {
-            if ($submission[2] == 1) {
-                if ($participantsData[$submission[0]]['solves'][$submission[1]] == 0) {
-                    $participantsData[$submission[0]]['solves'][$submission[1]] = 1;
-                    if ($submission[3] > $time) {
-                        $participantsData[$submission[0]]['upSolveCount'] += 1;
-                    } else {
-                        $participantsData[$submission[0]]['solveCount'] += 1;
-                        $participantsData[$submission[0]]['isPresent'] = true;
-                    }
-                }
-            } else {
-                if ($submission[3] <= $time) {
-                    $participantsData[$submission[0]]['isPresent'] = true;
-                }
-            }
-        }
 
         $data = [];
-        foreach ($participantsObj as $participantId => $participant) {
-            $tmp = [
-                'userid' => $participantId,
-                'userName' => $participantsData[$participantId]['userName'],
-                'contestSolve' => $participantsData[$participantId]['solveCount'],
-                'upSolve' => $participantsData[$participantId]['upSolveCount'],
-                'isPresent' => $participantsData[$participantId]['isPresent'],
+
+        foreach ($participants as $participantId => $participant) {
+            $temp = [
+                'solveCount' => 0,
+                'upSolveCount' => 0,
+                'absent' => true,
+                'solved' => self::problemIndexGenerate(),
             ];
-            $data[$participantsData[$participantId]['userName']] = $tmp;
+            $data[$participant[0]] = $temp;
         }
 
+
+        foreach ($submissions as $submission) {
+            $accepted = $submission[2] == 1;
+            $inTime = ($submission[3] <= $time);
+            $problemIndex = $submission[1];
+            $userName = $participants[$submission[0]][0] ?? '';
+
+            if ($inTime && $accepted) {
+                if ($data[$userName]['solved'][$problemIndex] == 0) {
+                    $data[$userName]['solveCount'] += 1;
+                }
+                $data[$userName]['solved'][$problemIndex] = 1;
+
+            }
+            $data[$userName]['absent'] = false;
+        }
+        foreach ($submissions as $submission) {
+            $accepted = $submission[2] == 1;
+            $inTime = ($submission[3] <= $time);
+            $problemIndex = $submission[1];
+            $userName = $participants[$submission[0]][0] ?? '';
+            if (!$inTime && $accepted) {
+                if ($data[$userName]['solved'][$problemIndex] == 0) {
+                    $data[$userName]['upSolveCount']++;
+                }
+                $data[$userName]['solved'][$problemIndex] = 1;
+
+            }
+        }
 
         foreach ($users as $user) {
             $vjudge_username = $user->vjudge_username ?? null;
@@ -174,9 +172,9 @@ class ProcessVjudgeApi implements ShouldQueue
                 ], [
                     'event_id' => $this->event->id,
                     'user_id' => $user->id,
-                    'solve_count' => $data[$vjudge_username]['contestSolve'] ?? 0,
-                    'upsolve_count' => $data[$vjudge_username]['upSolve'] ?? 0,
-                    'absent' => !($data[$vjudge_username]['isPresent'] ?? false),
+                    'solve_count' => $data[$vjudge_username]['solveCount'] ?? 0,
+                    'upsolve_count' => $data[$vjudge_username]['upSolveCount'] ?? 0,
+                    'absent' => ($data[$vjudge_username]['absent'] ?? true),
                     'error' => null,
                 ]);
 
@@ -184,8 +182,6 @@ class ProcessVjudgeApi implements ShouldQueue
 
 
         }
-
-
     }
 
 

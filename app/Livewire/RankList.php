@@ -26,7 +26,7 @@ class RankList extends Component
 
     public function placeholder()
     {
-        return "<div class='container mx-auto p-2'>loading</div>";
+        return view('loading-page');
     }
 
 
