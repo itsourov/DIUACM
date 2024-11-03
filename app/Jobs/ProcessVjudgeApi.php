@@ -176,7 +176,7 @@ class ProcessVjudgeApi implements ShouldQueue
                     'user_id' => $user->id,
                     'solve_count' => $data[$vjudge_username]['contestSolve'] ?? 0,
                     'upsolve_count' => $data[$vjudge_username]['upSolve'] ?? 0,
-                    'present' => !($data[$vjudge_username]['isPresent'] ?? false),
+                    'absent' => !($data[$vjudge_username]['isPresent'] ?? false),
                     'error' => null,
                 ]);
 

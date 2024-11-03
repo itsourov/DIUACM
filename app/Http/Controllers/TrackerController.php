@@ -72,15 +72,15 @@ class TrackerController extends Controller
 
         foreach ($contests as $contest) {
             if (str_contains($contest->contest_link, 'vjudge.net')) {
-                ProcessVjudgeApi::dispatchSync($tracker, $contest);
+                ProcessVjudgeApi::dispatch($tracker, $contest);
             } elseif (str_contains($contest->contest_link, 'codeforces.com')) {
-//                foreach ($users as $user) {
-//                    ProcessCFApi::dispatch($user, $contest);
-//                }
+                foreach ($users as $user) {
+                    ProcessCFApi::dispatch($user, $contest);
+                }
             } elseif (str_contains($contest->contest_link, 'atcoder.jp')) {
-//                foreach ($users as $user) {
-//                    ProcessAtcoderApi::dispatch($user, $contest);
-//                }
+                foreach ($users as $user) {
+                    ProcessAtcoderApi::dispatch($user, $contest);
+                }
             }
         }
 
