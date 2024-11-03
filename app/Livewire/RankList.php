@@ -55,6 +55,10 @@ class RankList extends Component
                         });
                 });
             })
+            ->when($this->tracker->organized_for==AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
+                return $query->whereNot('type', UserType::MENTOR)
+                    ->whereNot('type', UserType::Veteran);
+            })
             ->get()
             ->map(function ($user) use ($eventWeights) {
                 $score = 0;
@@ -66,7 +70,7 @@ class RankList extends Component
                     $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
 
                     // Calculate weighted score
-                    $score += ($solveCount->solve_count * $weight) + ($solveCount->upsolve_count * $weight / 2);
+                    $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $this->tracker->count_upsolve);
                 }
 
                 // Assign the calculated score to the user model's `score` attribute
