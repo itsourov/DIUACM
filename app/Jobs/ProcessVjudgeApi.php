@@ -82,9 +82,13 @@ class ProcessVjudgeApi implements ShouldQueue
 
         }
 
-        $responseData = Http::withHeaders([
-            'User-Agent' => 'PostmanRuntime/7.26.10',
-        ])->get('https://vjudge.net/contest/rank/single/' . $contestID)->json();
+
+        $responseData = cache()->remember('atcoder_main', 60 * 60 * 2, function () use ($contestID) {
+            return Http::withHeaders([
+                'User-Agent' => 'PostmanRuntime/7.26.10',
+            ])->get('https://vjudge.net/contest/rank/single/' . $contestID)->json();
+        });
+
 
         if (!$responseData) {
             foreach ($users as $user) {
