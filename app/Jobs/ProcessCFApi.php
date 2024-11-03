@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class ProcessCFApi implements ShouldQueue
@@ -66,7 +67,6 @@ class ProcessCFApi implements ShouldQueue
         $contestAPI = "http://codeforces.com/api/contest.status?contestId=$contestID&handle=$codeforces_username";
 
         $response = Http::get($contestAPI)->json();
-
 
         $solve = [];
         $upsolve = [];
