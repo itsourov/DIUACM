@@ -61,7 +61,7 @@ class UpdateTrackers extends Command
                 if (str_contains($contest->contest_link, 'vjudge.net')) {
                     $this->info("Found A vjudge contest - " . $contest->title);
                     ProcessVjudgeApi::dispatchSync($tracker, $contest);
-                    $this->info("Vjudge contest update finished");
+                    $this->info("$contest->title update finished");
                     $this->info("");
                 } elseif (str_contains($contest->contest_link, 'codeforces.com')) {
                     $this->info("Found A codeforces contest - " . $contest->title);
@@ -70,7 +70,7 @@ class UpdateTrackers extends Command
                         ProcessCFApi::dispatchSync($user, $contest);
                         $this->info("finished $user->codeforces_username for contest $contest->title");
                     }
-                    $this->info("codeforces contest update finished");
+                    $this->info("$contest->title update finished");
                     $this->info("");
                 } elseif (str_contains($contest->contest_link, 'atcoder.jp')) {
                     $this->info("Found A atcoder contest - " . $contest->title);
@@ -79,7 +79,7 @@ class UpdateTrackers extends Command
                         ProcessAtcoderApi::dispatchSync($user, $contest);
                         $this->info("finished $user->atcoder_username for contest $contest->title");
                     }
-                    $this->info("atcoder contest update finished");
+                    $this->info("$contest->title update finished");
                     $this->info("");
                 }
             }
