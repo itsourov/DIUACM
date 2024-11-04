@@ -56,23 +56,23 @@ class TrackerController extends Controller
     public function fetch(Tracker $tracker)
     {
 
-//
-//        $users = User::select(['vjudge_username', 'atcoder_username','codeforces_username'])->get();
-//        foreach ($users as $user) {
-//            $newUsername = Str::trim($user->vjudge_username);
-//            $newUsername = str_replace('https://vjudge.net/user/', '', $newUsername);
-//            $user->update(['vjudge_username' => $newUsername]);
-//
-//            $newUsername = Str::trim($user->atcoder_username);
-//            $newUsername = str_replace('https://atcoder.jp/users/', '', $newUsername);
-//            $user->update(['atcoder_username' => $newUsername]);
-//
-//            $newUsername = Str::trim($user->codeforces_username);
-//            $newUsername = str_replace('https://codeforces.com/profile/', '', $newUsername);
-//            $user->update(['codeforces_username' => $newUsername]);
-//
-//        }
-//        return $users;
+
+        $users = User::select(['vjudge_username', 'atcoder_username','codeforces_username'])->get();
+        foreach ($users as $user) {
+            $newUsername = Str::trim($user->vjudge_username);
+            $newUsername = str_replace('https://vjudge.net/user/', '', $newUsername);
+            $user->update(['vjudge_username' => $newUsername]);
+
+            $newUsername = Str::trim($user->atcoder_username);
+            $newUsername = str_replace('https://atcoder.jp/users/', '', $newUsername);
+            $user->update(['atcoder_username' => $newUsername]);
+
+            $newUsername = Str::trim($user->codeforces_username);
+            $newUsername = str_replace('https://codeforces.com/profile/', '', $newUsername);
+            $user->update(['codeforces_username' => $newUsername]);
+
+        }
+        return $users;
     }
 
     /**
