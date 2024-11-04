@@ -85,6 +85,9 @@ class UpdateTrackers extends Command
             }
             $this->info("Finished updating " . $tracker->title);
             $this->info("");
+            cache()->flush();
+            $this->info("Cache cleared");
+
 
         }
     }

@@ -33,54 +33,61 @@ class RankList extends Component
     public function render(): Factory|View|Application|\Illuminate\View\View
     {
         $tracker = $this->tracker;
-        $contests = $tracker->events;
+        $contests = cache()->remember('contests_' . $tracker->id, 60 * 60 * 2, function () use ($tracker) {
+            return $tracker->events;
+        });
+
         $eventIds = $contests->pluck('id')->toArray();
 
         // Convert the events collection to an array with event ID as key and weight as value for easy lookup
         $eventWeights = $contests->pluck('weight', 'id')->toArray();
 
-        $users = User::select(['id', 'name'])
-            ->with(['solveCounts' => function ($query) use ($eventIds) {
-                $query->whereIn('event_id', $eventIds);
-            }, 'media'])
-            ->when($this->tracker->organized_for==AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
-                return $query->whereIn('id', function ($query) use ($tracker) {
-                    $query->select('user_id')
-                        ->from('group_user')
-                        ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                        ->whereIn('groups.id', function ($query) use ($tracker) {
-                            $query->select('group_id')
-                                ->from('group_tracker')
-                                ->where('tracker_id', $tracker->id);
-                        });
-                });
-            })
-            ->when($this->tracker->organized_for==AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
-                return $query->whereNot('type', UserType::MENTOR)
-                    ->whereNot('type', UserType::Veteran);
-            })
-            ->get()
-            ->map(function ($user) use ($eventWeights) {
-                $score = 0;
+        $users = cache()->remember('raklist_users_' . $tracker->id, 60 * 60 * 2, function () use ($eventIds, $tracker, $eventWeights) {
 
-                // Key solveCounts by event_id for easier access
-                $solveCounts = $user->solveCounts->keyBy('event_id');
+            return User::select(['id', 'name'])
+                ->with(['solveCounts' => function ($query) use ($eventIds) {
+                    $query->whereIn('event_id', $eventIds);
+                }, 'media'])
+                ->when($this->tracker->organized_for == AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
+                    return $query->whereIn('id', function ($query) use ($tracker) {
+                        $query->select('user_id')
+                            ->from('group_user')
+                            ->join('groups', 'group_user.group_id', '=', 'groups.id')
+                            ->whereIn('groups.id', function ($query) use ($tracker) {
+                                $query->select('group_id')
+                                    ->from('group_tracker')
+                                    ->where('tracker_id', $tracker->id);
+                            });
+                    });
+                })
+                ->when($this->tracker->organized_for == AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
+                    return $query->whereNot('type', UserType::MENTOR)
+                        ->whereNot('type', UserType::Veteran);
+                })
+                ->get()
+                ->map(function ($user) use ($eventWeights) {
+                    $score = 0;
 
-                foreach ($solveCounts as $eventId => $solveCount) {
-                    $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
+                    // Key solveCounts by event_id for easier access
+                    $solveCounts = $user->solveCounts->keyBy('event_id');
 
-                    // Calculate weighted score
-                    $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $this->tracker->count_upsolve);
-                }
+                    foreach ($solveCounts as $eventId => $solveCount) {
+                        $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
 
-                // Assign the calculated score to the user model's `score` attribute
-                $user->score = $score;
-                $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
+                        // Calculate weighted score
+                        $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $this->tracker->count_upsolve);
+                    }
 
-                return $user;
-            })
-            ->sortByDesc('score') // Sort by score after mapping
-            ->values();
+                    // Assign the calculated score to the user model's `score` attribute
+                    $user->score = $score;
+                    $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
+
+                    return $user;
+                })
+                ->sortByDesc('score') // Sort by score after mapping
+                ->values();
+
+        });
 
         return view('livewire.rank-list', compact('users', 'contests'));
     }
