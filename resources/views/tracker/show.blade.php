@@ -3,5 +3,5 @@
         {!! seo($SEOData) !!}
     @endsection
 
-    <livewire:rank-list  :tracker="$tracker"/>
+    <livewire:rank-list lazy :tracker="$tracker"/>
 </x-web-layout>
