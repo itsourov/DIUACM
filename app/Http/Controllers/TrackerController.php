@@ -54,8 +54,7 @@ class TrackerController extends Controller
     public function fetch(Tracker $tracker)
     {
 
-        ProcessTracker::dispatch($tracker);
-        return "asd";
+
     }
 
     /**
