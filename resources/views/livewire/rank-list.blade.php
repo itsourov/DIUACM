@@ -23,7 +23,7 @@
                                 class="text-sm text-gray-600 dark:text-neutral-400">
                                 Last
                                 Updated:
-                                <b>{{$tracker->updated_at->diffForHumans()}}</b>
+                                <b>{{$tracker->last_updated->diffForHumans()}}</b>
                             </p>
 
                         </div>

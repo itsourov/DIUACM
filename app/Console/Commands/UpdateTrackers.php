@@ -35,6 +35,9 @@ class UpdateTrackers extends Command
         $this->info("Process Started");
         $trackers = Tracker::with('events')->get();
         foreach ($trackers as $tracker) {
+            $tracker->update([
+                'last_updated'=>now(),
+            ]);
 
             $this->info("Starting to update " . $tracker->title);
             if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
