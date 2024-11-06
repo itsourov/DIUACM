@@ -3,7 +3,7 @@
         {!! seo($SEOData) !!}
     @endsection
 
-    <livewire:rank-list lazy :tracker="$tracker" />
+    <livewire:rank-list :tracker="$tracker" />
     <script>
         let mouseDown = false;
         let startX, scrollLeft;
