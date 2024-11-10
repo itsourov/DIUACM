@@ -4,15 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\AccessStatuses;
 use App\Enums\UserType;
-use App\Http\Helpers\ContestDataManager\Atcoder;
-use App\Http\Helpers\ContestDataManager\CF;
-use App\Http\Helpers\ContestDataManager\Vjudge;
+use App\Http\Resources\RanklistResource;
+use App\Http\Resources\RanklistUserCollection;
+use App\Jobs\ProcessTracker;
 use App\Models\Tracker;
 use App\Models\User;
-use Filament\Notifications\Notification;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 
 class TrackerController extends Controller
@@ -49,124 +47,97 @@ class TrackerController extends Controller
     public function show(Tracker $tracker)
     {
 
+
         $SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
             title: $tracker->title,
             description: $tracker->description,
 
         );
 
-        $usersData = \Cache::get('usersData');
-        $allUsersCached = \Cache::get('allUsers');
-        $trackerCached = \Cache::get('tracker');
-//        if ($trackerCached && $usersData && $allUsersCached) {
-//            return view('tracker.show', [
-//                'tracker'=>$trackerCached,
-//                'allUsers'=>$allUsersCached,
-//                'usersData'=>$usersData,
-//                'SEOData'=>$SEOData,
-//            ]);
-//        }
+        return view('tracker.show', compact('tracker', 'SEOData'));
+    }
 
-        if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-            $allUsers = User::with('media')->whereNot('type', UserType::MENTOR)
-                ->whereNot('type', UserType::Veteran)->get();
-        } else
-            $allUsers = User::whereIn('id', function ($query) use ($tracker) {
-                $query->select('user_id')
-                    ->from('group_user')
-                    ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                    ->whereIn('groups.id', function ($query) use ($tracker) {
-                        $query->select('group_id')
-                            ->from('group_tracker')
-                            ->where('tracker_id', $tracker->id);
-                    });
-            })->with('media')->get();
-
+    public function ranklistApi(Tracker $tracker)
+    {
 
         $tracker->loadMissing('events');
+        $contests = $tracker->events;
 
-        $usersData = [];
-        foreach ($allUsers as $user) {
-            $usersData[$user->id]['solve_score'] = 0;
-            $usersData[$user->id]['upsolve_score'] = 0;
+        $eventIds = $contests->pluck('id')->toArray();
 
-            foreach ($tracker->events as $event) {
-
-                if ($event->ending_time > now()) continue;
-                try {
-
-                    $parsedUrl = parse_url($event->contest_link);
-                    if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'codeforces.com') {
-
-                        $usersData[$user->id][$event->id] = CF::getContestDataOfAUser($event->contest_link ?? "", $user->codeforces_username);
-
-                    } else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'atcoder.jp') {
-
-                        $usersData[$user->id][$event->id] = Atcoder::getContestDataOfAUser($event->contest_link ?? "", $user->atcoder_username);
-
-                    } else if (isset($parsedUrl['host']) && $parsedUrl['host'] == 'vjudge.net') {
-
-                        if (!$user->vjudge_username) {
-                            continue;
-                        }
-//                        #############################
+        // Convert the events collection to an array with event ID as key and weight as value for easy lookup
+        $eventWeights = $contests->pluck('weight', 'id')->toArray();
 
 
-                        $parsedUrl = parse_url($event->contest_link ?? "");
-
-                        $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
-                        if ($pathSegments[0] !== 'contest') {
-                            $usersData[$user->id][$event->id]['error'] = true;
-                            $usersData[$user->id][$event->id]['message'] = 'Invalid contest URL';
-                            continue;
-                        }
-
-
-                        $contestData = cache()->remember('vjudge_' . $pathSegments[1], 60, function () use ($pathSegments) {
-
-                            $res = Http::get('https://vjudge.net/contest/rank/single/' . $pathSegments[1]);;
-                            return $res->body() ?? "";
+        $users = User::select(['id', 'name'])
+            ->with(['solveCounts' => function ($query) use ($eventIds) {
+                $query->whereIn('event_id', $eventIds);
+            }, 'media'])
+            ->when($tracker->organized_for == AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
+                return $query->whereIn('id', function ($query) use ($tracker) {
+                    $query->select('user_id')
+                        ->from('group_user')
+                        ->join('groups', 'group_user.group_id', '=', 'groups.id')
+                        ->whereIn('groups.id', function ($query) use ($tracker) {
+                            $query->select('group_id')
+                                ->from('group_tracker')
+                                ->where('tracker_id', $tracker->id);
                         });
+                });
+            })
+            ->when($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
+                return $query->whereNot('type', UserType::MENTOR)
+                    ->whereNot('type', UserType::Veteran);
+            })
+            ->get()
+            ->map(function ($user) use ($eventWeights, $tracker) {
+                $score = 0;
 
-                        $usersData[$user->id][$event->id] = Vjudge::getContestDataOfAUser($contestData, $user->vjudge_username);
+                // Key solveCounts by event_id for easier access
+                $solveCounts = $user->solveCounts->keyBy('event_id');
 
+                foreach ($solveCounts as $eventId => $solveCount) {
+                    $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
 
-
-
-
-                    } else {
-                        continue;
-                    }
-
-
-                    $usersData[$user->id]['solve_score'] += ($event->weight * ($usersData[$user->id][$event->id]['solve_count'] ?? 0));
-                    if ($tracker->count_upsolve)
-                        $usersData[$user->id]['upsolve_score'] += 0.25 * ($event->weight * ($usersData[$user->id][$event->id]['upsolve_count'] ?? 0));
-
-                } catch (ConnectionException $e) {
-
-                    Notification::make()
-                        ->title("There was an error while calling API")
-                        ->body($e->getMessage())
-                        ->warning()
-                        ->send();
-
+                    // Calculate weighted score
+                    $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $tracker->count_upsolve);
                 }
 
-            }
+                // Assign the calculated score to the user model's `score` attribute
+                $user->score = $score;
+                $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
 
-            $usersData[$user->id]['score'] = $usersData[$user->id]['solve_score'] + $usersData[$user->id]['upsolve_score'];
+                return $user;
+            })
+            ->sortByDesc('score') // Sort by score after mapping
+            ->values();
 
+        return new RanklistUserCollection($users);
+         return "asd";
+
+
+    }
+
+    public function fetch(Tracker $tracker)
+    {
+
+
+        $users = User::select(['vjudge_username', 'atcoder_username', 'codeforces_username'])->get();
+        foreach ($users as $user) {
+            $newUsername = Str::trim($user->vjudge_username);
+            $newUsername = str_replace('https://vjudge.net/user/', '', $newUsername);
+            $user->update(['vjudge_username' => $newUsername]);
+
+            $newUsername = Str::trim($user->atcoder_username);
+            $newUsername = str_replace('https://atcoder.jp/users/', '', $newUsername);
+            $user->update(['atcoder_username' => $newUsername]);
+
+            $newUsername = Str::trim($user->codeforces_username);
+            $newUsername = str_replace('https://codeforces.com/profile/', '', $newUsername);
+            $user->update(['codeforces_username' => $newUsername]);
 
         }
-        uasort($usersData, function ($a, $b) {
-            return $b['score'] <=> $a['score'];
-        });
-
-        \Cache::put('usersData', $usersData);
-        \Cache::put('allUsers', $allUsers);
-        \Cache::put('tracker', $tracker);
-        return view('tracker.show', compact('tracker', 'usersData', 'allUsers', 'SEOData'));
+        return $users;
     }
 
     /**

@@ -28,8 +28,7 @@
 
 
 
-
-		/**
+        /**
 		 * The attributes that are mass assignable.
 		 *
 		 * @var array<int, string>
@@ -98,4 +97,9 @@
 		{
 			return $this->belongsToMany(Event::class)->withPivot(['extra_info']);
 		}
-	}
+        public function solveCounts()
+        {
+            return $this->hasMany(SolveCount::class);
+        }
+
+    }
