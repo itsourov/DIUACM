@@ -3,8 +3,13 @@
         {!! seo($SEOData) !!}
     @endsection
 
-    <livewire:rank-list lazy :tracker="$tracker" />
+    <livewire:rank-list :tracker="$tracker" />
     <script>
+
+
+
+
+
         let mouseDown = false;
         let startX, scrollLeft;
         const slider = document.querySelector(".parent");
@@ -35,4 +40,6 @@
         slider.addEventListener("mouseup", stopDragging, false);
         slider.addEventListener("mouseleave", stopDragging, false);
     </script>
+
+
 </x-web-layout>
