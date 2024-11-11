@@ -40,4 +40,8 @@ class Tracker extends Model
     {
         return $this->belongsToMany(Group::class);
     }
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withPivot('score');
+    }
 }

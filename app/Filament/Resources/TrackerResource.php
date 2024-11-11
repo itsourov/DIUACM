@@ -1,7 +1,7 @@
 <?php
-	
+
 	namespace App\Filament\Resources;
-	
+
 	use App\Enums\AccessStatuses;
 	use App\Filament\Resources\TrackerResource\Pages;
 	use App\Models\Group;
@@ -26,15 +26,15 @@
 	use Filament\Tables\Table;
 	use Illuminate\Database\Eloquent\Builder;
 	use Illuminate\Database\Eloquent\SoftDeletingScope;
-	
+
 	class TrackerResource extends Resource
 	{
 		protected static ?string $model = Tracker::class;
-		
+
 		protected static ?string $slug = 'trackers';
-		
+
 		protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-		
+
 		public static function form(Form $form): Form
 		{
 			return $form
@@ -42,16 +42,16 @@
 					Placeholder::make('created_at')
 						->label('Created Date')
 						->content(fn(?Tracker $record): string => $record?->created_at?->diffForHumans() ?? '-'),
-					
+
 					Placeholder::make('updated_at')
 						->label('Last Modified Date')
 						->content(fn(?Tracker $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
-					
+
 					TextInput::make('title')
 						->required(),
-					
+
 					TextInput::make('keyword'),
-					
+
 					TextInput::make('description'),
 					Select::make('events')
 						->label('Selected Events')
@@ -64,7 +64,7 @@
 						->inline()
 						->options(AccessStatuses::class)
 						->required(),
-					
+
 					Select::make('groups')
 						->label('Selected User Groups')
 						->relationship('groups', 'title')
@@ -75,9 +75,16 @@
 						->createOptionForm(Group::getForm())
 						->multiple()
 						->preload(),
+
+                    Select::make('users')
+                        ->label('Selected User')
+                        ->relationship('users', 'name')
+                        ->createOptionModalHeading("Add New Group")
+                        ->multiple()
+                        ->preload(),
 				]);
 		}
-		
+
 		public static function table(Table $table): Table
 		{
 			return $table
@@ -85,9 +92,9 @@
 					TextColumn::make('title')
 						->searchable()
 						->sortable(),
-					
+
 					TextColumn::make('keyword'),
-					
+
 					TextColumn::make('description'),
 				])
 				->filters([
@@ -107,7 +114,7 @@
 					]),
 				]);
 		}
-		
+
 		public static function getPages(): array
 		{
 			return [
@@ -116,7 +123,7 @@
 				'edit' => Pages\EditTracker::route('/{record}/edit'),
 			];
 		}
-		
+
 		public static function getEloquentQuery(): Builder
 		{
 			return parent::getEloquentQuery()
@@ -124,7 +131,7 @@
 					SoftDeletingScope::class,
 				]);
 		}
-		
+
 		public static function getGloballySearchableAttributes(): array
 		{
 			return ['title'];

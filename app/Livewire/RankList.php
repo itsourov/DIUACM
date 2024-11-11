@@ -37,56 +37,26 @@ class RankList extends Component
             return $tracker->events;
         });
 
-        $eventIds = $contests->pluck('id')->toArray();
+        $eventIds = $contests->pluck('id');
 
-        // Convert the events collection to an array with event ID as key and weight as value for easy lookup
-        $eventWeights = $contests->pluck('weight', 'id')->toArray();
 
-        $users = cache()->remember('raklist_users_' . $tracker->id, 60 * 60 * 2, function () use ($eventIds, $tracker, $eventWeights) {
-
-            return User::select(['id', 'name'])
-                ->with(['solveCounts' => function ($query) use ($eventIds) {
+        $users = $tracker->users()
+            ->orderByDesc('pivot_score') // Sort users by score
+            ->with([
+                'media' => function ($query) {
+                    $query->where('collection_name', 'profile-images');
+                },
+                'solveCounts' => function ($query) use ($eventIds) {
                     $query->whereIn('event_id', $eventIds);
-                }, 'media'])
-                ->when($this->tracker->organized_for == AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
-                    return $query->whereIn('id', function ($query) use ($tracker) {
-                        $query->select('user_id')
-                            ->from('group_user')
-                            ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                            ->whereIn('groups.id', function ($query) use ($tracker) {
-                                $query->select('group_id')
-                                    ->from('group_tracker')
-                                    ->where('tracker_id', $tracker->id);
-                            });
-                    });
-                })
-                ->when($this->tracker->organized_for == AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
-                    return $query->whereNot('type', UserType::MENTOR)
-                        ->whereNot('type', UserType::Veteran);
-                })
-                ->get()
-                ->map(function ($user) use ($eventWeights) {
-                    $score = 0;
+                }
+            ])
+            ->paginate(20);
 
-                    // Key solveCounts by event_id for easier access
-                    $solveCounts = $user->solveCounts->keyBy('event_id');
-
-                    foreach ($solveCounts as $eventId => $solveCount) {
-                        $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
-
-                        // Calculate weighted score
-                        $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $this->tracker->count_upsolve);
-                    }
-
-                    // Assign the calculated score to the user model's `score` attribute
-                    $user->score = $score;
-                    $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
-
-                    return $user;
-                })
-                ->sortByDesc('score') // Sort by score after mapping
-                ->values();
-
+// Key solveCounts by event_id directly after retrieving users.
+        $users->getCollection()->transform(function ($user) {
+            $user->solveCounts = $user->solveCounts->keyBy('event_id');
+            $user->score = $user->pivot->score;
+            return $user;
         });
 
         return view('livewire.rank-list', compact('users', 'contests'));
