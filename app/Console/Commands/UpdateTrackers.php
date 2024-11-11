@@ -6,10 +6,10 @@ use App\Enums\AccessStatuses;
 use App\Enums\UserType;
 use App\Jobs\ProcessAtcoderApi;
 use App\Jobs\ProcessCFApi;
-use App\Jobs\ProcessVjudgeApi;
 use App\Models\Tracker;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class UpdateTrackers extends Command
 {
@@ -18,7 +18,7 @@ class UpdateTrackers extends Command
      *
      * @var string
      */
-    protected $signature = 'update-trackers';
+    protected $signature = 'bot:update-trackers';
 
     /**
      * The console command description.
@@ -63,14 +63,22 @@ class UpdateTrackers extends Command
             foreach ($contests as $contest) {
                 if (str_contains($contest->contest_link, 'vjudge.net')) {
                     $this->info("Found A vjudge contest - " . $contest->title);
-                    ProcessVjudgeApi::dispatchSync($tracker, $contest);
+                    Artisan::call('bot:update-vjudge', [
+                        'tracker_id' => $tracker->id,
+                        'event_id' => $contest->id,
+                    ]);
+
                     $this->info("$contest->title update finished");
                     $this->info("");
                 } elseif (str_contains($contest->contest_link, 'codeforces.com')) {
                     $this->info("Found A codeforces contest - " . $contest->title);
                     foreach ($users as $user) {
                         $this->info("fetching $user->codeforces_username for contest $contest->title");
-                        ProcessCFApi::dispatchSync($user, $contest);
+                        Artisan::call('bot:update-cf', [
+
+                            'event_id' => $contest->id,
+                            'user_id' => $user->id,
+                        ]);
                         $this->info("finished $user->codeforces_username for contest $contest->title");
                     }
                     $this->info("$contest->title update finished");
@@ -79,7 +87,10 @@ class UpdateTrackers extends Command
                     $this->info("Found A atcoder contest - " . $contest->title);
                     foreach ($users as $user) {
                         $this->info("fetching $user->atcoder_username for contest $contest->title");
-                        ProcessAtcoderApi::dispatchSync($user, $contest);
+                        Artisan::call('bot:update-atcoder', [
+                            'event_id' => $contest->id,
+                            'user_id' => $user->id,
+                        ]);
                         $this->info("finished $user->atcoder_username for contest $contest->title");
                     }
                     $this->info("$contest->title update finished");
