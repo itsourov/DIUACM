@@ -47,31 +47,81 @@
 
                 <div class="">
 
-                    <div class="carousel relative w-full h-60 md:h-96 overflow-hidden" aria-roledescription="carousel">
-                        <div class="carousel-inner relative w-full h-full">
-                            <div class="carousel-item absolute top-0 left-0 w-full h-full opacity-100 transition-all duration-500 ease-out" role="group" aria-roledescription="slide" aria-label="Slide 1">
-                                <img src="{{asset('images/diuacm.jpeg')}}" alt="Random Image 1" class="w-full h-full object-cover">
+                    <div
+                        data-hs-carousel='{
+    "loadingClasses": "opacity-0",
+    "isAutoPlay": true
+  }'
+                        class="relative">
+                        <div
+                            class="hs-carousel relative min-h-96 w-full overflow-hidden rounded-lg bg-white">
+                            <div
+                                class="hs-carousel-body absolute bottom-0 start-0 top-0 flex flex-nowrap opacity-0 transition-transform duration-700">
+
+                                @foreach ($medias as $media)
+                                    <div
+                                        class="hs-carousel-slide spotlight"
+                                        data-src="{{ $media->getUrl() }}">
+                                        <img
+                                            loading="lazy"
+                                            class="h-full w-full bg-red-400 object-cover"
+                                            src="{{ $media->getUrl("medium") }}"
+                                            alt="{{ $media["name"] ?? "" }}" />
+                                    </div>
+                                @endforeach
                             </div>
-
-                            @foreach ($medias as $media)
-
-                                <div class="carousel-item absolute top-0 left-0 w-full h-full opacity-0 transition-all duration-500 ease-out" role="group" aria-roledescription="slide" aria-label="Slide 2">
-{{--                                    <img src="{{ $media->getUrl("medium") }}" alt="Random Image 2" class="w-full h-full object-cover">--}}
-                                    {{$media->img()->attributes(['class'=>" w-full h-full object-cover"])}}
-                                </div>
-                            @endforeach
-
                         </div>
-                        <button class="prev text-white p-2 z-50 absolute left-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0" aria-label="Previous slide">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                            <span class="sr-only">Previous Slide</span>
+
+                        <button
+                            type="button"
+                            class="hs-carousel-prev hs-carousel:disabled:opacity-50 absolute inset-y-0 start-0 inline-flex h-full w-[46px] items-center justify-center rounded-s-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                            <span class="text-2xl" aria-hidden="true">
+                                <svg
+                                    class="size-5 shrink-0"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m15 18-6-6 6-6"></path>
+                                </svg>
+                            </span>
+                            <span class="sr-only">Previous</span>
                         </button>
-                        <button class="next text-white p-2 z-50 absolute right-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0" aria-label="Next slide">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-                            <span class="sr-only">Next slide</span>
+                        <button
+                            type="button"
+                            class="hs-carousel-next hs-carousel:disabled:opacity-50 absolute inset-y-0 end-0 inline-flex h-full w-[46px] items-center justify-center rounded-e-lg text-gray-800 hover:bg-gray-800/10 focus:bg-gray-800/10 focus:outline-none disabled:pointer-events-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10">
+                            <span class="sr-only">Next</span>
+                            <span class="text-2xl" aria-hidden="true">
+                                <svg
+                                    class="size-5 shrink-0"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m9 18 6-6-6-6"></path>
+                                </svg>
+                            </span>
                         </button>
+
+                        <div
+                            class="hs-carousel-pagination absolute bottom-3 end-0 start-0 flex justify-center space-x-2">
+                            @for ($i=0; $i<count($medias)+1; $i++)
+                                <span
+                                    class="size-3 cursor-pointer rounded-full border border-gray-400 hs-carousel-active:border-blue-700 hs-carousel-active:bg-blue-700 dark:border-neutral-600 dark:hs-carousel-active:border-blue-500 dark:hs-carousel-active:bg-blue-500"></span>
+                            @endfor
+                        </div>
                     </div>
-                </div>
+                    </div>
                 <!-- End Col -->
             </div>
             <!-- End Grid -->
