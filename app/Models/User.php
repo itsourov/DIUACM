@@ -93,10 +93,14 @@
 			return $this->belongsToMany(Group::class);
 		}
 
-		public function events(): BelongsToMany
-		{
-			return $this->belongsToMany(Event::class)->withPivot(['extra_info']);
-		}
+        public function events(): BelongsToMany
+        {
+            return $this->belongsToMany(Event::class)->withPivot(['extra_info']);
+        }
+        public function trackers(): BelongsToMany
+        {
+            return $this->belongsToMany(Tracker::class);
+        }
         public function solveCounts()
         {
             return $this->hasMany(SolveCount::class);
