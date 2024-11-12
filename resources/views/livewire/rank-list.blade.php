@@ -99,7 +99,10 @@
 
                             <tbody
                                     class="divide-y divide-gray-200 dark:divide-neutral-700">
-
+                            @php
+                                $currentPage = $users->currentPage();
+                                $perPage = $users->perPage();
+                            @endphp
 
                             @foreach ($users as $user)
 
@@ -125,7 +128,7 @@
                                             </svg>
                                             <span
                                                     class="text-sm text-gray-800 dark:text-neutral-200">
-                                                    {{ $loop->index+1 }}
+                                                    {{($currentPage - 1) * $perPage + $loop->index + 1}}
                                                 </span>
                                         </button>
                                     </td>
