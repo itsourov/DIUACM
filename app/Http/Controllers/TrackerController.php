@@ -78,12 +78,13 @@ class TrackerController extends Controller
             return $user;
         });
 
+        $userAdded = (bool)$tracker->users()->select('user_id')->where('user_id', auth()->user()?->id)->first();
         $SEOData = new SEOData(
             title: $tracker->title,
             description: $tracker->description,
         );
 
-        return view('tracker.show', compact('tracker', 'SEOData', 'users', 'contests'));
+        return view('tracker.show', compact('tracker', 'SEOData', 'users', 'contests', 'userAdded'));
     }
 
 
