@@ -11,6 +11,7 @@ use App\Models\Tracker;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
 
 
 class TrackerController extends Controller
@@ -46,42 +47,45 @@ class TrackerController extends Controller
      */
     public function show(Tracker $tracker)
     {
+        $page = request()->get('page', 1); // Get the current page, default to 1 if not present
 
-        $contests = cache()->remember('contests_' . $tracker->id, 60 * 60 * 2, function () use ($tracker) {
+        // Cache contests for this tracker with a shorter key
+        $contests = cache()->remember('cts_' . $tracker->id, 60 * 60 * 2, function () use ($tracker) {
             return $tracker->events;
         });
 
         $eventIds = $contests->pluck('id');
 
+        // Cache users with pagination, using a shorter key and including the page number
+        $users = cache()->remember('u_sc_' . $tracker->id . '_p' . $page, 60 * 60 * 2, function () use ($tracker, $eventIds) {
+            return $tracker->users()
+                ->orderByDesc('pivot_score') // Sort users by score
+                ->with([
+                    'media' => function ($query) {
+                        $query->where('collection_name', 'profile-images');
+                    },
+                    'solveCounts' => function ($query) use ($eventIds) {
+                        $query->whereIn('event_id', $eventIds);
+                    }
+                ])
+                ->paginate(30);
+        });
 
-        $users = $tracker->users()
-            ->orderByDesc('pivot_score') // Sort users by score
-            ->with([
-                'media' => function ($query) {
-                    $query->where('collection_name', 'profile-images');
-                },
-                'solveCounts' => function ($query) use ($eventIds) {
-                    $query->whereIn('event_id', $eventIds);
-                }
-            ])
-            ->paginate(30);
-
-// Key solveCounts by event_id directly after retrieving users.
+        // Key solveCounts by event_id directly after retrieving users
         $users->getCollection()->transform(function ($user) {
             $user->solveCounts = $user->solveCounts->keyBy('event_id');
             $user->score = $user->pivot->score;
             return $user;
         });
 
-
-        $SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
+        $SEOData = new SEOData(
             title: $tracker->title,
             description: $tracker->description,
-
         );
 
         return view('tracker.show', compact('tracker', 'SEOData', 'users', 'contests'));
     }
+
 
     public function ranklistApi(Tracker $tracker)
     {
