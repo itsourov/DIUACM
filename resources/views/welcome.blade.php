@@ -19,7 +19,7 @@
                     <div class="mt-7 grid w-full gap-3 sm:inline-flex">
                         <a
                             class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                            href="{{ route("trackers.show", 1) }}">
+                            href="{{ route("trackers.index") }}">
                             See Leaderboard
                             <svg
                                 class="size-4 shrink-0"
