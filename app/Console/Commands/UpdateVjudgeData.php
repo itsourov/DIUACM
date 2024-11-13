@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Jobs;
-
+namespace App\Console\Commands;
 
 use App\Enums\AccessStatuses;
 use App\Enums\UserType;
@@ -9,69 +8,60 @@ use App\Models\Event;
 use App\Models\SolveCount;
 use App\Models\Tracker;
 use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Http;
 
-class ProcessVjudgeApi implements ShouldQueue
+class UpdateVjudgeData extends Command implements PromptsForMissingInput
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected Tracker $tracker;
-    protected Event $event;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'bot:update-vjudge {tracker_id} {event_id}';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct(Tracker $tracker, Event $event)
-    {
-        $this->tracker = $tracker;
-        $this->event = $event;
+    protected $description = 'Command description';
 
-    }
+
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
-
-        $sourovID = 823685;
-
-        $tracker = $this->tracker;
-        $event = $this->event;
-
-
-        if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-            $users = User::whereNot('type', UserType::MENTOR)
-                ->whereNot('type', UserType::Veteran)->select(['id', 'vjudge_username'])->get();
-        } else
-            $users = User::whereIn('id', function ($query) use ($tracker) {
-                $query->select('user_id')
-                    ->from('group_user')
-                    ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                    ->whereIn('groups.id', function ($query) use ($tracker) {
-                        $query->select('group_id')
-                            ->from('group_tracker')
-                            ->where('tracker_id', $tracker->id);
-                    });
-            })->select(['id', 'vjudge_username'])->get();
+        $tracker = Tracker::find($this->argument('tracker_id'))->with(['users'])->first();
+        if(!$tracker) {
+            $this->error('Tracker not found');
+            return;
+        }
+        $contest = Event::find($this->argument('event_id'));
+        if(!$contest) {
+            $this->error('Contest not found');
+            return;
+        }
+        if (!str_contains($contest->contest_link, 'vjudge.net')) {
+            $this->error("This is not a vjudge contest");
+            return;
+        }
 
 
-        $parsedUrl = parse_url($event->contest_link ?? "");
+
+        $parsedUrl = parse_url($contest->contest_link ?? "");
         $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
         $contestID = $pathSegments[1] ?? null;
         if ($pathSegments[0] !== 'contest' || !$contestID) {
-            foreach ($users as $user) {
+            foreach ($tracker->users as $user) {
                 SolveCount::updateOrCreate([
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                 ], [
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                     'solve_count' => 0,
                     'upsolve_count' => 0,
@@ -91,12 +81,12 @@ class ProcessVjudgeApi implements ShouldQueue
 
 
         if (!$responseData) {
-            foreach ($users as $user) {
+            foreach ($tracker->users as $user) {
                 SolveCount::updateOrCreate([
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                 ], [
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                     'solve_count' => 0,
                     'upsolve_count' => 0,
@@ -152,16 +142,16 @@ class ProcessVjudgeApi implements ShouldQueue
             }
         }
 
-        foreach ($users as $user) {
+        foreach ($tracker->users as $user) {
             $vjudge_username = $user->vjudge_username ?? null;
 
             if (!$vjudge_username) {
 
                 SolveCount::updateOrCreate([
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                 ], [
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                     'solve_count' => 0,
                     'upsolve_count' => 0,
@@ -171,10 +161,10 @@ class ProcessVjudgeApi implements ShouldQueue
             } else {
 
                 SolveCount::updateOrCreate([
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                 ], [
-                    'event_id' => $this->event->id,
+                    'event_id' => $contest->id,
                     'user_id' => $user->id,
                     'solve_count' => $data[$vjudge_username]['solveCount'] ?? 0,
                     'upsolve_count' => $data[$vjudge_username]['upSolveCount'] ?? 0,
@@ -186,9 +176,8 @@ class ProcessVjudgeApi implements ShouldQueue
 
 
         }
+
     }
-
-
     private static function problemIndexGenerate(): array
     {
         $totalProblem = 50;
@@ -198,5 +187,4 @@ class ProcessVjudgeApi implements ShouldQueue
         }
         return $dist;
     }
-
 }

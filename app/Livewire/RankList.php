@@ -7,15 +7,27 @@ use App\Enums\UserType;
 use App\Models\SolveCount;
 use App\Models\Tracker;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Livewire\Component;
+use Livewire\WithPagination;
 
-class RankList extends Component
+class RankList extends Component implements HasForms, HasActions
 {
 
+    use InteractsWithForms;
+    use InteractsWithActions;
+    use WithPagination;
+
     public Tracker $tracker;
+    public bool $userAdded = false;
 
     public function mount(Tracker $tracker): void
     {
@@ -29,6 +41,59 @@ class RankList extends Component
         return view('loading-page');
     }
 
+    public function addMeAction(): Action
+    {
+
+        return Action::make('addMe')
+            ->visible($this->tracker->can_add_self && !$this->userAdded)
+            ->requiresConfirmation()
+            ->action(function () {
+                if (!auth()->user()) {
+                    Notification::make()
+                        ->title("You need to logged in.")
+                        ->warning()
+                        ->send();
+                    redirect(route('login'));
+                    return;
+                }
+                $user = auth()->user();
+                $this->tracker->users()->syncWithoutDetaching([$user->id]);
+                Notification::make()
+                    ->title("You are now added in this Tracker")
+                    ->body("Please Wait a few hours for our bot to calculate your score again")
+                    ->success()
+                    ->send();
+
+            });
+
+    }
+
+    public function removeMeAction(): Action
+    {
+
+        return Action::make('removeMe')
+            ->visible($this->tracker->can_remove_self && $this->userAdded)
+            ->requiresConfirmation()
+            ->action(function () {
+                if (!auth()->user()) {
+                    Notification::make()
+                        ->title("You need to logged in.")
+                        ->warning()
+                        ->send();
+                    redirect(route('login'));
+                    return;
+                }
+                $user = auth()->user();
+                $this->tracker->users()->detach([$user->id]);
+                Notification::make()
+                    ->title("You are removed from this Tracker")
+                    ->warning()
+                    ->send();
+
+            });
+
+    }
+
 
     public function render(): Factory|View|Application|\Illuminate\View\View
     {
@@ -37,57 +102,29 @@ class RankList extends Component
             return $tracker->events;
         });
 
-        $eventIds = $contests->pluck('id')->toArray();
+        $eventIds = $contests->pluck('id');
 
-        // Convert the events collection to an array with event ID as key and weight as value for easy lookup
-        $eventWeights = $contests->pluck('weight', 'id')->toArray();
 
-        $users = cache()->remember('raklist_users_' . $tracker->id, 60 * 60 * 2, function () use ($eventIds, $tracker, $eventWeights) {
-
-            return User::select(['id', 'name'])
-                ->with(['solveCounts' => function ($query) use ($eventIds) {
+        $users = $tracker->users()
+            ->orderByDesc('pivot_score') // Sort users by score
+            ->with([
+                'media' => function ($query) {
+                    $query->where('collection_name', 'profile-images');
+                },
+                'solveCounts' => function ($query) use ($eventIds) {
                     $query->whereIn('event_id', $eventIds);
-                }, 'media'])
-                ->when($this->tracker->organized_for == AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
-                    return $query->whereIn('id', function ($query) use ($tracker) {
-                        $query->select('user_id')
-                            ->from('group_user')
-                            ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                            ->whereIn('groups.id', function ($query) use ($tracker) {
-                                $query->select('group_id')
-                                    ->from('group_tracker')
-                                    ->where('tracker_id', $tracker->id);
-                            });
-                    });
-                })
-                ->when($this->tracker->organized_for == AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
-                    return $query->whereNot('type', UserType::MENTOR)
-                        ->whereNot('type', UserType::Veteran);
-                })
-                ->get()
-                ->map(function ($user) use ($eventWeights) {
-                    $score = 0;
+                }
+            ])
+            ->paginate(50);
 
-                    // Key solveCounts by event_id for easier access
-                    $solveCounts = $user->solveCounts->keyBy('event_id');
-
-                    foreach ($solveCounts as $eventId => $solveCount) {
-                        $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
-
-                        // Calculate weighted score
-                        $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $this->tracker->count_upsolve);
-                    }
-
-                    // Assign the calculated score to the user model's `score` attribute
-                    $user->score = $score;
-                    $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
-
-                    return $user;
-                })
-                ->sortByDesc('score') // Sort by score after mapping
-                ->values();
-
+// Key solveCounts by event_id directly after retrieving users.
+        $users->getCollection()->transform(function ($user) {
+            $user->solveCounts = $user->solveCounts->keyBy('event_id');
+            $user->score = $user->pivot->score;
+            return $user;
         });
+        $this->tracker->users()->select('user_id')->where('user_id', auth()->user()?->id)->first() ? $this->userAdded = true : $this->userAdded = false;
+
 
         return view('livewire.rank-list', compact('users', 'contests'));
     }

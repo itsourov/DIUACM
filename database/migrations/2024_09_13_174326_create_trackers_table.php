@@ -1,7 +1,8 @@
 <?php
 
 	use App\Enums\AccessStatuses;
-	use Illuminate\Database\Migrations\Migration;
+use App\Enums\TrackerType;
+use Illuminate\Database\Migrations\Migration;
 	use Illuminate\Database\Schema\Blueprint;
 	use Illuminate\Support\Facades\Schema;
 
@@ -12,10 +13,15 @@
 				$table->id();
 				$table->string('title');
                 $table->datetime('last_update');
-				$table->string('keyword')->nullable();
+				$table->string('slug')->unique();
 				$table->string('description')->nullable();
 				$table->boolean('count_upsolve')->default(true);
-				$table->enum('organized_for', AccessStatuses::toArray())->default(AccessStatuses::SELECTED_PERSONS);
+                $table->boolean('can_add_self')->default(false);
+                $table->boolean('can_remove_self')->default(false);
+                $table->boolean('auto_add')->default(false);
+                $table->enum('type', TrackerType::toArray())->default(TrackerType::DYNAMIC);
+                $table->longText('embedded_content')->nullable();
+                $table->string('original_link')->nullable();
 				$table->softDeletes();
 				$table->timestamps();
 			});

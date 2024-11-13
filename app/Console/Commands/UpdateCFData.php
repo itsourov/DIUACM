@@ -1,61 +1,75 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
 use App\Models\Event;
 use App\Models\SolveCount;
 use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Http;
 
-class ProcessCFApi implements ShouldQueue
+class UpdateCFData extends Command  implements PromptsForMissingInput
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected Event $event;
-    protected User $user;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'bot:update-cf {event_id} {user_id}';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct(User $user, Event $event)
-    {
-        $this->event = $event;
-        $this->user = $user;
-    }
+    protected $description = 'Command description';
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
 
-        $contestID = explode('/', $this->event->contest_link)[4] ?? null;
+        $contest = Event::find($this->argument('event_id'));
+        if(!$contest) {
+
+            $this->error('Contest not found');
+            return;
+        }
+        $user = User::find($this->argument('user_id'));
+        if(!$user) {
+            $this->error('User not found');
+            return;
+        }
+
+        if (!(str_contains($contest->contest_link, 'codeforces.com'))) {
+            $this->error("This is not a codeforces contest");
+            return;
+        }
+
+        $contestID = explode('/', $contest->contest_link)[4] ?? null;
         if (!$contestID) {
             SolveCount::updateOrCreate([
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $contest->id,
+                'user_id' => $user->id,
             ], [
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $contest->id,
+                'user_id' => $user->id,
                 'solve_count' => 0,
                 'upsolve_count' => 0,
                 'error' => 'invalid contest info',
             ]);
             return;
         }
-        $codeforces_username = $this->user->codeforces_username ?? null;
+        $codeforces_username = $user->codeforces_username ?? null;
         if (!$codeforces_username) {
             SolveCount::updateOrCreate([
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $contest->id,
+                'user_id' => $user->id,
             ], [
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $contest->id,
+                'user_id' => $user->id,
                 'solve_count' => 0,
                 'upsolve_count' => 0,
                 'error' => 'username missing',
@@ -95,17 +109,16 @@ class ProcessCFApi implements ShouldQueue
         }
 
         SolveCount::updateOrCreate([
-            'event_id' => $this->event->id,
-            'user_id' => $this->user->id,
+            'event_id' => $contest->id,
+            'user_id' => $user->id,
         ], [
-            'event_id' => $this->event->id,
-            'user_id' => $this->user->id,
+            'event_id' => $contest->id,
+            'user_id' => $user->id,
             'solve_count' => count($solve),
             'upsolve_count' => count($upsolve),
             'absent' => !$tp,
             'error' => null,
         ]);
-
 
     }
 }

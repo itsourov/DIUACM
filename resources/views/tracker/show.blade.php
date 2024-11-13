@@ -3,43 +3,23 @@
         {!! seo($SEOData) !!}
     @endsection
 
-    <livewire:rank-list :tracker="$tracker" />
-    <script>
 
+    @if($tracker->type=='embedded')
 
-
-
-
-        let mouseDown = false;
-        let startX, scrollLeft;
-        const slider = document.querySelector(".parent");
-
-        const startDragging = (e) => {
-            mouseDown = true;
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        };
-
-        const stopDragging = (e) => {
-            mouseDown = false;
-        };
-
-        const move = (e) => {
-            e.preventDefault();
-            if (!mouseDown) {
-                return;
+        <div class="container mx-auto px-2 py-10 h-screen">
+            {!! $tracker->embedded_content  !!}
+        </div>
+        <style>
+            iframe {
+                width: 100%;
+                height: 95%;
+                background: white;
             }
-            const x = e.pageX - slider.offsetLeft;
-            const scroll = x - startX;
-            slider.scrollLeft = scrollLeft - scroll;
-        };
+        </style>
+    @else
+        <livewire:rank-list :tracker="$tracker" />
+    @endif
 
-        // Add the event listeners
-        slider.addEventListener("mousemove", move, false);
-        slider.addEventListener("mousedown", startDragging, false);
-        slider.addEventListener("mouseup", stopDragging, false);
-        slider.addEventListener("mouseleave", stopDragging, false);
-    </script>
 
 
 </x-web-layout>

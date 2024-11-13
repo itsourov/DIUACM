@@ -1,39 +1,50 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
 use App\Models\Event;
 use App\Models\SolveCount;
 use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Console\Command;
 
-class ProcessAtcoderApi implements ShouldQueue
+class UpdateAtcoderData extends Command
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected Event $event;
-    protected User $user;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'bot:update-atcoder {event_id} {user_id}';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct(User $user, Event $event)
-    {
-        $this->event = $event;
-        $this->user = $user;
-    }
-
+    protected $description = 'Command description';
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
+        $event = Event::find($this->argument('event_id'));
+        if(!$event) {
+
+            $this->error('Contest not found');
+            return;
+        }
+        $user = User::find($this->argument('user_id'));
+        if(!$user) {
+            $this->error('User not found');
+            return;
+        }
+
+        if (!(str_contains($event->contest_link, 'atcoder.jp'))) {
+            $this->error("This is not a atcoder contest");
+            return;
+        }
+
         $contestDataResponse = cache()->remember('atcoder_main', 60 * 60 * 2, function () {
             return $this->fetchCurl('https://kenkoooo.com/atcoder/resources/contests.json');
         });
@@ -42,13 +53,13 @@ class ProcessAtcoderApi implements ShouldQueue
             return;
         }
 
-        $parsedUrl = parse_url($this->event->contest_link);
+        $parsedUrl = parse_url($event->contest_link);
         $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
         $contestID = $pathSegments[1] ?? null;
         if (($pathSegments[0] ?? '') !== 'contests' || !$contestID) {
             SolveCount::updateOrCreate([
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $event->id,
+                'user_id' => $user->id,
             ], [
                 'solve_count' => 0,
                 'upsolve_count' => 0,
@@ -57,11 +68,11 @@ class ProcessAtcoderApi implements ShouldQueue
             return;
         }
 
-        $atcoder_username = $this->user->atcoder_username ?? null;
+        $atcoder_username = $user->atcoder_username ?? null;
         if (!$atcoder_username) {
             SolveCount::updateOrCreate([
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $event->id,
+                'user_id' => $user->id,
             ], [
                 'solve_count' => 0,
                 'upsolve_count' => 0,
@@ -91,8 +102,8 @@ class ProcessAtcoderApi implements ShouldQueue
         $submissionResponse = $this->fetchCurl("https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=$atcoder_username&from_second=$contestTime");
         if (!$submissionResponse) {
             SolveCount::updateOrCreate([
-                'event_id' => $this->event->id,
-                'user_id' => $this->user->id,
+                'event_id' => $event->id,
+                'user_id' => $user->id,
             ], [
                 'solve_count' => 0,
                 'upsolve_count' => 0,
@@ -139,8 +150,8 @@ class ProcessAtcoderApi implements ShouldQueue
         }
 
         SolveCount::updateOrCreate([
-            'event_id' => $this->event->id,
-            'user_id' => $this->user->id,
+            'event_id' => $event->id,
+            'user_id' => $user->id,
         ], [
             'solve_count' => count($solvedProblems),
             'upsolve_count' => count($upsolvedProblems),
@@ -148,7 +159,6 @@ class ProcessAtcoderApi implements ShouldQueue
             'error' => null,
         ]);
     }
-
 
     private function fetchCurl(string $url): false|string
     {

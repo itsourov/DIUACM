@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', UserType::toArray())->default(UserType::PENDING);
+            $table->enum('type', UserType::toArray())->default(UserType::CURRENT_CODERS);
 	        $table->string('username')->unique();
             $table->string('email')->unique();
             $table->longText('bio')->nullable();

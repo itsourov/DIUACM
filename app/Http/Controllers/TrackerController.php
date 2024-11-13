@@ -47,6 +47,31 @@ class TrackerController extends Controller
     public function show(Tracker $tracker)
     {
 
+        // Fetch all event IDs associated with the tracker.
+//        $eventIds = $tracker->events->pluck('id');
+//
+//// Eager load users with media (profile-images) and solveCounts, keyed by event_id.
+//        $users = $tracker->users()
+//            ->orderByDesc('pivot_score') // Sort users by score
+//            ->with([
+//                'media' => function ($query) {
+//                    $query->where('collection_name', 'profile-images');
+//                },
+//                'solveCounts' => function ($query) use ($eventIds) {
+//                    $query->whereIn('event_id', $eventIds);
+//                }
+//            ])
+//            ->paginate(20);
+//
+//// Key solveCounts by event_id directly after retrieving users.
+//        $users->getCollection()->transform(function ($user) {
+//            $user->solve_counts = $user->solveCounts->keyBy('event_id');
+//            $user->score = $user->pivot->score;
+//            return $user;
+//        });
+//
+//        return $users;
+
 
         $SEOData = new \RalphJSmit\Laravel\SEO\Support\SEOData(
             title: $tracker->title,
@@ -112,8 +137,13 @@ class TrackerController extends Controller
             ->sortByDesc('score') // Sort by score after mapping
             ->values();
 
+        foreach ($users as $user) {
+            $tracker->users()->updateExistingPivot($user->id, [
+                'score'=>$user->score,
+            ]);
+        }
         return new RanklistUserCollection($users);
-         return "asd";
+
 
 
     }

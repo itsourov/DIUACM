@@ -8,7 +8,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum UserType: string implements HasColor, HasIcon, HasLabel
 {
-    case PENDING = 'pending';
+    case BANNED = 'banned';
     case MENTOR = 'mentor';
     case CURRENT_CODERS = 'current_coders';
     case Veteran = 'veteran';
@@ -16,9 +16,9 @@ enum UserType: string implements HasColor, HasIcon, HasLabel
     public function getColor(): string
     {
         return match ($this) {
-            self::PENDING => 'info',
+            self::BANNED => 'danger',
             self::CURRENT_CODERS => 'success',
-            self::Veteran => 'danger',
+            self::Veteran => 'info',
             self::MENTOR => 'warning',
         };
     }
@@ -26,7 +26,7 @@ enum UserType: string implements HasColor, HasIcon, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::PENDING => 'Pending',
+            self::BANNED => 'Banned',
             self::CURRENT_CODERS => 'Current Coders',
             self::Veteran => 'Veteran',
             self::MENTOR => 'Mentor',
@@ -36,7 +36,7 @@ enum UserType: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::PENDING => 'heroicon-o-information-circle',
+            self::BANNED => 'heroicon-o-information-circle',
             self::CURRENT_CODERS => 'heroicon-o-information-circle',
             self::Veteran => 'heroicon-o-information-circle',
             self::MENTOR => 'heroicon-o-information-circle',
