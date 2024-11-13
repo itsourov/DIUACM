@@ -19,7 +19,7 @@
                     <div class="mt-7 grid w-full gap-3 sm:inline-flex">
                         <a
                             class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                            href="{{ route("trackers.index") }}">
+                            href="{{ route("trackers.show", 'individual-contest-tracker') }}">
                             See Leaderboard
                             <svg
                                 class="size-4 shrink-0"
@@ -49,25 +49,42 @@
 
                     <div class="carousel relative w-full h-60 md:h-96 overflow-hidden" aria-roledescription="carousel">
                         <div class="carousel-inner relative w-full h-full">
-                            <div class="carousel-item absolute top-0 left-0 w-full h-full opacity-100 transition-all duration-500 ease-out" role="group" aria-roledescription="slide" aria-label="Slide 1">
-                                <img src="{{asset('images/diuacm.jpeg')}}" alt="Random Image 1" class="w-full h-full object-cover">
+                            <div
+                                class="carousel-item absolute top-0 left-0 w-full h-full opacity-100 transition-all duration-500 ease-out"
+                                role="group" aria-roledescription="slide" aria-label="Slide 1">
+                                <img src="{{asset('images/diuacm.jpeg')}}" alt="Random Image 1"
+                                     class="w-full h-full object-cover">
                             </div>
 
                             @foreach ($medias as $media)
 
-                                <div class="carousel-item absolute top-0 left-0 w-full h-full opacity-0 transition-all duration-500 ease-out" role="group" aria-roledescription="slide" aria-label="Slide 2">
-{{--                                    <img src="{{ $media->getUrl("medium") }}" alt="Random Image 2" class="w-full h-full object-cover">--}}
+                                <div
+                                    class="carousel-item absolute top-0 left-0 w-full h-full opacity-0 transition-all duration-500 ease-out"
+                                    role="group" aria-roledescription="slide" aria-label="Slide 2">
+                                    {{--                                    <img src="{{ $media->getUrl("medium") }}" alt="Random Image 2" class="w-full h-full object-cover">--}}
                                     {{$media->img()->attributes(['class'=>" w-full h-full object-cover"])}}
                                 </div>
                             @endforeach
 
                         </div>
-                        <button class="prev text-white p-2 z-50 absolute left-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0" aria-label="Previous slide">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                        <button
+                            class="prev text-white p-2 z-50 absolute left-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0"
+                            aria-label="Previous slide">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
                             <span class="sr-only">Previous Slide</span>
                         </button>
-                        <button class="next text-white p-2 z-50 absolute right-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0" aria-label="Next slide">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                        <button
+                            class="next text-white p-2 z-50 absolute right-4 top-1/2 transform -translate-y-1/2 appearance-none border-none bg-gray-300 bg-opacity-30 rounded-full focus:outline-none focus:ring-0"
+                            aria-label="Next slide">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
                             <span class="sr-only">Next slide</span>
                         </button>
                     </div>
