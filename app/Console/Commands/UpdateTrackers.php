@@ -33,29 +33,17 @@ class UpdateTrackers extends Command
     public function handle()
     {
         $this->info("Process Started");
-        $trackers = Tracker::with('events')->get();
+        $trackers = Tracker::with(['events','users'])->get();
         foreach ($trackers as $tracker) {
             $tracker->update([
                 'last_updated'=>now(),
             ]);
 
-            $this->info("Starting to update " . $tracker->title);
-            if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-                $users = User::whereNot('type', UserType::MENTOR)
-                    ->whereNot('type', UserType::Veteran)->get();
-            } else
-                $users = User::whereIn('id', function ($query) use ($tracker) {
-                    $query->select('user_id')
-                        ->from('group_user')
-                        ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                        ->whereIn('groups.id', function ($query) use ($tracker) {
-                            $query->select('group_id')
-                                ->from('group_tracker')
-                                ->where('tracker_id', $tracker->id);
-                        });
-                })->get();
 
-            $this->info("Got " . count($users) . " users for this tracker");
+            $this->info("Starting to update " . $tracker->title);
+
+
+            $this->info("Got " . count($tracker->users) . " users for this tracker");
             $contests = $tracker->events;
 
             $this->info("Got " . count($contests) . " contests for this tracker");
@@ -72,7 +60,7 @@ class UpdateTrackers extends Command
                     $this->info("");
                 } elseif (str_contains($contest->contest_link, 'codeforces.com')) {
                     $this->info("Found A codeforces contest - " . $contest->title);
-                    foreach ($users as $user) {
+                    foreach ($tracker->users as $user) {
                         $this->info("fetching $user->codeforces_username for contest $contest->title");
                         Artisan::call('bot:update-cf', [
 
@@ -85,7 +73,7 @@ class UpdateTrackers extends Command
                     $this->info("");
                 } elseif (str_contains($contest->contest_link, 'atcoder.jp')) {
                     $this->info("Found A atcoder contest - " . $contest->title);
-                    foreach ($users as $user) {
+                    foreach ($tracker->users as $user) {
                         $this->info("fetching $user->atcoder_username for contest $contest->title");
                         Artisan::call('bot:update-atcoder', [
                             'event_id' => $contest->id,

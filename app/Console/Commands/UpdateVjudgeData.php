@@ -35,7 +35,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
      */
     public function handle()
     {
-        $tracker = Tracker::find($this->argument('tracker_id'));
+        $tracker = Tracker::find($this->argument('tracker_id'))->with(['users'])->first();
         if(!$tracker) {
             $this->error('Tracker not found');
             return;
@@ -51,27 +51,12 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         }
 
 
-        if ($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL) {
-            $users = User::whereNot('type', UserType::MENTOR)
-                ->whereNot('type', UserType::Veteran)->select(['id', 'vjudge_username'])->get();
-        } else
-            $users = User::whereIn('id', function ($query) use ($tracker) {
-                $query->select('user_id')
-                    ->from('group_user')
-                    ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                    ->whereIn('groups.id', function ($query) use ($tracker) {
-                        $query->select('group_id')
-                            ->from('group_tracker')
-                            ->where('tracker_id', $tracker->id);
-                    });
-            })->select(['id', 'vjudge_username'])->get();
-
 
         $parsedUrl = parse_url($contest->contest_link ?? "");
         $pathSegments = explode('/', trim($parsedUrl['path'], '/'));
         $contestID = $pathSegments[1] ?? null;
         if ($pathSegments[0] !== 'contest' || !$contestID) {
-            foreach ($users as $user) {
+            foreach ($tracker->users as $user) {
                 SolveCount::updateOrCreate([
                     'event_id' => $contest->id,
                     'user_id' => $user->id,
@@ -96,7 +81,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
 
 
         if (!$responseData) {
-            foreach ($users as $user) {
+            foreach ($tracker->users as $user) {
                 SolveCount::updateOrCreate([
                     'event_id' => $contest->id,
                     'user_id' => $user->id,
@@ -157,7 +142,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
             }
         }
 
-        foreach ($users as $user) {
+        foreach ($tracker->users as $user) {
             $vjudge_username = $user->vjudge_username ?? null;
 
             if (!$vjudge_username) {
