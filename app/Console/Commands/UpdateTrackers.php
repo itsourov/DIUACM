@@ -85,8 +85,13 @@ class UpdateTrackers extends Command
                     $this->info("");
                 }
             }
+
             $this->info("Finished updating " . $tracker->title);
             $this->info("");
+//            Recalculate score
+
+
+
             cache()->flush();
             $this->info("Cache cleared");
 

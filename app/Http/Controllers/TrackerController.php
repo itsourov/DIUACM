@@ -7,6 +7,7 @@ use App\Enums\UserType;
 use App\Http\Resources\RanklistResource;
 use App\Http\Resources\RanklistUserCollection;
 use App\Jobs\ProcessTracker;
+use App\Models\SolveCount;
 use App\Models\Tracker;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -90,66 +91,28 @@ class TrackerController extends Controller
 
     public function ranklistApi(Tracker $tracker)
     {
-
         $tracker->loadMissing('events');
-        $contests = $tracker->events;
+        // Retrieve the events associated with the tracker and their weights
+        $events = $tracker->events;
 
-        $eventIds = $contests->pluck('id')->toArray();
+        $solveCounts = SolveCount::whereIn('event_id', $events->pluck('id'))->get();
 
-        // Convert the events collection to an array with event ID as key and weight as value for easy lookup
-        $eventWeights = $contests->pluck('weight', 'id')->toArray();
-
-
-        $users = User::select(['id', 'name'])
-            ->with(['solveCounts' => function ($query) use ($eventIds) {
-                $query->whereIn('event_id', $eventIds);
-            }, 'media'])
-            ->when($tracker->organized_for == AccessStatuses::SELECTED_PERSONS, function ($query) use ($tracker) {
-                return $query->whereIn('id', function ($query) use ($tracker) {
-                    $query->select('user_id')
-                        ->from('group_user')
-                        ->join('groups', 'group_user.group_id', '=', 'groups.id')
-                        ->whereIn('groups.id', function ($query) use ($tracker) {
-                            $query->select('group_id')
-                                ->from('group_tracker')
-                                ->where('tracker_id', $tracker->id);
-                        });
-                });
-            })
-            ->when($tracker->organized_for == AccessStatuses::OPEN_FOR_ALL, function ($query) use ($tracker) {
-                return $query->whereNot('type', UserType::MENTOR)
-                    ->whereNot('type', UserType::Veteran);
-            })
-            ->get()
-            ->map(function ($user) use ($eventWeights, $tracker) {
-                $score = 0;
-
-                // Key solveCounts by event_id for easier access
-                $solveCounts = $user->solveCounts->keyBy('event_id');
-
-                foreach ($solveCounts as $eventId => $solveCount) {
-                    $weight = $eventWeights[$eventId] ?? 1; // Default to weight 1 if not specified
-
-                    // Calculate weighted score
-                    $score += ($solveCount->solve_count * $weight) + (($solveCount->upsolve_count * $weight / 2) * $tracker->count_upsolve);
-                }
-
-                // Assign the calculated score to the user model's `score` attribute
-                $user->score = $score;
-                $user->solveCounts = $solveCounts; // Reassign the keyed solveCounts for direct access by event_id
-
-                return $user;
-            })
-            ->sortByDesc('score') // Sort by score after mapping
-            ->values();
-
+        $users = $tracker->users()->select(['users.id'])->get();
         foreach ($users as $user) {
-            $tracker->users()->updateExistingPivot($user->id, [
-                'score' => $user->score,
-            ]);
-        }
-        return new RanklistUserCollection($users);
 
+            $score = 0;
+            foreach($events as $event) {
+                $solveCount = $solveCounts->where('event_id', $event->id)->where('user_id', $user->id)->first();
+                if ($solveCount) {
+                    $eventWeight = $event->weight; // Default weight to 1 if not provided
+                    $score += ($solveCount->solve_count + 0.5 * $solveCount->upsolve_count) * $eventWeight;
+                }
+            }
+            $tracker->users()->updateExistingPivot($user->id, ['score' => $score]);
+
+        }
+
+        return "sad";
 
     }
 
