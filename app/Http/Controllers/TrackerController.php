@@ -51,7 +51,7 @@ class TrackerController extends Controller
 
         // Cache contests for this tracker with a shorter key
         $contests = cache()->remember('cts_' . $tracker->id, 60 * 60 * 2, function () use ($tracker) {
-            return $tracker->events;
+            return $tracker->events()->where('ending_time','<=', now())->get();
         });
 
         $eventIds = $contests->pluck('id');
