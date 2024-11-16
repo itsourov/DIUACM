@@ -6,6 +6,7 @@ use App\Enums\AccessStatuses;
 use App\Enums\UserType;
 use App\Jobs\ProcessAtcoderApi;
 use App\Jobs\ProcessCFApi;
+use App\Models\SolveCount;
 use App\Models\Tracker;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -33,10 +34,10 @@ class UpdateTrackers extends Command
     public function handle()
     {
         $this->info("Process Started");
-        $trackers = Tracker::with(['events','users'])->get();
+        $trackers = Tracker::with(['events', 'users'])->get();
         foreach ($trackers as $tracker) {
             $tracker->update([
-                'last_updated'=>now(),
+                'last_updated' => now(),
             ]);
 
 
@@ -87,10 +88,35 @@ class UpdateTrackers extends Command
             }
             $this->info("Finished updating " . $tracker->title);
             $this->info("");
-            cache()->flush();
-            $this->info("Cache cleared");
+
+
+//            update score
+            $tracker->loadMissing('events');
+            // Retrieve the events associated with the tracker and their weights
+            $events = $tracker->events;
+
+            $solveCounts = SolveCount::whereIn('event_id', $events->pluck('id'))->get();
+
+            $users = $tracker->users()->select(['users.id'])->get();
+            foreach ($users as $user) {
+
+                $score = 0;
+                foreach ($events as $event) {
+                    $solveCount = $solveCounts->where('event_id', $event->id)->where('user_id', $user->id)->first();
+                    if ($solveCount) {
+                        $eventWeight = $event->weight; // Default weight to 1 if not provided
+                        $score += ($solveCount->solve_count + 0.5 * $solveCount->upsolve_count) * $eventWeight;
+                    }
+                }
+                $tracker->users()->updateExistingPivot($user->id, ['score' => $score]);
+
+            }
+//            update score end
 
 
         }
+
+        cache()->flush();
+        $this->info("Cache cleared");
     }
 }
