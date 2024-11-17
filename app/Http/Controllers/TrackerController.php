@@ -157,7 +157,7 @@ class TrackerController extends Controller
     {
 
 
-        $users = User::select(['vjudge_username', 'atcoder_username', 'codeforces_username'])->get();
+        $users = User::get();
         foreach ($users as $user) {
             $newUsername = Str::trim($user->vjudge_username);
             $newUsername = str_replace('https://vjudge.net/user/', '', $newUsername);
@@ -172,7 +172,8 @@ class TrackerController extends Controller
             $user->update(['codeforces_username' => $newUsername]);
 
         }
-        return $users;
+        dump($users);
+        return "ok";
     }
 
     /**
