@@ -68,7 +68,7 @@ class TrackerController extends Controller
                         $query->whereIn('event_id', $eventIds);
                     }
                 ])
-                ->paginate(30);
+                ->paginate(50);
         });
 
         // Key solveCounts by event_id directly after retrieving users
