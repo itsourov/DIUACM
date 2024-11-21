@@ -10,6 +10,9 @@ use App\Http\Middleware\EnsureDiuEmail;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/phpinfo', function (){
+    return phpinfo();
+})->name('phpinfo');
 
 Route::prefix('events')->name('events.')->group(function () {
     Route::get('/', [EventController::class, 'index'])->name('index');
