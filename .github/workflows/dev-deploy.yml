@@ -44,6 +44,17 @@ jobs:
         run: |
           php artisan migrate:fresh --seed
 
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Adjust to your Node.js version
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Run NPM Build
+        run: npm run build
+
       - name: Run Tests
         env:
           DB_CONNECTION: sqlite
