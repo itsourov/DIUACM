@@ -6,28 +6,46 @@ on:
       - dev
 
 jobs:
-  test:
+  laravel-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.3' # Adjust to your PHP version
+          extensions: mbstring, sqlite3
           tools: composer
 
-      - name: Install dependencies
-        run: composer install --no-interaction
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Dependencies
+        run: composer install --no-ansi --no-interaction --prefer-dist
+
+      - name: Generate App Key
+        run: php artisan key:generate
+
+      - name: Set Directory Permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      - name: Set Up SQLite Database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
 
       - name: Run Tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
         run: php artisan test
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test
+    needs: laravel-tests
 
     steps:
       - name: Checkout code
@@ -50,7 +68,6 @@ jobs:
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
             php artisan clear-compiled
             php artisan optimize
-            php artisan filament:optimize
             npm ci
             npm run build
             php artisan migrate --force
