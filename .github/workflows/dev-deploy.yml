@@ -1,4 +1,4 @@
-name: Deploy to VPS (Dev)
+name: Test and Deploy to VPS
 
 on:
   push:
@@ -6,8 +6,28 @@ on:
       - dev
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Run Tests
+        run: php artisan test
+
   deploy:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
@@ -30,6 +50,7 @@ jobs:
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
             php artisan clear-compiled
             php artisan optimize
+            php artisan filament:optimize
             npm ci
             npm run build
             php artisan migrate --force
