@@ -3,7 +3,10 @@ name: Test and Deploy to VPS
 on:
   push:
     branches:
-      - dev
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   laravel-tests:
@@ -47,7 +50,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Adjust to your Node.js version
+          node-version: '20' # Adjust to your Node.js version
 
       - name: Install NPM Dependencies
         run: npm ci
@@ -72,10 +75,10 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
-          port: ${{ secrets.VPS_PORT }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             cd /var/www/dev-diuacm
             php artisan down || true
