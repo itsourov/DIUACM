@@ -4,7 +4,7 @@
         <div class="container mx-auto px-2">
             <x-card class="sm:p-4 md:p-8">
                 <article class="mt-5 prose dark:prose-invert prose-a:text-primary-600 prose-base mx-auto max-w-none ">
-                    <h2><strong>Terms and Conditions</strong></h2>
+                    <h2><strong>Terms and Conditions Ok</strong></h2>
 
                     <p>Welcome to {{ config('app.name') }}!</p>
 
