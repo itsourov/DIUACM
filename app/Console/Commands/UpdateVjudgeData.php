@@ -105,6 +105,8 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
             return;
         }
 
+        $this->info($responseData['participants']);
+
         $time = ($responseData['length'] ?? 0) / 1000;
         $participants = $responseData['participants'] ?? [];
         $submissions = $responseData['submissions'] ?? [];
