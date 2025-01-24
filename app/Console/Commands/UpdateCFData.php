@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Http;
 
-class UpdateCFData extends Command  implements PromptsForMissingInput
+class UpdateCFData extends Command implements PromptsForMissingInput
 {
     /**
      * The name and signature of the console command.
@@ -32,13 +32,13 @@ class UpdateCFData extends Command  implements PromptsForMissingInput
     {
 
         $contest = Event::find($this->argument('event_id'));
-        if(!$contest) {
+        if (!$contest) {
 
             $this->error('Contest not found');
             return;
         }
         $user = User::find($this->argument('user_id'));
-        if(!$user) {
+        if (!$user) {
             $this->error('User not found');
             return;
         }
@@ -77,9 +77,13 @@ class UpdateCFData extends Command  implements PromptsForMissingInput
             return;
         }
 
+
         $contestAPI = "http://codeforces.com/api/contest.status?contestId=$contestID&handle=$codeforces_username";
 
-        $response = Http::get($contestAPI)->json();
+        $response = cache()->remember('cf_fetch_' . $contestAPI, 60 * 60 * 2, function () use ($contestAPI) {
+            return Http::get($contestAPI)->json();
+        });
+
 
         $solve = [];
         $upsolve = [];
