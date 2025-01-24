@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use ValentinMorice\FilamentJsonColumn\FilamentJsonColumn;
 
 
 class Event extends Model
@@ -182,10 +183,8 @@ class Event extends Model
                                 ->native(true),
                         ]),
 
-                    TextArea::make('result')
-                        ->hint("https://vjudge.net/contest/rank/single/{contestID}")
-                        ->rows(10)
-                        ->nullable()
+                    FilamentJsonColumn::make('result')->hint("https://vjudge.net/contest/rank/single/contestID"),
+
                 ]),
         ];
     }

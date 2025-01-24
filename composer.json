@@ -20,7 +20,8 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "owenvoke/blade-fontawesome": "^2.6",
         "ralphjsmit/laravel-seo": "^1.6",
-        "stechstudio/filament-impersonate": "^3.14"
+        "stechstudio/filament-impersonate": "^3.14",
+        "valentin-morice/filament-json-column": "^1.5"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
