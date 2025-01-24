@@ -70,11 +70,14 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
 
         }
 
-        $this->info("asd");
+
 
         if ($contest->result) {
+            $this->info("found saved data.");
             $responseData = $contest->result;
+
         } else {
+            $this->info("fetching data");
             $responseData = cache()->remember('vjudge+' . $contestID . "+" . $contestID, 60 * 60 * 2, function () use ($contestID) {
                 return Http::withHeaders([
                     'User-Agent' => 'PostmanRuntime/7.26.10',
