@@ -1,12 +1,12 @@
 <?php
-	
+
 	use App\Enums\AccessStatuses;
 	use App\Enums\EventTypes;
 	use App\Enums\VisibilityStatuses;
 	use Illuminate\Database\Migrations\Migration;
 	use Illuminate\Database\Schema\Blueprint;
 	use Illuminate\Support\Facades\Schema;
-	
+
 	return new class extends Migration {
 		public function up(): void
 		{
@@ -23,11 +23,12 @@
 				$table->enum('visibility', VisibilityStatuses::toArray())->default(VisibilityStatuses::PENDING);
 				$table->enum('organized_for', AccessStatuses::toArray())->default(AccessStatuses::SELECTED_PERSONS);
 				$table->float('weight')->default(1);
+				$table->json('result')->nullable();
 				$table->softDeletes();
 				$table->timestamps();
 			});
 		}
-		
+
 		public function down(): void
 		{
 			Schema::dropIfExists('events');
