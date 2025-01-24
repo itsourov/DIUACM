@@ -56,6 +56,7 @@ class Event extends Model
             'visibility' => VisibilityStatuses::class,
             'organized_for' => AccessStatuses::class,
             'type' => EventTypes::class,
+            'result' => 'array',
         ];
     }
 
