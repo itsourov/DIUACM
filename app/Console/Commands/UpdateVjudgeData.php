@@ -73,10 +73,9 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
 
 
         if ($contest->result) {
-            $this->info("found saved data.");
             $responseData = $contest->result;
 
-
+            //make response data from database same behave like the responsedata from api call.
         } else {
             $this->info("fetching data");
             $responseData = cache()->remember('vjudge+' . $contestID . "+" . $contestID, 60 * 60 * 2, function () use ($contestID) {
@@ -105,7 +104,6 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
             return;
         }
 
-        $this->info($responseData['participants']);
 
         $time = ($responseData['length'] ?? 0) / 1000;
         $participants = $responseData['participants'] ?? [];
