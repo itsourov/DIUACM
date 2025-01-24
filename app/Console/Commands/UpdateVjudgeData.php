@@ -29,19 +29,18 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
     protected $description = 'Command description';
 
 
-
     /**
      * Execute the console command.
      */
     public function handle()
     {
         $tracker = Tracker::find($this->argument('tracker_id'))->with(['users'])->first();
-        if(!$tracker) {
+        if (!$tracker) {
             $this->error('Tracker not found');
             return;
         }
         $contest = Event::find($this->argument('event_id'));
-        if(!$contest) {
+        if (!$contest) {
             $this->error('Contest not found');
             return;
         }
@@ -49,7 +48,6 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
             $this->error("This is not a vjudge contest");
             return;
         }
-
 
 
         $parsedUrl = parse_url($contest->contest_link ?? "");
@@ -73,11 +71,16 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         }
 
 
-        $responseData = cache()->remember('vjudge+'.$contestID."+".$contestID, 60 * 60 * 2, function () use ($contestID) {
-            return Http::withHeaders([
-                'User-Agent' => 'PostmanRuntime/7.26.10',
-            ])->get('https://vjudge.net/contest/rank/single/' . $contestID)->json();
-        });
+        if ($contest->result) {
+            $responseData = $contest->result;
+        } else {
+            $responseData = cache()->remember('vjudge+' . $contestID . "+" . $contestID, 60 * 60 * 2, function () use ($contestID) {
+                return Http::withHeaders([
+                    'User-Agent' => 'PostmanRuntime/7.26.10',
+                ])->get('https://vjudge.net/contest/rank/single/' . $contestID)->json();
+            });
+
+        }
 
 
         if (!$responseData) {
@@ -178,6 +181,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         }
 
     }
+
     private static function problemIndexGenerate(): array
     {
         $totalProblem = 50;
