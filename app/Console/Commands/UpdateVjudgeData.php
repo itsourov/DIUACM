@@ -106,7 +106,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         $data = [];
 
         foreach ($participants as $participantId => $participant) {
-//            $this->info("Participant $participantId");
+            $this->info("Participant $participantId");
             $temp = [
                 'solveCount' => 0,
                 'upSolveCount' => 0,
