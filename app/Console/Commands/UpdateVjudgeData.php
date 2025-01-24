@@ -75,6 +75,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         if ($contest->result) {
             $this->info("found saved data.");
             $responseData = $contest->result;
+            $this->info($responseData);
 
         } else {
             $this->info("fetching data");
