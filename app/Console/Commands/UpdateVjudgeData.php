@@ -75,7 +75,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
         if ($contest->result) {
             $this->info("found saved data.");
             $responseData = $contest->result;
-            $this->info($responseData);
+
 
         } else {
             $this->info("fetching data");
@@ -89,6 +89,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
 
 
         if (!$responseData) {
+            $this->info("response failed");
             foreach ($tracker->users as $user) {
                 SolveCount::updateOrCreate([
                     'event_id' => $contest->id,
