@@ -70,6 +70,7 @@ class UpdateVjudgeData extends Command implements PromptsForMissingInput
 
         }
 
+        $this->info("asd");
 
         if ($contest->result) {
             $responseData = $contest->result;
