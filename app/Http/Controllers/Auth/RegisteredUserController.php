@@ -35,7 +35,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class,
                 function ($attribute, $value, $fail) {
-                    if (!(Str::endsWith($value, '@diu.edu.bd') || Str::endsWith($value, '@s.diu.edu.bd') || $value === "ferdouseahmedfoysal@gmail.com")) {
+                    if (!(Str::endsWith($value, '@diu.edu.bd') || Str::endsWith($value, '@s.diu.edu.bd'))) {
                         $fail('You must register with a DIU email address.');
                     }
                 },],
