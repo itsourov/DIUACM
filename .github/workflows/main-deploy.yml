@@ -3,10 +3,10 @@ name: Test and Deploy (Main)
 on:
   push:
     branches:
-      - asda
+      - main
   merge_group:
     branches:
-      - asdas
+      - main
 
 jobs:
   laravel-tests:
