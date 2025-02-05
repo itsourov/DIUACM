@@ -10,16 +10,17 @@ use App\Models\SolveCount;
 use App\Models\Tracker;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Artisan;
 
-class UpdateTrackers extends Command
+class UpdateTrackers extends Command implements PromptsForMissingInput
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'bot:update-trackers';
+    protected $signature = 'bot:update-trackers {tracker_id}';
 
     /**
      * The console command description.
@@ -34,7 +35,12 @@ class UpdateTrackers extends Command
     public function handle()
     {
         $this->info("Process Started");
-        $trackers = Tracker::with(['events', 'users'])->get();
+        if ($this->argument('tracker_id') != 'all') {
+            $trackers = Tracker::with(['events', 'users'])->where('id', $this->argument('tracker_id'))->get();
+        } else {
+            $trackers = Tracker::with(['events', 'users'])->get();
+
+        }
         foreach ($trackers as $tracker) {
             $tracker->update([
                 'last_updated' => now(),
@@ -105,7 +111,7 @@ class UpdateTrackers extends Command
                     $solveCount = $solveCounts->where('event_id', $event->id)->where('user_id', $user->id)->first();
                     if ($solveCount) {
                         $eventWeight = $event->weight; // Default weight to 1 if not provided
-                        $score += ($solveCount->solve_count + 0.5 * $solveCount->upsolve_count) * $eventWeight;
+                        $score += ($solveCount->solve_count + 0.5 * $solveCount->upsolve_count * $tracker->count_upsolve) * $eventWeight;
                     }
                 }
                 $tracker->users()->updateExistingPivot($user->id, ['score' => $score]);
