@@ -34,7 +34,7 @@ class UpdateTrackers extends Command implements PromptsForMissingInput
      */
     public function handle()
     {
-        $this->info("Process Started");
+        $this->info("Process Started. ok");
         if ($this->argument('tracker_id') != 'all') {
             $trackers = Tracker::with(['events', 'users'])->where('id', $this->argument('tracker_id'))->get();
         } else {
