@@ -111,7 +111,7 @@ class UpdateTrackers extends Command implements PromptsForMissingInput
                     $solveCount = $solveCounts->where('event_id', $event->id)->where('user_id', $user->id)->first();
                     if ($solveCount) {
                         $eventWeight = $event->weight; // Default weight to 1 if not provided
-                        $score += ($solveCount->solve_count + 0.5 * $solveCount->upsolve_count * $tracker->count_upsolve) * $eventWeight;
+                        $score += ($solveCount->solve_count + 0.25 * $solveCount->upsolve_count * $tracker->count_upsolve) * $eventWeight;
                     }
                 }
                 $tracker->users()->updateExistingPivot($user->id, ['score' => $score]);
