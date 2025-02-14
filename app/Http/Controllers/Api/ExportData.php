@@ -14,7 +14,7 @@ class ExportData extends Controller
     {
 
         if (request()->header('Authorization') != config('app.key')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json([], 401);
         }
         return DB::table('users')->get();
 
