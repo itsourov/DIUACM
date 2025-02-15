@@ -19,6 +19,21 @@ class ExportData extends Controller
         return DB::table('users')->get();
 
     }
+    public function pp()
+    {
+
+        $users = User::with('media')->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'profile_image_url' => $user->getFirstMediaUrl('profile-images'),
+                'profile_image_thumbnail' => $user->getFirstMediaUrl('profile-images', 'preview')
+            ];
+        });
+        return $users;
+
+    }
 
     public function events()
     {

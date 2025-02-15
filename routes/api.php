@@ -13,6 +13,7 @@ Route::prefix('trackers')->name('trackers.')->group(function () {
 });
 
 Route::get('/users', [ExportData::class, 'users']);
+Route::get('/pp', [ExportData::class, 'pp']);
 Route::get('/events', [ExportData::class, 'events']);
 
 
