@@ -22,7 +22,7 @@ class ExportData extends Controller
     public function pp()
     {
 
-        $users = User::with('media')->get()->map(function ($user) {
+        $users = User::with('media')->get()->keyBy('email')->map(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
