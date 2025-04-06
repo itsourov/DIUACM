@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Visibility {
+  PUBLISHED
+  DRAFT
+  PRIVATE
+}
+
+enum EventType {
+  CONTEST
+  CLASS
+  OTHER
+}
+
+enum AttendanceScope {
+  OPEN_FOR_ALL
+  ONLY_GIRLS
+  JUNIOR_PROGRAMMERS
+  SELECTED_PERSONS
+}
+
+enum ContestType {
+  ICPC_REGIONAL
+  ICPC_ASIA_WEST
+  IUPC
+  OTHER
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  username         String    @unique
+  emailVerified    DateTime? @map("email_verified_at")
+  image            String?
+  password         String?
+  gender           Gender?
+  phone            String?
+  codeforcesHandle String?   @map("codeforces_handle")
+  atcoderHandle    String?   @map("atcoder_handle")
+  vjudgeHandle     String?   @map("vjudge_handle")
+  startingSemester String?   @map("starting_semester")
+  department       String?
+  studentId        String?   @map("student_id")
+  maxCfRating      Int?      @map("max_cf_rating")
+  rememberToken    String?   @map("remember_token")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  accounts        Account[]
+  sessions        Session[]
+  attendedEvents  Event[]
+  rankListUsers   RankListUser[]
+  solveStats      UserSolveStatOnEvent[]
+  teamMemberships TeamMember[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refreshToken      String? @map("refresh_token")
+  accessToken       String? @map("access_token")
+  expiresAt         Int?    @map("expires_at")
+  tokenType         String? @map("token_type")
+  scope             String?
+  idToken           String? @map("id_token")
+  sessionState      String? @map("session_state")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions_next")
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Event {
+  id                 Int             @id @default(autoincrement())
+  title              String
+  status             Visibility      @default(DRAFT)
+  startingAt         DateTime        @map("starting_at")
+  endingAt           DateTime        @map("ending_at")
+  eventLink          String?         @unique @map("event_link")
+  eventPassword      String?         @map("event_password")
+  openForAttendance  Boolean         @map("open_for_attendance")
+  strictAttendance   Boolean         @default(false) @map("strict_attendance")
+  type               EventType       @default(CONTEST)
+  participationScope AttendanceScope @default(OPEN_FOR_ALL) @map("participation_scope")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+
+  attendances User[]
+  rankLists   EventRankList[]
+  solveStats  UserSolveStatOnEvent[]
+
+  @@map("events")
+}
+
+model Tracker {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String
+  status      Visibility @default(DRAFT)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  rankLists RankList[]
+
+  @@map("trackers")
+}
+
+model RankList {
+  id              String   @id @default(cuid())
+  trackerId       String   @map("tracker_id")
+  title           String   @db.VarChar(255)
+  session         String   @db.VarChar(255)
+  description     String?  @db.VarChar(255)
+  weightOfUpsolve Float    @default(0.25) @map("weight_of_upsolve")
+  isArchived      Boolean  @default(false) @map("is_archived")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  tracker        Tracker         @relation(fields: [trackerId], references: [id])
+  eventRankLists EventRankList[]
+  rankListUsers  RankListUser[]
+
+  @@map("rank_lists")
+}
+
+model EventRankList {
+  id         String   @id @default(cuid())
+  eventId    Int      @map("event_id")
+  rankListId String   @map("rank_list_id")
+  weight     Float    @default(1)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rankList RankList @relation(fields: [rankListId], references: [id], onDelete: Cascade)
+
+  @@unique([rankListId, eventId])
+  @@map("event_rank_list")
+}
+
+model RankListUser {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  rankListId String   @map("rank_list_id")
+  score      Float    @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rankList RankList @relation(fields: [rankListId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rankListId])
+  @@map("rank_list_user")
+}
+
+model UserSolveStatOnEvent {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  eventId       Int      @map("event_id")
+  solveCount    Int      @map("solve_count")
+  upsolveCount  Int      @map("upsolve_count")
+  participation Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("solve_stats")
+}
+
+model Contest {
+  id           String      @id @default(cuid())
+  name         String
+  contestType  ContestType @default(OTHER) @map("contest_type")
+  location     String?
+  date         DateTime
+  description  String?
+  standingsUrl String?     @map("standings_url")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  teams Team[]
+
+  @@map("contests")
+}
+
+model Team {
+  id         String   @id @default(cuid())
+  name       String
+  contestId  String   @map("contest_id")
+  rank       Int?
+  solveCount Int?     @map("solve_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  contest Contest      @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  members TeamMember[]
+
+  @@unique([contestId, name])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model ContactFormSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_form_submissions")
+}
