@@ -49,7 +49,7 @@ export default function AboutPage() {
             </p>
             <p>
               At DIU ACM, we believe in learning through practice and teamwork.
-              We're committed to building a community where programming skills
+              We&apos;re committed to building a community where programming skills
               are nurtured, challenged, and celebrated.
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function AboutPage() {
                   skills and compete at national and international levels.
                 </li>
                 <li>
-                  <span className="font-medium">Trainer's Classes:</span> Senior
+                  <span className="font-medium">Trainer&apos;s Classes:</span> Senior
                   competitive programmers and invited trainers conduct classes,
                   covering advanced topics to help members improve their
                   algorithmic and problem-solving abilities.
@@ -134,7 +134,7 @@ export default function AboutPage() {
 
           <div className="space-y-4 text-slate-600 dark:text-slate-300 text-center max-w-2xl mx-auto">
             <p>
-              Whether you're an experienced competitive programmer or just
+              Whether you&apos;re an experienced competitive programmer or just
               starting your journey, DIU ACM welcomes you. Join our community to
               learn, grow, and excel in the world of competitive programming.
             </p>

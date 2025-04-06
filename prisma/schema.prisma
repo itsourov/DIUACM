@@ -150,9 +150,9 @@ model Tracker {
 model RankList {
   id              String   @id @default(cuid())
   trackerId       String   @map("tracker_id")
-  title           String   @db.VarChar(255)
-  session         String   @db.VarChar(255)
-  description     String?  @db.VarChar(255)
+  title           String
+  session         String
+  description     String?
   weightOfUpsolve Float    @default(0.25) @map("weight_of_upsolve")
   isArchived      Boolean  @default(false) @map("is_archived")
   createdAt       DateTime @default(now()) @map("created_at")
