@@ -13,12 +13,12 @@ import {
   Menu,
   X,
   Home,
-  FileQuestion,
   Users,
   Info,
   LogOut,
   User,
   Mail,
+  Calendar,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,8 +33,8 @@ import { useSession, signOut } from "next-auth/react";
 // Memoized menu items for better performance
 const menuItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Questions", href: "/questions", icon: FileQuestion },
-  { name: "Contributors", href: "/contributors", icon: Users },
+  { name: "Events", href: "/events", icon: Calendar },
+  { name: "Programmers", href: "/programmers", icon: Users },
   { name: "About", href: "/about", icon: Info },
   { name: "Contact", href: "/contact", icon: Mail },
 ];
