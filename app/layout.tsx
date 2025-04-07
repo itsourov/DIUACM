@@ -8,6 +8,7 @@ import Navbar from "@/components/navbar";
 import React from "react";
 
 import { Metadata } from "next";
+import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: {
@@ -40,7 +41,7 @@ export default function RootLayout({
 
             <Navbar />
             <main className="flex-grow">{children}</main>
-
+            <Footer />
             <Toaster richColors />
           </SessionProvider>
         </ThemeProvider>
