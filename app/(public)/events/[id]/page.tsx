@@ -213,14 +213,13 @@ export default async function EventDetailsPage({
             </div>
 
             {/* Event Description (if available) */}
-            {event.description || (
+            {event.description && (
               <div className="mb-6">
                 <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-700">
                   <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
                     <div className="text-slate-700 dark:text-slate-300 text-sm">
                       {event.description}
-                
                     </div>
                   </div>
                 </div>
