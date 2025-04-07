@@ -19,6 +19,7 @@ import {
   User,
   Mail,
   Calendar,
+  ListChecks,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ import { useSession, signOut } from "next-auth/react";
 const menuItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Events", href: "/events", icon: Calendar },
+  { name: "Trackers", href: "/trackers", icon: ListChecks },
   { name: "Programmers", href: "/programmers", icon: Users },
   { name: "About", href: "/about", icon: Info },
   { name: "Contact", href: "/contact", icon: Mail },
