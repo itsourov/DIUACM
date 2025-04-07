@@ -3,7 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { getEvents } from "./actions";
 import { EventFilters } from "./components/event-filters";
 import { EventRow } from "./components/event-row";
-import { CustomPagination } from "@/components/ui/custom-pagination";
+import { CustomPagination } from "@/components/custom-pagination";
 
 export const metadata: Metadata = {
   title: "Events - DIU ACM",

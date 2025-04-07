@@ -3,12 +3,12 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import Navbar from "@/components/navbar";
+
 
 import React from "react";
 
 import { Metadata } from "next";
-import Footer from "@/components/footer";
+
 
 export const metadata: Metadata = {
   title: {
@@ -39,9 +39,7 @@ export default function RootLayout({
               <div className="absolute bottom-0 right-0 h-40 w-52 rounded-full bg-violet-200/40 dark:bg-violet-900/20" />
             </div>
 
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
+            {children}
             <Toaster richColors />
           </SessionProvider>
         </ThemeProvider>
