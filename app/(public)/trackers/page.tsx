@@ -71,7 +71,7 @@ export default async function TrackersPage() {
                     {tracker.rankLists && tracker.rankLists.length > 0 && (
                       <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                         <ListChecks className="mr-1 h-3.5 w-3.5" />
-                        Latest: {tracker.rankLists[0].title}
+                        Latest: {tracker.rankLists[0].keyword}
                       </div>
                     )}
 

@@ -166,8 +166,7 @@ model Tracker {
 model RankList {
   id              String   @id @default(cuid())
   trackerId       String   @map("tracker_id")
-  title           String
-  session         String
+  keyword         String
   description     String?
   weightOfUpsolve Float    @default(0.25) @map("weight_of_upsolve")
   isArchived      Boolean  @default(false) @map("is_archived")
@@ -178,6 +177,7 @@ model RankList {
   eventRankLists EventRankList[]
   rankListUsers  RankListUser[]
 
+  @@unique([trackerId, keyword])
   @@map("rank_lists")
 }
 

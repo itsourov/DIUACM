@@ -3,26 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { Visibility } from "@prisma/client";
 
-// Define types based on Prisma schema
-export type Tracker = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  status: Visibility;
-  createdAt: Date;
-  updatedAt: Date;
-  rankLists?: {
-    id: string;
-    title: string;
-  }[];
-  _count?: {
-    rankLists: number;
-  };
-};
+
 
 // Function to get all published trackers
-export async function getTrackers(): Promise<Tracker[]> {
+export async function getTrackers(){
   const trackers = await prisma.tracker.findMany({
     where: {
       status: Visibility.PUBLISHED,
@@ -38,7 +22,7 @@ export async function getTrackers(): Promise<Tracker[]> {
         take: 1,
         select: {
           id: true,
-          title: true,
+          keyword: true,
         },
       },
       _count: {
