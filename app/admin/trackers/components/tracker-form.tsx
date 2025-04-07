@@ -9,6 +9,7 @@ import { Visibility, type Tracker } from "@prisma/client";
 
 import { trackerFormSchema, type TrackerFormValues } from "../schemas/tracker";
 import { createTracker, updateTracker } from "../actions";
+import { getEnumValues } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -174,18 +175,16 @@ export function TrackerForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={Visibility.PUBLISHED}>
-                        Published
-                      </SelectItem>
-                      <SelectItem value={Visibility.DRAFT}>Draft</SelectItem>
-                      <SelectItem value={Visibility.PRIVATE}>
-                        Private
-                      </SelectItem>
+                      {getEnumValues(Visibility).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status.charAt(0) +
+                            status.slice(1).toLowerCase().replace("_", " ")}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
-                //TODO:: make this dynamic
               )}
             />
 
