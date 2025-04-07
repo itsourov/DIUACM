@@ -8,7 +8,7 @@ const HeroSection = () => {
   const currentUser = "diuacm";
 
   return (
-    <section className="relative overflow-hidden py-16 md:py-32">
+    <section className="relative overflow-hidden py-16 md:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2  items-center justify-between gap-10">
           <div>
@@ -73,79 +73,130 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Side - Code Editor with ambient effect */}
-          <div className="hidden md:block flex-1 min-w-0  relative group">
+          {/* Right Side - Enhanced Code Editor with improved styling */}
+          <div className="hidden md:block flex-1 min-w-0 relative group">
             {/* Ambient light effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/30 via-cyan-500/30 to-blue-500/30 rounded-2xl blur-2xl opacity-20 dark:opacity-30 group-hover:opacity-25 dark:group-hover:opacity-40 transition-opacity duration-500"></div>
+            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-purple-500/20 rounded-2xl blur-2xl opacity-25 dark:opacity-40 group-hover:opacity-30 dark:group-hover:opacity-50 transition-opacity duration-500"></div>
 
             {/* Animated corner accents */}
-            <div className="absolute -top-2 -left-2 w-16 h-16 bg-blue-500/20 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-cyan-500/20 rounded-full blur-xl"></div>
+            <div className="absolute -top-2 -left-2 w-16 h-16 bg-blue-500/20 dark:bg-blue-400/20 rounded-full blur-xl animate-pulse duration-5000"></div>
+            <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-purple-500/20 dark:bg-purple-400/20 rounded-full blur-xl animate-pulse duration-7000"></div>
 
-            {/* Code editor with glass effect */}
-            <div className="relative rounded-xl overflow-hidden shadow-2xl bg-slate-900/95 backdrop-blur-sm border border-slate-800/50">
+            {/* Code editor with improved glass effect */}
+            <div className="relative rounded-xl overflow-hidden shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-200 dark:border-slate-800/50 transition-colors duration-300">
               {/* Editor top bar */}
-              <div className="flex items-center justify-between p-3 sm:p-4 bg-slate-900/90 border-b border-slate-800">
+              <div className="flex items-center justify-between p-3 sm:p-4 bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/70 transition-colors duration-300">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <div className="w-3 h-3 rounded-full bg-red-500 shadow-inner" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-inner" />
+                  <div className="w-3 h-3 rounded-full bg-green-500 shadow-inner" />
                 </div>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
                   <Code2 className="w-4 h-4" />
                   main.cpp
                 </div>
+                <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-1.5" />
+                  <span>Ready</span>
+                </div>
               </div>
 
-              {/* Code content */}
-              <div className="p-3 sm:p-4 space-y-4 overflow-x-auto text-white">
-                <pre className="text-xs sm:text-sm font-mono leading-6">
+              {/* Code content with improved syntax highlighting */}
+              <div className="p-4 sm:p-5 space-y-4 overflow-x-auto text-slate-800 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-900/80 transition-colors duration-300">
+                <pre className="text-xs sm:text-sm font-mono leading-6 font-medium">
                   <code>
-                    {`#include `}
-                    <span className="text-slate-300">{`<`}</span>
-                    <span className="text-emerald-400">{`bits/stdc++.h`}</span>
-                    <span className="text-slate-300">{`>`}</span>
-                    {`
-using namespace std;
-`}
-                    <span className="text-fuchsia-400">{`#define`}</span>
-                    {` ll long long
-`}
+                    <span className="text-blue-600 dark:text-blue-400">{`#include `}</span>
+                    <span className="text-slate-500 dark:text-slate-400">{`<`}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{`bits/stdc++.h`}</span>
+                    <span className="text-slate-500 dark:text-slate-400">{`>`}</span>
                     {`
 `}
-                    <span className="text-sky-400">{`int`}</span>
-                    <span className="text-yellow-300">{` main`}</span>
-                    <span className="text-slate-300">{`() {`}</span>
+                    <span className="text-purple-600 dark:text-purple-400">{`using namespace `}</span>
+                    <span className="text-blue-600 dark:text-blue-400">{`std`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
                     {`
-    ios_base::`}
-                    <span className="text-yellow-300">{`sync_with_stdio`}</span>
-                    {`(`}
-                    <span className="text-amber-300">{`0`}</span>
-                    {`);
-    cin.`}
-                    <span className="text-yellow-300">{`tie`}</span>
-                    {`(`}
-                    <span className="text-amber-300">{`0`}</span>
-                    {`);
+`}
+                    <span className="text-pink-600 dark:text-pink-400">{`#define `}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">{`ll `}</span>
+                    <span className="text-blue-600 dark:text-blue-400">{`long long`}</span>
+                    {`
+`}
+                    {`
+`}
+                    <span className="text-blue-600 dark:text-blue-400">{`int`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` `}</span>
+                    <span className="text-yellow-600 dark:text-yellow-400">{`main`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`() {`}</span>
+                    {`
+    `}
+                    <span className="text-blue-600 dark:text-blue-400">{`ios_base`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`::`}</span>
+                    <span className="text-yellow-600 dark:text-yellow-400">{`sync_with_stdio`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`(`}</span>
+                    <span className="text-orange-600 dark:text-orange-400">{`false`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`);`}</span>
+                    {`
+    `}
+                    <span className="text-blue-600 dark:text-blue-400">{`cin`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`.`}</span>
+                    <span className="text-yellow-600 dark:text-yellow-400">{`tie`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`(`}</span>
+                    <span className="text-orange-600 dark:text-orange-400">{`nullptr`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`);`}</span>
+                    {`
 
-    cout << `}
-                    <span className="text-amber-300">{`"Welcome to DIUACM Website"`}</span>
-                    {` << endl;
-}`}
+    `}
+                    <span className="text-blue-600 dark:text-blue-400">{`int`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` `}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
+                    {` `}
+                    <span className="text-blue-600 dark:text-blue-400">{`cin`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` >> `}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
+                    {`
+    `}
+                    <span className="text-pink-600 dark:text-pink-400">{`while`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` (`}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`--) {`}</span>
+                    {`
+        `}
+                    <span className="text-green-600 dark:text-green-400">{`// Solve each test case`}</span>
+                    {`
+        `}
+                    <span className="text-blue-600 dark:text-blue-400">{`cout`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` << `}</span>
+                    <span className="text-amber-600 dark:text-amber-400">{`"Welcome to DIUACM!"`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` << `}</span>
+                    <span className="text-blue-600 dark:text-blue-400">{`endl`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
+                    {`
+    `}
+                    <span className="text-slate-600 dark:text-slate-300">{`}`}</span>
+                    {`
+    `}
+                    <span className="text-pink-600 dark:text-pink-400">{`return`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{` `}</span>
+                    <span className="text-orange-600 dark:text-orange-400">{`0`}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
+                    {`
+`}
+                    <span className="text-slate-600 dark:text-slate-300">{`}`}</span>
                   </code>
                 </pre>
 
-                {/* File info */}
-                <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-800 pt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="hidden sm:inline">{currentTime}</span>
-                    <span className="sm:hidden">
-                      {currentTime.split(":")[0]}:{currentTime.split(":")[1]}
-                    </span>
+                {/* Enhanced status bar */}
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700/50 pt-3 mt-2 transition-colors duration-300">
+                  <div className="flex items-center gap-2 font-mono">
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>@{currentUser}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Terminal className="w-3 h-3" />@{currentUser}
+                    <div className="px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-medium">
+                      {currentTime}
+                    </div>
                   </div>
                 </div>
               </div>
