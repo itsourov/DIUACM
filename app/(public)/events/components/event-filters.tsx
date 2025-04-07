@@ -2,14 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import {
-  Filter,
-  Tag,
-  X,
-  Search as SearchIcon,
-  Users,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Filter, Tag, X, Search as SearchIcon, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,14 +15,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EventType, Visibility, AttendanceScope } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 // Define typed categories for filters
 const EVENT_TYPES = [
@@ -81,14 +66,6 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
     searchParams.get("title") ||
     searchParams.get("scope")
   );
-
-  // Count number of active filters for the badge
-  const activeFiltersCount = [
-    searchParams.get("category"),
-    searchParams.get("status"),
-    searchParams.get("title"),
-    searchParams.get("scope"),
-  ].filter(Boolean).length;
 
   // Create a new URLSearchParams instance to manipulate
   const createQueryString = useCallback(
@@ -142,8 +119,8 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
       {/* Primary filters with search */}
       <Card className="border-slate-200 dark:border-slate-700 mb-4">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="w-full">
               <form onSubmit={handleSearch} className="relative">
                 <Input
                   placeholder="Search events..."
@@ -160,189 +137,79 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
               </form>
             </div>
 
-            <div className="flex">
-              {/* Mobile filter button */}
-              <div className="md:hidden w-full">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
+            <div className="flex flex-wrap gap-2">
+              <Select
+                value={searchParams.get("category") || "all"}
+                onValueChange={(value) =>
+                  handleSelectChange("category", value === "all" ? null : value)
+                }
+              >
+                <SelectTrigger className="w-[160px] md:w-[180px]">
+                  <div className="flex items-center overflow-hidden">
+                    <Tag className="mr-2 h-4 w-4 flex-shrink-0 text-slate-500" />
+                    <SelectValue
+                      className="truncate"
+                      placeholder="Event Type"
+                    />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
+                  <SelectItem value="all">All Event Types</SelectItem>
+                  {EVENT_TYPES.map((type) => (
+                    <SelectItem
+                      key={type.id}
+                      value={type.id}
+                      className="truncate"
                     >
-                      <span className="flex items-center">
-                        <SlidersHorizontal className="mr-2 h-4 w-4" />
-                        Filters
+                      <span className="flex items-center max-w-full">
+                        <span className="mr-1">{type.icon}</span>
+                        <span className="truncate">{type.name}</span>
                       </span>
-                      {activeFiltersCount > 0 && (
-                        <Badge className="ml-2 bg-primary text-primary-foreground">
-                          {activeFiltersCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent>
-                    <SheetHeader>
-                      <SheetTitle>Event Filters</SheetTitle>
-                      <SheetDescription>
-                        Filter events by type and more
-                      </SheetDescription>
-                    </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Event Type</h3>
-                        <Select
-                          value={searchParams.get("category") || "all"}
-                          onValueChange={(value) =>
-                            handleSelectChange(
-                              "category",
-                              value === "all" ? null : value
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Event Type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Event Types</SelectItem>
-                            {EVENT_TYPES.map((type) => (
-                              <SelectItem key={type.id} value={type.id}>
-                                {type.icon} {type.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">
-                          Attendance Scope
-                        </h3>
-                        <Select
-                          value={searchParams.get("scope") || "all"}
-                          onValueChange={(value) =>
-                            handleSelectChange(
-                              "scope",
-                              value === "all" ? null : value
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Attendance Scope" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Scopes</SelectItem>
-                            {ATTENDANCE_SCOPES.map((scope) => (
-                              <SelectItem key={scope.id} value={scope.id}>
-                                {scope.icon} {scope.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+              <Select
+                value={searchParams.get("scope") || "all"}
+                onValueChange={(value) =>
+                  handleSelectChange("scope", value === "all" ? null : value)
+                }
+              >
+                <SelectTrigger className="w-[160px] md:w-[180px]">
+                  <div className="flex items-center overflow-hidden">
+                    <Users className="mr-2 h-4 w-4 flex-shrink-0 text-slate-500" />
+                    <SelectValue className="truncate" placeholder="Scope" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
+                  <SelectItem value="all">All Scopes</SelectItem>
+                  {ATTENDANCE_SCOPES.map((scope) => (
+                    <SelectItem
+                      key={scope.id}
+                      value={scope.id}
+                      className="truncate"
+                    >
+                      <span className="flex items-center max-w-full">
+                        <span className="mr-1">{scope.icon}</span>
+                        <span className="truncate">{scope.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Status</h3>
-                        <Select
-                          value={searchParams.get("status") || "all"}
-                          onValueChange={(value) =>
-                            handleSelectChange(
-                              "status",
-                              value === "all" ? null : value
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            {STATUSES.map((status) => (
-                              <SelectItem key={status.id} value={status.id}>
-                                {status.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {hasActiveFilters && (
-                        <div className="pt-4">
-                          <Button
-                            variant="outline"
-                            onClick={clearAllFilters}
-                            className="w-full"
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Clear all filters
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-
-              {/* Desktop filters */}
-              <div className="hidden md:flex gap-2">
-                <Select
-                  value={searchParams.get("category") || "all"}
-                  onValueChange={(value) =>
-                    handleSelectChange(
-                      "category",
-                      value === "all" ? null : value
-                    )
-                  }
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  onClick={clearAllFilters}
+                  className="h-10"
+                  title="Clear all filters"
                 >
-                  <SelectTrigger className="w-[180px]">
-                    <div className="flex items-center">
-                      <Tag className="mr-2 h-4 w-4 text-slate-500" />
-                      <SelectValue placeholder="Event Type" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Event Types</SelectItem>
-                    {EVENT_TYPES.map((type) => (
-                      <SelectItem key={type.id} value={type.id}>
-                        {type.icon} {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={searchParams.get("scope") || "all"}
-                  onValueChange={(value) =>
-                    handleSelectChange("scope", value === "all" ? null : value)
-                  }
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <div className="flex items-center">
-                      <Users className="mr-2 h-4 w-4 text-slate-500" />
-                      <SelectValue placeholder="Attendance Scope" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Scopes</SelectItem>
-                    {ATTENDANCE_SCOPES.map((scope) => (
-                      <SelectItem key={scope.id} value={scope.id}>
-                        {scope.icon} {scope.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={clearAllFilters}
-                    className="h-10 w-10"
-                    title="Clear all filters"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>
@@ -362,17 +229,6 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
               className="flex items-center gap-1 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
             >
               {`"${searchParams.get("title")}"`}
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  router.push(
-                    `${pathname}?${createQueryString("title", null)}`
-                  );
-                }}
-                className="ml-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
             </Badge>
           )}
 
@@ -383,16 +239,6 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
             >
               {EVENT_TYPES.find((c) => c.id === searchParams.get("category"))
                 ?.name || "Unknown"}
-              <button
-                onClick={() =>
-                  router.push(
-                    `${pathname}?${createQueryString("category", null)}`
-                  )
-                }
-                className="ml-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800/30 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
             </Badge>
           )}
 
@@ -403,14 +249,6 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
             >
               {ATTENDANCE_SCOPES.find((s) => s.id === searchParams.get("scope"))
                 ?.name || "Unknown"}
-              <button
-                onClick={() =>
-                  router.push(`${pathname}?${createQueryString("scope", null)}`)
-                }
-                className="ml-1 rounded-full hover:bg-pink-200 dark:hover:bg-pink-800/30 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
             </Badge>
           )}
 
@@ -421,27 +259,8 @@ export function EventFilters({ initialFilters }: EventFiltersProps) {
             >
               {STATUSES.find((s) => s.id === searchParams.get("status"))
                 ?.name || "Unknown"}
-              <button
-                onClick={() =>
-                  router.push(
-                    `${pathname}?${createQueryString("status", null)}`
-                  )
-                }
-                className="ml-1 rounded-full hover:bg-orange-200 dark:hover:bg-orange-800/30 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
             </Badge>
           )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllFilters}
-            className="ml-auto text-xs h-7 px-2.5 py-1"
-          >
-            Clear all
-          </Button>
         </div>
       )}
     </div>
