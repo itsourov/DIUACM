@@ -3,12 +3,10 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-
-
+import NextTopLoader from "nextjs-toploader";
 import React from "react";
 
 import { Metadata } from "next";
-
 
 export const metadata: Metadata = {
   title: {
@@ -23,6 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased flex flex-col min-h-screen">
+        <NextTopLoader showSpinner={false} />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
