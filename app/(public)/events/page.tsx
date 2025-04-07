@@ -12,28 +12,30 @@ export const metadata: Metadata = {
 
 export interface SearchParams {
   category?: string;
-  status?: string;
   scope?: string;
   page?: string;
   title?: string;
 }
 
 type PageProps = {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 };
 
 export default async function EventsPage({ searchParams }: PageProps) {
+  // Await searchParams to get the actual values
+  const awaitedSearchParams = await searchParams;
   // Parse pagination parameters
-  const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
+  const currentPage = awaitedSearchParams.page
+    ? parseInt(awaitedSearchParams.page)
+    : 1;
 
   // Get events data
   const eventsData = await getEvents({
-    categoryId: searchParams.category,
-    status: searchParams.status,
-    scope: searchParams.scope,
+    categoryId: awaitedSearchParams.category,
+    scope: awaitedSearchParams.scope,
     page: currentPage,
     limit: 10,
-    title: searchParams.title,
+    title: awaitedSearchParams.title,
   });
 
   // Destructure events data
@@ -41,10 +43,9 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
   // Determine if there are active filters
   const hasActiveFilters = !!(
-    searchParams.category ||
-    searchParams.status ||
-    searchParams.title ||
-    searchParams.scope
+    awaitedSearchParams.category ||
+    awaitedSearchParams.title ||
+    awaitedSearchParams.scope
   );
 
   return (

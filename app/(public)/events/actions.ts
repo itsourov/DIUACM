@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { Visibility, EventType, AttendanceScope } from "@prisma/client";
+import { Visibility, EventType, AttendanceScope, Prisma } from "@prisma/client";
 
 // Define types based on Prisma schema
 export type Event = {
@@ -39,7 +39,6 @@ export type PaginatedEvents = {
 // Define filters schema for type safety
 const eventFiltersSchema = z.object({
   categoryId: z.string().optional(),
-  status: z.string().optional(),
   scope: z.string().optional(),
   page: z.coerce.number().default(1),
   limit: z.coerce.number().default(10),
@@ -54,17 +53,14 @@ export async function getEvents(
   const validatedFilters = eventFiltersSchema.parse(filters);
 
   // Build where conditions for Prisma query
-  const where: any = {};
+  const where: Prisma.EventWhereInput = {};
 
   // Filter by event type (category)
   if (validatedFilters.categoryId) {
     where.type = validatedFilters.categoryId as EventType;
   }
 
-  // Filter by event status
-  if (validatedFilters.status) {
-    where.status = validatedFilters.status as Visibility;
-  }
+
 
   // Filter by participation scope
   if (validatedFilters.scope) {
