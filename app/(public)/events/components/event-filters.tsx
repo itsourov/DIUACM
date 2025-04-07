@@ -111,7 +111,7 @@ export function EventFilters() {
     <div>
       {/* Primary filters with search */}
       <Card className="border-slate-200 dark:border-slate-700 mb-4">
-        <CardContent className="p-4">
+        <CardContent>
           <div className="flex flex-col gap-4">
             {/* Redesigned filter layout - row for desktop, column for mobile */}
             <div className="flex flex-col md:flex-row md:items-center gap-4">
