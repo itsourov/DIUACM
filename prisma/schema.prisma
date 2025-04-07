@@ -60,12 +60,12 @@ model User {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  accounts        Account[]
-  sessions        Session[]
-  attendedEvents  Event[]
-  rankListUsers   RankListUser[]
-  solveStats      UserSolveStatOnEvent[]
-  teamMemberships TeamMember[]
+  accounts         Account[]
+  sessions         Session[]
+  eventAttendances EventAttendance[]
+  rankListUsers    RankListUser[]
+  solveStats       UserSolveStatOnEvent[]
+  teamMemberships  TeamMember[]
 
   @@map("users")
 }
@@ -126,11 +126,25 @@ model Event {
   createdAt          DateTime        @default(now()) @map("created_at")
   updatedAt          DateTime        @updatedAt @map("updated_at")
 
-  attendances User[]
+  attendances EventAttendance[]
   rankLists   EventRankList[]
   solveStats  UserSolveStatOnEvent[]
 
   @@map("events")
+}
+
+model EventAttendance {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  eventId   Int      @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("event_attendance")
 }
 
 model Tracker {
