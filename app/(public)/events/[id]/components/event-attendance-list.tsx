@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Users } from "lucide-react";
 import Image from "next/image";
@@ -35,67 +34,75 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center text-xl">
-          <Users className="mr-2 h-5 w-5" />
-          Attendees ({attendees.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {attendees.length === 0 ? (
-          <div className="text-center py-4 text-muted-foreground">
-            No attendees yet.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead className="text-right">Timestamp</TableHead>
+    <div className="space-y-4">
+      {attendees.length === 0 ? (
+        <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+          <Users className="h-12 w-12 mx-auto mb-3 text-slate-400 dark:text-slate-500" />
+          <p>No attendees yet.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
+                  Name
+                </TableHead>
+                <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
+                  Username
+                </TableHead>
+                <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
+                  Student ID
+                </TableHead>
+                <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
+                  Department
+                </TableHead>
+                <TableHead className="text-right text-slate-700 dark:text-slate-300 font-medium">
+                  Timestamp
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {attendees.map((attendee) => (
+                <TableRow key={attendee.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-700">
+                        {attendee.user.image && (
+                          <Image
+                            src={attendee.user.image}
+                            alt={attendee.user.name}
+                            width={40}
+                            height={40}
+                          />
+                        )}
+                        <AvatarFallback className="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                          {getInitials(attendee.user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        {attendee.user.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-slate-700 dark:text-slate-300">
+                    {attendee.user.username}
+                  </TableCell>
+                  <TableCell className="text-slate-700 dark:text-slate-300">
+                    {attendee.user.studentId || "—"}
+                  </TableCell>
+                  <TableCell className="text-slate-700 dark:text-slate-300">
+                    {attendee.user.department || "—"}
+                  </TableCell>
+                  <TableCell className="text-right text-slate-500 dark:text-slate-400">
+                    {format(new Date(attendee.createdAt), "MMM d, h:mm a")}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attendees.map((attendee) => (
-                  <TableRow key={attendee.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          {attendee.user.image && (
-                            <Image
-                              src={attendee.user.image}
-                              alt={attendee.user.name}
-                              width={40}
-                              height={40}
-                            />
-                          )}
-
-                          <AvatarFallback>
-                            {getInitials(attendee.user.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">
-                          {attendee.user.name}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{attendee.user.username}</TableCell>
-                    <TableCell>{attendee.user.studentId || "—"}</TableCell>
-                    <TableCell>{attendee.user.department || "—"}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {format(new Date(attendee.createdAt), "MMM d, h:mm a")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
   );
 }

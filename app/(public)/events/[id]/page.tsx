@@ -9,7 +9,6 @@ import {
   getEventAttendanceList,
 } from "./actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   CalendarDays,
@@ -19,6 +18,7 @@ import {
   CalendarCheck,
   AlertCircle,
   TrendingUp,
+  Info,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceModal } from "./components/attendance-modal";
@@ -26,6 +26,7 @@ import { EventSolveStats } from "./components/event-solve-stats";
 import { EventAttendanceList } from "./components/event-attendance-list";
 import { auth } from "@/lib/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 
 interface EventDetailsPageProps {
   params: Promise<{
@@ -109,225 +110,316 @@ export default async function EventDetailsPage({
   const showTabs = hasAttendanceList && hasSolveStats;
   const defaultTab = hasSolveStats ? "stats" : "attendance";
 
+  // Format event times for better display
+  const eventDate = format(new Date(event.startingAt), "MMMM d, yyyy");
+  const startTime = format(new Date(event.startingAt), "h:mm a");
+  const endTime = format(new Date(event.endingAt), "h:mm a");
+
+  // Event status calculation
+  const eventStarted = isPast(new Date(event.startingAt));
+  const eventEnded = isPast(new Date(event.endingAt));
+  let eventStatus;
+
+  if (!eventStarted) {
+    eventStatus = "upcoming";
+  } else if (eventStarted && !eventEnded) {
+    eventStatus = "ongoing";
+  } else {
+    eventStatus = "completed";
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h1 className="text-2xl font-bold tracking-tight">
-                      {event.title}
-                    </h1>
-                    <div className="space-x-2">
-                      <Badge>{event.type.toLowerCase()}</Badge>
-                      <Badge variant="outline">
-                        {event.participationScope
-                          .toLowerCase()
-                          .replace(/_/g, " ")}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-muted-foreground space-x-4">
-                    <div className="flex items-center">
-                      <CalendarDays className="mr-1 h-4 w-4" />
-                      <span>
-                        {format(new Date(event.startingAt), "MMMM d, yyyy")}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-4 w-4" />
-                      <span>
-                        {format(new Date(event.startingAt), "h:mm a")} -{" "}
-                        {format(new Date(event.endingAt), "h:mm a")}
-                      </span>
-                    </div>
-                  </div>
+      <div className="space-y-8">
+        {/* Event Header Section */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden">
+          <div className="p-6 md:p-8">
+            {/* Event Title and Type */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  {eventStatus === "upcoming" && (
+                    <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900">
+                      Upcoming
+                    </Badge>
+                  )}
+                  {eventStatus === "ongoing" && (
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900">
+                      Ongoing
+                    </Badge>
+                  )}
+                  {eventStatus === "completed" && (
+                    <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                      Completed
+                    </Badge>
+                  )}
+                  <Badge variant="outline">{event.type.toLowerCase()}</Badge>
+                  <Badge variant="outline">
+                    {event.participationScope.toLowerCase().replace(/_/g, " ")}
+                  </Badge>
                 </div>
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+                  {event.title}
+                </h1>
+              </div>
 
-                <div className="flex flex-wrap gap-3">
-                  {event.eventLink && (
-                    <Button asChild variant="outline">
-                      <Link
-                        href={event.eventLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Event Link
-                      </Link>
-                    </Button>
-                  )}
+              {event.eventLink && (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 gap-2 rounded-full px-4"
+                >
+                  <Link
+                    href={event.eventLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Event Link
+                  </Link>
+                </Button>
+              )}
+            </div>
 
-                  {event.openForAttendance && (
-                    <>
-                      {showAttendanceButton ? (
-                        <AttendanceModal
-                          eventId={eventId}
-                          requiresPassword={!!event.eventPassword}
-                        />
-                      ) : session?.user ? (
-                        userHasAttendance ? (
-                          <Button variant="secondary" disabled>
-                            <CalendarCheck className="mr-2 h-4 w-4" />
-                            Attendance Submitted
-                          </Button>
-                        ) : (
-                          <Button variant="secondary" disabled>
-                            <Clock className="mr-2 h-4 w-4" />
-                            Attendance{" "}
-                            {attendanceWindowPassed
-                              ? "Window Closed"
-                              : attendanceWindowFuture
-                              ? "Not Open Yet"
-                              : "Not Available"}
-                          </Button>
-                        )
-                      ) : (
-                        <Button variant="secondary" asChild>
-                          <Link href="/login">
-                            <Users className="mr-2 h-4 w-4" />
-                            Login to give attendance
-                          </Link>
-                        </Button>
-                      )}
-                    </>
-                  )}
+            {/* Event Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                  <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Date
+                  </p>
+                  <p className="text-slate-900 dark:text-white font-medium">
+                    {eventDate}
+                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
 
-          <div className="space-y-6">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Time
+                  </p>
+                  <p className="text-slate-900 dark:text-white font-medium">
+                    {startTime} - {endTime}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Event Description (if available) */}
+            {event.description || (
+              <div className="mb-6">
+                <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+                    <div className="text-slate-700 dark:text-slate-300 text-sm">
+                      {event.description}
+                
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Attendance Section */}
             {event.openForAttendance && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold flex items-center">
-                      <Users className="mr-2 h-5 w-5" />
-                      Attendance
-                    </h2>
+              <div className="mt-6">
+                <Separator className="my-6" />
 
-                    {session?.user ? (
-                      <div className="space-y-4 mt-2">
-                        {userHasAttendance ? (
-                          <p className="text-green-600 dark:text-green-400 font-medium">
-                            You have successfully given attendance for this
-                            event.
-                          </p>
-                        ) : showAttendanceButton ? (
-                          <p>Attendance is currently open for this event.</p>
-                        ) : (
-                          <>
-                            <p>
-                              Attendance is{" "}
-                              {attendanceWindowPassed
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      Attendance
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {session?.user
+                        ? userHasAttendance
+                          ? "You have successfully given attendance for this event."
+                          : showAttendanceButton
+                          ? "Attendance is currently open for this event."
+                          : `Attendance is ${
+                              attendanceWindowPassed
                                 ? "closed"
                                 : attendanceWindowFuture
                                 ? "not open yet"
-                                : "not available"}{" "}
-                              for this event.
-                            </p>
-                            {event.strictAttendance && (
-                              <Alert variant="destructive" className="mt-2">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>
-                                  This event has strict attendance policy.
-                                </AlertDescription>
-                              </Alert>
-                            )}
-                          </>
-                        )}
-
-                        <div className="border rounded-md p-3 bg-muted/50">
-                          <h3 className="text-sm font-medium mb-2">
-                            Attendance Window
-                          </h3>
-                          <div className="text-xs text-muted-foreground space-y-1">
-                            <p>
-                              <span className="font-medium">Opens:</span>{" "}
-                              {format(startWindowTime, "MMM d, h:mm a")}
-                              {attendanceWindowFuture && (
-                                <span className="ml-1 text-muted-foreground">
-                                  (
-                                  {formatDistanceToNow(startWindowTime, {
-                                    addSuffix: true,
-                                  })}
-                                  )
-                                </span>
-                              )}
-                            </p>
-                            <p>
-                              <span className="font-medium">Closes:</span>{" "}
-                              {format(endWindowTime, "MMM d, h:mm a")}
-                              {!attendanceWindowPassed &&
-                                !attendanceWindowFuture && (
-                                  <span className="ml-1 text-muted-foreground">
-                                    (
-                                    {formatDistanceToNow(endWindowTime, {
-                                      addSuffix: true,
-                                    })}
-                                    )
-                                  </span>
-                                )}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Please log in to give attendance for this event.
-                      </p>
-                    )}
+                                : "not available"
+                            } for this event.`
+                        : "Please log in to give attendance for this event."}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {showAttendanceButton ? (
+                    <AttendanceModal
+                      eventId={eventId}
+                      requiresPassword={!!event.eventPassword}
+                    />
+                  ) : session?.user ? (
+                    userHasAttendance ? (
+                      <Button
+                        variant="secondary"
+                        disabled
+                        className="h-10 rounded-full"
+                      >
+                        <CalendarCheck className="mr-2 h-4 w-4" />
+                        Attendance Submitted
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        disabled
+                        className="h-10 rounded-full"
+                      >
+                        <Clock className="mr-2 h-4 w-4" />
+                        Attendance{" "}
+                        {attendanceWindowPassed
+                          ? "Window Closed"
+                          : attendanceWindowFuture
+                          ? "Not Open Yet"
+                          : "Not Available"}
+                      </Button>
+                    )
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      asChild
+                      className="h-10 rounded-full"
+                    >
+                      <Link href="/login">
+                        <Users className="mr-2 h-4 w-4" />
+                        Login to give attendance
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+
+                {session?.user &&
+                  event.strictAttendance &&
+                  !userHasAttendance &&
+                  !showAttendanceButton && (
+                    <Alert variant="destructive" className="mt-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        This event has strict attendance policy.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                {session?.user && (
+                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                      Attendance Window
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="text-sm text-slate-700 dark:text-slate-300">
+                          Opens: {format(startWindowTime, "MMM d, h:mm a")}
+                          {attendanceWindowFuture && (
+                            <span className="ml-1 text-slate-500 dark:text-slate-400">
+                              (
+                              {formatDistanceToNow(startWindowTime, {
+                                addSuffix: true,
+                              })}
+                              )
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="text-sm text-slate-700 dark:text-slate-300">
+                          Closes: {format(endWindowTime, "MMM d, h:mm a")}
+                          {!attendanceWindowPassed &&
+                            !attendanceWindowFuture && (
+                              <span className="ml-1 text-slate-500 dark:text-slate-400">
+                                (
+                                {formatDistanceToNow(endWindowTime, {
+                                  addSuffix: true,
+                                })}
+                                )
+                              </span>
+                            )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
 
-        {/* Show tabs if both solve stats and attendance list are available */}
-        {showTabs ? (
-          <div className="mt-8">
-            <Tabs defaultValue={defaultTab}>
-              <TabsList className="mb-6">
-                <TabsTrigger value="stats" className="flex items-center">
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Solve Statistics
-                </TabsTrigger>
-                <TabsTrigger value="attendance" className="flex items-center">
-                  <Users className="mr-2 h-4 w-4" />
-                  Attendees ({attendanceList.length})
-                </TabsTrigger>
-              </TabsList>
+        {/* Tabs Section: Statistics & Attendance */}
+        {(hasSolveStats || hasAttendanceList) && (
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
+            {showTabs ? (
+              <Tabs defaultValue={defaultTab}>
+                <TabsList className="mb-6 p-1 bg-slate-100 dark:bg-slate-900/50 w-full sm:w-fit">
+                  <TabsTrigger
+                    value="stats"
+                    className="flex items-center gap-2 rounded-lg"
+                  >
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Solve Statistics</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="attendance"
+                    className="flex items-center gap-2 rounded-lg"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Attendees ({attendanceList.length})</span>
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="stats">
-                <EventSolveStats stats={solveStats} />
-              </TabsContent>
+                <TabsContent value="stats" className="p-0 mt-4">
+                  <EventSolveStats stats={solveStats} />
+                </TabsContent>
 
-              <TabsContent value="attendance">
-                <EventAttendanceList attendees={attendanceList} />
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="attendance" className="p-0 mt-4">
+                  <EventAttendanceList attendees={attendanceList} />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <>
+                {hasSolveStats && (
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      Solve Statistics
+                    </h2>
+                    <EventSolveStats stats={solveStats} />
+                  </div>
+                )}
+
+                {hasAttendanceList && (
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      Attendees ({attendanceList.length})
+                    </h2>
+                    <EventAttendanceList attendees={attendanceList} />
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        ) : (
-          <>
-            {/* Show individual sections if only one is available */}
-            {hasSolveStats && (
-              <div className="mt-8">
-                <EventSolveStats stats={solveStats} />
-              </div>
-            )}
-
-            {hasAttendanceList && (
-              <div className="mt-8">
-                <EventAttendanceList attendees={attendanceList} />
-              </div>
-            )}
-          </>
         )}
+
+        {/* Back to Events Button */}
+        <div className="flex justify-center mt-8">
+          <Button asChild variant="outline" className="rounded-full px-6">
+            <Link href="/events">
+              <span>Back to Events</span>
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

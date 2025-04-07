@@ -11,6 +11,7 @@ enum Gender {
   MALE
   FEMALE
   OTHER
+  UNSPECIFIED
 }
 
 enum Visibility {
@@ -114,6 +115,7 @@ model VerificationToken {
 model Event {
   id                 Int             @id @default(autoincrement())
   title              String
+  description        String?
   status             Visibility      @default(DRAFT)
   startingAt         DateTime        @map("starting_at")
   endingAt           DateTime        @map("ending_at")

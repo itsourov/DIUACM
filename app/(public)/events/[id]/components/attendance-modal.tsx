@@ -64,17 +64,19 @@ export function AttendanceModal({
       <DialogTrigger asChild>
         <Button
           variant="default"
-          className="w-full sm:w-auto"
+          className="h-10 rounded-full px-5"
           disabled={disabled}
         >
           <CalendarCheck className="mr-2 h-4 w-4" />
           Give Attendance
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Event Attendance</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[425px] rounded-xl border-slate-200 dark:border-slate-700 p-6">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl text-slate-900 dark:text-white">
+            Event Attendance
+          </DialogTitle>
+          <DialogDescription className="text-slate-600 dark:text-slate-400 pt-2">
             {requiresPassword
               ? "Please enter the event password to confirm your attendance."
               : "Click submit to confirm your attendance for this event."}
@@ -84,7 +86,12 @@ export function AttendanceModal({
           {requiresPassword && (
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="password">Event Password</Label>
+                <Label
+                  htmlFor="password"
+                  className="text-slate-700 dark:text-slate-300"
+                >
+                  Event Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -93,12 +100,17 @@ export function AttendanceModal({
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoFocus
+                  className="rounded-lg border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                 />
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button type="submit" disabled={isSubmitting}>
+          <DialogFooter className="mt-4 pt-2">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-full w-full sm:w-auto"
+            >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
