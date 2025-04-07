@@ -2,24 +2,19 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { Visibility, EventType, AttendanceScope, Prisma } from "@prisma/client";
+import { EventType, AttendanceScope, Prisma } from "@prisma/client";
 
 // Define types based on Prisma schema
 export type Event = {
   id: number;
   title: string;
-  status: Visibility;
   startingAt: Date;
   endingAt: Date;
   eventLink?: string | null;
-  eventPassword?: string | null;
   openForAttendance: boolean;
   strictAttendance: boolean;
   type: EventType;
   participationScope: AttendanceScope;
-  createdAt: Date;
-  updatedAt: Date;
-  // Include related data if needed
   _count?: {
     attendances?: number;
   };
@@ -59,8 +54,6 @@ export async function getEvents(
   if (validatedFilters.categoryId) {
     where.type = validatedFilters.categoryId as EventType;
   }
-
-
 
   // Filter by participation scope
   if (validatedFilters.scope) {
@@ -110,25 +103,4 @@ export async function getEvents(
       limit,
     },
   };
-}
-
-// Function to get a single event by ID
-export async function getEvent(id: number): Promise<Event | null> {
-  try {
-    const event = await prisma.event.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: {
-            attendances: true,
-          },
-        },
-      },
-    });
-
-    return event;
-  } catch (error) {
-    console.error("Error fetching event:", error);
-    return null;
-  }
 }
