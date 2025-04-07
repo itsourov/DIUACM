@@ -146,26 +146,6 @@ const HeroSection = () => {
                     {`
 
     `}
-                    <span className="text-blue-600 dark:text-blue-400">{`int`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{` `}</span>
-                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
-                    {` `}
-                    <span className="text-blue-600 dark:text-blue-400">{`cin`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{` >> `}</span>
-                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
-                    {`
-    `}
-                    <span className="text-pink-600 dark:text-pink-400">{`while`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{` (`}</span>
-                    <span className="text-cyan-600 dark:text-cyan-400">{`t`}</span>
-                    <span className="text-slate-600 dark:text-slate-300">{`--) {`}</span>
-                    {`
-        `}
-                    <span className="text-green-600 dark:text-green-400">{`// Solve each test case`}</span>
-                    {`
-        `}
                     <span className="text-blue-600 dark:text-blue-400">{`cout`}</span>
                     <span className="text-slate-600 dark:text-slate-300">{` << `}</span>
                     <span className="text-amber-600 dark:text-amber-400">{`"Welcome to DIUACM!"`}</span>
@@ -173,9 +153,7 @@ const HeroSection = () => {
                     <span className="text-blue-600 dark:text-blue-400">{`endl`}</span>
                     <span className="text-slate-600 dark:text-slate-300">{`;`}</span>
                     {`
-    `}
-                    <span className="text-slate-600 dark:text-slate-300">{`}`}</span>
-                    {`
+    
     `}
                     <span className="text-pink-600 dark:text-pink-400">{`return`}</span>
                     <span className="text-slate-600 dark:text-slate-300">{` `}</span>
