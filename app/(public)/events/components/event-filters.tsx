@@ -15,34 +15,63 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EventType, Visibility, AttendanceScope } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { getEnumValues } from "@/lib/utils";
 
-// Define typed categories for filters
-const EVENT_TYPES = [
-  { id: EventType.CONTEST, name: "Contest", icon: "🏆" },
-  { id: EventType.CLASS, name: "Class", icon: "📚" },
-  { id: EventType.OTHER, name: "Other", icon: "📋" },
-];
+// Helper function to get event type icon
+const getEventTypeIcon = (type: string): string => {
+  switch (type) {
+    case EventType.CONTEST:
+      return "🏆";
+    case EventType.CLASS:
+      return "📚";
+    case EventType.OTHER:
+      return "📋";
+    default:
+      return "📋";
+  }
+};
 
-const STATUSES = [
-  { id: Visibility.PUBLISHED, name: "Published" },
-  { id: Visibility.DRAFT, name: "Draft" },
-  { id: Visibility.PRIVATE, name: "Private" },
-];
+// Helper function to format name nicely
+const formatName = (name: string): string => {
+  return name
+    .split("_")
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
-const ATTENDANCE_SCOPES = [
-  { id: AttendanceScope.OPEN_FOR_ALL, name: "Open for All", icon: "👥" },
-  { id: AttendanceScope.ONLY_GIRLS, name: "Girls Only", icon: "👩" },
-  {
-    id: AttendanceScope.JUNIOR_PROGRAMMERS,
-    name: "Junior Programmers",
-    icon: "🌱",
-  },
-  {
-    id: AttendanceScope.SELECTED_PERSONS,
-    name: "Selected Persons",
-    icon: "✨",
-  },
-];
+// Helper function to get attendance scope icon
+const getAttendanceScopeIcon = (scope: string): string => {
+  switch (scope) {
+    case AttendanceScope.OPEN_FOR_ALL:
+      return "👥";
+    case AttendanceScope.ONLY_GIRLS:
+      return "👩";
+    case AttendanceScope.JUNIOR_PROGRAMMERS:
+      return "🌱";
+    case AttendanceScope.SELECTED_PERSONS:
+      return "✨";
+    default:
+      return "👥";
+  }
+};
+
+// Define typed categories for filters - dynamically sourced from enums
+const EVENT_TYPES = getEnumValues(EventType).map((type) => ({
+  id: type,
+  name: formatName(type),
+  icon: getEventTypeIcon(type),
+}));
+
+const STATUSES = getEnumValues(Visibility).map((status) => ({
+  id: status,
+  name: formatName(status),
+}));
+
+const ATTENDANCE_SCOPES = getEnumValues(AttendanceScope).map((scope) => ({
+  id: scope,
+  name: formatName(scope),
+  icon: getAttendanceScopeIcon(scope),
+}));
 
 export function EventFilters() {
   const router = useRouter();

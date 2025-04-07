@@ -9,6 +9,7 @@ import { ContestType, type Contest } from "@prisma/client";
 
 import { contestFormSchema, type ContestFormValues } from "../schemas/contest";
 import { createContest, updateContest } from "../actions";
+import { getEnumValues } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -144,14 +145,11 @@ export function ContestForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={ContestType.ICPC_REGIONAL}>
-                          ICPC Regional
-                        </SelectItem>
-                        <SelectItem value={ContestType.ICPC_ASIA_WEST}>
-                          ICPC Asia West
-                        </SelectItem>
-                        <SelectItem value={ContestType.IUPC}>IUPC</SelectItem>
-                        <SelectItem value={ContestType.OTHER}>Other</SelectItem>
+                        {getEnumValues(ContestType).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type.replace(/_/g, " ").replace(/ICPC/g, "ICPC ")}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
