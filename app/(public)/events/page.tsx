@@ -61,12 +61,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
       {/* Filters at the top */}
       <div className="mb-6">
-        <EventFilters
-          initialFilters={{
-            categoryId: searchParams.category,
-            status: searchParams.status,
-          }}
-        />
+        <EventFilters />
       </div>
 
       {/* Results count */}

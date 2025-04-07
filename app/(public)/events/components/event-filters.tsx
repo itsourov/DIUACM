@@ -44,14 +44,7 @@ const ATTENDANCE_SCOPES = [
   },
 ];
 
-type EventFiltersProps = {
-  initialFilters: {
-    categoryId?: string;
-    status?: string;
-  };
-};
-
-export function EventFilters({ initialFilters }: EventFiltersProps) {
+export function EventFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

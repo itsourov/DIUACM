@@ -94,7 +94,7 @@ const formatDate = (date: Date) => {
   }).format(date);
 };
 
-export function EventRow({ event, isOwner = false }: EventRowProps) {
+export function EventRow({ event }: EventRowProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every minute
@@ -213,18 +213,15 @@ export function EventRow({ event, isOwner = false }: EventRowProps) {
         </div>
 
         {/* Attendance information */}
-        <div className="mt-4 flex items-center text-sm text-slate-600 dark:text-slate-400">
-          <Users className="h-4 w-4 mr-1.5 text-blue-500" />
-          <span>
-            {attendanceCount} {attendanceCount === 1 ? "attendee" : "attendees"}
-          </span>
-
-          {event.openForAttendance && (
-            <Badge className="ml-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-              Open for registration
-            </Badge>
-          )}
-        </div>
+        {event.openForAttendance && (
+          <div className="mt-4 flex items-center text-sm text-slate-600 dark:text-slate-400">
+            <Users className="h-4 w-4 mr-1.5 text-blue-500" />
+            <span>
+              {attendanceCount}{" "}
+              {attendanceCount === 1 ? "attendee" : "attendees"}
+            </span>
+          </div>
+        )}
 
         {/* Progress Indicator for Running Events */}
         {isRunning && (
