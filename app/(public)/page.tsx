@@ -355,7 +355,7 @@ export default function Homepage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-              What Youll Get
+              What You&apos;ll Get
             </h2>
             <div className="mx-auto w-20 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300 rounded-full mb-4"></div>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
@@ -390,7 +390,7 @@ export default function Homepage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-              Rules & Guidelines
+              Rules &amp; Guidelines
             </h2>
             <div className="mx-auto w-20 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300 rounded-full mb-4"></div>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
@@ -477,7 +477,7 @@ export default function Homepage() {
                 Join DIU ACM Community
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-300">
-                We don't have a traditional membership system. Your passion for
+                We don&apos;t have a traditional membership system. Your passion for
                 competitive programming and regular participation makes you a
                 part of our community.
               </p>
