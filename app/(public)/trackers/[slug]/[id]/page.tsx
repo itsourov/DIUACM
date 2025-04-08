@@ -13,8 +13,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileText, TrendingUp } from "lucide-react";
 
-
-
 export default async function TrackerRanklistPage({
   params,
 }: {
@@ -49,21 +47,22 @@ export default async function TrackerRanklistPage({
         </p>
       </div>
 
-      {/* Ranklist Navigation - Simplified */}
-      <div className="mb-6">
-        <h2 className="text-sm font-medium mb-3 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+      {/* Ranklist Navigation - Clean design */}
+      <div className="mb-8 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
+        <h2 className="text-sm font-bold mb-4 text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+          <FileText className="w-4 h-4 mr-2" />
           Available Ranklists
         </h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {tracker.rankLists.map((list) => (
             <Link
               key={list.id}
               href={`/trackers/${awaitedParams.slug}/${list.id}`}
-              className={`px-3 py-1.5 text-sm border transition-colors
+              className={`px-4 py-2 text-sm rounded-md font-medium transition-all
                 ${
                   awaitedParams.id === list.id
-                    ? "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
-                    : "border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
+                    ? "bg-blue-600 text-white dark:bg-blue-700 shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:border-blue-600 dark:hover:text-blue-400"
                 }`}
             >
               {list.keyword}
@@ -72,73 +71,92 @@ export default async function TrackerRanklistPage({
         </div>
       </div>
 
-      {/* Current Ranklist - Clean design */}
-      <div className="border border-slate-200 dark:border-slate-700 rounded-md overflow-hidden">
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-medium text-slate-900 dark:text-white">
+      {/* Ranklist with clean design */}
+      <div className="rounded-lg overflow-hidden shadow-md border border-slate-200 dark:border-slate-700">
+        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+            <TrendingUp className="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" />
             {rankList.keyword} Ranklist
           </h2>
           {rankList.description && (
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-3xl">
               {rankList.description}
             </p>
           )}
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto bg-white dark:bg-slate-900">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-16 text-center">Rank</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead className="text-right">Score</TableHead>
-                <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableRow className="bg-slate-100 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                <TableHead className="w-16 text-center font-bold text-slate-700 dark:text-slate-300">
+                  Rank
+                </TableHead>
+                <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                  User
+                </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 dark:text-slate-300">
+                  Score
+                </TableHead>
+                <TableHead className="w-24 text-center font-bold text-slate-700 dark:text-slate-300">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rankList.rankListUsers.map((entry, index) => (
                 <TableRow
                   key={entry.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/20"
+                  className={`${
+                    index % 2 === 0
+                      ? "bg-slate-50 dark:bg-slate-800/30"
+                      : "bg-white dark:bg-slate-900"
+                  } hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}
                 >
                   <TableCell className="font-medium text-center">
-                    <span
-                      className={`${index < 3 ? "font-semibold " : ""}${
-                        index === 0
-                          ? "text-amber-500"
-                          : index === 1
-                          ? "text-slate-500"
-                          : index === 2
-                          ? "text-amber-700"
-                          : ""
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
+                    {index < 3 ? (
+                      <div
+                        className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
+                          index === 0
+                            ? "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+                            : index === 1
+                            ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                            : "bg-amber-50/50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-500"
+                        }`}
+                      >
+                        <span className="font-bold">{index + 1}</span>
+                      </div>
+                    ) : (
+                      <span>{index + 1}</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-700">
                         <AvatarImage
                           src={entry.user.image || ""}
                           alt={entry.user.name}
                         />
-                        <AvatarFallback className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                        <AvatarFallback className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                           {entry.user.name.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{entry.user.name}</div>
+                        <div className="font-semibold text-slate-800 dark:text-slate-200">
+                          {entry.user.name}
+                        </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           @{entry.user.username}
                         </div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {entry.score.toFixed(2)}
+                  <TableCell className="text-right">
+                    <span className="font-semibold text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md">
+                      {entry.score.toFixed(2)}
+                    </span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <UserStatsModal
                       userId={entry.user.id}
                       userName={entry.user.name}
@@ -150,14 +168,15 @@ export default async function TrackerRanklistPage({
 
               {rankList.rankListUsers.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    <div className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-6">
-                      <FileText className="w-6 h-6 mb-2 text-slate-400" />
-                      <p className="font-medium">
+                  <TableCell colSpan={4} className="text-center py-12">
+                    <div className="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-8 bg-slate-50 dark:bg-slate-800/20 rounded-lg mx-4">
+                      <FileText className="w-10 h-10 mb-3 text-slate-400" />
+                      <p className="font-bold text-lg text-slate-700 dark:text-slate-300">
                         No users in this ranklist yet
                       </p>
-                      <p className="text-sm mt-1">
-                        Users will appear once they participate in events.
+                      <p className="text-sm mt-2 max-w-md">
+                        Users will appear once they participate in events. Check
+                        back later!
                       </p>
                     </div>
                   </TableCell>
