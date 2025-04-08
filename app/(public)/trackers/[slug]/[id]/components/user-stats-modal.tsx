@@ -34,8 +34,8 @@ interface EventStat {
   event: {
     id: number;
     title: string;
-    startingAt: string;
-    endingAt: string;
+    startingAt: Date | string;
+    endingAt: Date | string;
   };
 }
 
