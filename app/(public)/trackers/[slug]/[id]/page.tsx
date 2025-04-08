@@ -13,40 +13,24 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileText, TrendingUp } from "lucide-react";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string; id: string };
-}) {
-  const tracker = await getTrackerBySlug(params.slug);
 
-  if (!tracker) {
-    return {
-      title: "Tracker Not Found",
-    };
-  }
-
-  return {
-    title: `${tracker.title} Ranklist - DIU ACM`,
-    description: tracker.description,
-  };
-}
 
 export default async function TrackerRanklistPage({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
     id: string;
-  };
+  }>;
 }) {
-  const tracker = await getTrackerBySlug(params.slug);
+  const awaitedParams = await params;
+  const tracker = await getTrackerBySlug(awaitedParams.slug);
 
   if (!tracker) {
     notFound();
   }
 
-  const rankList = await getRankList(params.id);
+  const rankList = await getRankList(awaitedParams.id);
 
   if (!rankList) {
     notFound();
@@ -74,10 +58,10 @@ export default async function TrackerRanklistPage({
           {tracker.rankLists.map((list) => (
             <Link
               key={list.id}
-              href={`/trackers/${params.slug}/${list.id}`}
+              href={`/trackers/${awaitedParams.slug}/${list.id}`}
               className={`px-3 py-1.5 text-sm border transition-colors
                 ${
-                  params.id === list.id
+                  awaitedParams.id === list.id
                     ? "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
                     : "border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
                 }`}
