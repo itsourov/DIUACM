@@ -174,18 +174,21 @@ export function TrackerForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={Visibility.PUBLISHED}>
-                        Published
-                      </SelectItem>
-                      <SelectItem value={Visibility.DRAFT}>Draft</SelectItem>
-                      <SelectItem value={Visibility.PRIVATE}>
-                        Private
-                      </SelectItem>
+                      {Object.keys(Visibility)
+                        .filter((key) => isNaN(Number(key)))
+                        .map((key) => (
+                          <SelectItem
+                            key={key}
+                            value={Visibility[key as keyof typeof Visibility]}
+                          >
+                            {key.charAt(0) +
+                              key.slice(1).toLowerCase().replace("_", " ")}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
-                //TODO:: make this dynamic
               )}
             />
 
