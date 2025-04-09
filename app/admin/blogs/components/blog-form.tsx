@@ -11,6 +11,7 @@ import slugify from "slugify";
 
 import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
 import { createBlog, updateBlog } from "../actions";
+import MarkdownEditorWrapper from "./markdown-editor-wrapper";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -190,11 +190,9 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                   <FormItem>
                     <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Write your blog content here..."
-                        className="min-h-64 resize-none"
-                        {...field}
+                      <MarkdownEditorWrapper
                         value={field.value || ""}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormDescription>
