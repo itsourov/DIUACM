@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Edit, Trash2, TrendingUp } from "lucide-react";
 import type { RankList } from "@prisma/client";
-import { deleteRanklist } from "@/app/actions/trackers/ranklists";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
+import { deleteRanklist } from "@/app/admin/trackers/[id]/ranklists/actions";
 
 type RankListWithCounts = RankList & {
   _count: {
