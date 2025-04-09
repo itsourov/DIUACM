@@ -8,7 +8,7 @@ export const eventFormSchema = z.object({
     .min(3, "Title must be at least 3 characters")
     .max(100, "Title must be less than 100 characters"),
   description: z.string().optional().nullable(),
-  status: z.nativeEnum(Visibility).default(Visibility.DRAFT),
+  status: z.nativeEnum(Visibility),
   startingAt: z.coerce.date({
     required_error: "Starting time is required",
     invalid_type_error: "Starting time must be a valid date",
@@ -24,12 +24,10 @@ export const eventFormSchema = z.object({
     .nullable()
     .or(z.literal("")),
   eventPassword: z.string().optional().nullable().or(z.literal("")),
-  openForAttendance: z.boolean().default(false),
-  strictAttendance: z.boolean().default(false),
-  type: z.nativeEnum(EventType).default(EventType.CONTEST),
-  participationScope: z
-    .nativeEnum(AttendanceScope)
-    .default(AttendanceScope.OPEN_FOR_ALL),
+  openForAttendance: z.boolean(),
+  strictAttendance: z.boolean(),
+  type: z.nativeEnum(EventType),
+  participationScope: z.nativeEnum(AttendanceScope),
 }).refine(
   (data) => {
     // Make sure endingAt is after startingAt

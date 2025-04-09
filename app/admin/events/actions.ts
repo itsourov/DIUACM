@@ -143,7 +143,7 @@ export async function getPaginatedEvents(
     
     // Add type filter if provided
     if (type && type !== "ALL") {
-      where.type = type as Prisma.EventTypeFilter;
+      where.type = type as Prisma.EnumEventTypeFilter;
     }
     
     // Execute the queries

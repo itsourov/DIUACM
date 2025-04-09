@@ -69,8 +69,14 @@ export function EventForm({
         : new Date(Date.now() + 2 * 60 * 60 * 1000), // Default to 2 hours after current time
       eventLink: initialData?.eventLink || "",
       eventPassword: initialData?.eventPassword || "",
-      openForAttendance: initialData?.openForAttendance || false,
-      strictAttendance: initialData?.strictAttendance || false,
+      openForAttendance:
+        initialData?.openForAttendance === undefined
+          ? false
+          : initialData.openForAttendance,
+      strictAttendance:
+        initialData?.strictAttendance === undefined
+          ? false
+          : initialData.strictAttendance,
       type: initialData?.type || EventType.CONTEST,
       participationScope:
         initialData?.participationScope || AttendanceScope.OPEN_FOR_ALL,
