@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { format, formatDistanceToNow, isFuture, isPast } from "date-fns";
 import { EventType, Visibility } from "@prisma/client";
