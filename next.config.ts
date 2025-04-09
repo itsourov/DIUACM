@@ -20,8 +20,12 @@ const nextConfig: NextConfig = {
         path: false,
       },
     };
+
     return config;
   },
+  // Add KaTeX and MathJax to allowed external packages
+  // Updated from experimental.serverComponentsExternalPackages to serverExternalPackages
+  serverExternalPackages: ["katex", "mathjax"],
 };
 
 export default nextConfig;

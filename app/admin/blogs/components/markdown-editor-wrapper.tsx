@@ -1,36 +1,79 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+// Import KaTeX CSS
+import "katex/dist/katex.min.css";
+
+// Add MathJax interface to Window object
+declare global {
+  interface Window {
+    MathJax: {
+      tex: {
+        inlineMath: Array<string[]>;
+        displayMath: Array<string[]>;
+        processEscapes: boolean;
+        processEnvironments: boolean;
+      };
+      options: {
+        skipHtmlTags: string[];
+      };
+    };
+  }
+}
 
 // Dynamically import the MDEditor component for client-side rendering
 const MDEditor = dynamic(
-  () => import('@uiw/react-md-editor').then((mod) => mod.default),
+  () => import("@uiw/react-md-editor").then((mod) => mod.default),
   { ssr: false }
 );
+
+// Import the math plugins directly
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string | undefined) => void;
 }
 
-export default function MarkdownEditorWrapper({ value, onChange }: MarkdownEditorProps) {
+export default function MarkdownEditorWrapper({
+  value,
+  onChange,
+}: MarkdownEditorProps) {
   // Handle client-side rendering of the Markdown editor
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  if (!mounted) {
-    return (
-      <div className="border rounded-md p-4 min-h-[200px] bg-gray-50">
-        Loading editor...
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Initialize MathJax
+    if (typeof window !== "undefined") {
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+          processEscapes: true,
+          processEnvironments: true,
+        },
+        options: {
+          skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"],
+        },
+      };
+
+      // Load MathJax script
+      const script = document.createElement("script");
+      script.src =
+        "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, []);
 
   return (
     <div data-color-mode="light">
@@ -38,6 +81,12 @@ export default function MarkdownEditorWrapper({ value, onChange }: MarkdownEdito
         value={value}
         onChange={onChange}
         height={400}
+        previewOptions={{
+          remarkPlugins: [[remarkMath]],
+          rehypePlugins: [
+            [rehypeKatex, { throwOnError: false, strict: false }],
+          ],
+        }}
       />
     </div>
   );

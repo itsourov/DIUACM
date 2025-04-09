@@ -196,7 +196,8 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                       />
                     </FormControl>
                     <FormDescription>
-                      You can use Markdown for formatting.
+                      You can use Markdown for formatting and mathematical
+                      expressions with KaTeX/MathJax.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
