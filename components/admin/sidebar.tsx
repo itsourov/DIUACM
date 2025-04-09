@@ -13,7 +13,6 @@ import {
   Settings,
   SunMedium,
   MoonStar,
-  Trophy,
   FileBarChart2,
   Award,
 } from "lucide-react";
@@ -57,11 +56,7 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
       label: "Events",
       href: "/admin/events",
     },
-    {
-      icon: <Trophy className="h-5 w-5" />,
-      label: "Ranklists",
-      href: "/admin/ranklists",
-    },
+
     {
       icon: <FileBarChart2 className="h-5 w-5" />,
       label: "Trackers",
