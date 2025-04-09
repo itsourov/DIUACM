@@ -60,14 +60,14 @@ export function EventForm({
     defaultValues: {
       title: initialData?.title || "",
       description: initialData?.description || "",
-      status: initialData?.status || Visibility.DRAFT,
+      status: initialData?.status || Visibility.PUBLISHED,
       startingAt: initialData?.startingAt
         ? new Date(initialData.startingAt)
         : new Date(),
       endingAt: initialData?.endingAt
         ? new Date(initialData.endingAt)
         : new Date(Date.now() + 2 * 60 * 60 * 1000), // Default to 2 hours after current time
-      eventLink: initialData?.eventLink || "",
+      eventLink: initialData?.eventLink,
       eventPassword: initialData?.eventPassword || "",
       openForAttendance:
         initialData?.openForAttendance === undefined
