@@ -15,9 +15,9 @@ export const blogFormSchema = z.object({
     }),
   content: z.string().optional().nullable(),
   author: z.string().optional().nullable(),
-  status: z.nativeEnum(Visibility).default(Visibility.DRAFT),
+  status: z.nativeEnum(Visibility), // Making this required without default
   publishedAt: z.date().nullable().optional(),
-  isFeatured: z.boolean().default(false),
+  isFeatured: z.boolean(), // Making this required without default
 });
 
 export type BlogFormValues = z.infer<typeof blogFormSchema>;

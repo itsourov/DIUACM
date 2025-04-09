@@ -10,19 +10,20 @@ import { blogFormSchema, type BlogFormValues } from "./schemas/blog";
 export async function createBlog(values: BlogFormValues) {
   try {
     const validatedFields = blogFormSchema.parse(values);
-    
+
     // Check for duplicate slug
     const existingPost = await prisma.blogPost.findFirst({
       where: { slug: validatedFields.slug },
     });
 
     if (existingPost) {
-      return { 
-        success: false, 
-        error: "A blog post with this slug already exists. Please choose a different slug." 
+      return {
+        success: false,
+        error:
+          "A blog post with this slug already exists. Please choose a different slug.",
       };
     }
-    
+
     const blogPost = await prisma.blogPost.create({
       data: validatedFields,
     });
@@ -33,11 +34,11 @@ export async function createBlog(values: BlogFormValues) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
     }
-    
+
     console.error("Error creating blog post:", error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -46,19 +47,20 @@ export async function createBlog(values: BlogFormValues) {
 export async function updateBlog(id: string, values: BlogFormValues) {
   try {
     const validatedFields = blogFormSchema.parse(values);
-    
+
     // Check if the slug is already in use by another post
     const existingPost = await prisma.blogPost.findFirst({
       where: {
         slug: validatedFields.slug,
-        NOT: { id }
+        NOT: { id },
       },
     });
 
     if (existingPost) {
-      return { 
-        success: false, 
-        error: "A blog post with this slug already exists. Please choose a different slug." 
+      return {
+        success: false,
+        error:
+          "A blog post with this slug already exists. Please choose a different slug.",
       };
     }
 
@@ -75,11 +77,11 @@ export async function updateBlog(id: string, values: BlogFormValues) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
     }
-    
+
     console.error("Error updating blog post:", error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -95,9 +97,9 @@ export async function deleteBlog(id: string) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting blog post:", error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -116,26 +118,26 @@ export async function getBlog(id: string) {
     return { success: true, data: blog };
   } catch (error) {
     console.error("Error fetching blog post:", error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 // Get paginated blog posts with optional filtering
 export async function getPaginatedBlogs(
-  page: number = 1, 
-  pageSize: number = 10, 
+  page: number = 1,
+  pageSize: number = 10,
   search?: string,
   status?: string
 ) {
   try {
     const skip = (page - 1) * pageSize;
-    
+
     // Build where conditions
     const where: Prisma.BlogPostWhereInput = {};
-    
+
     // Add search filter if provided
     if (search) {
       where.OR = [
@@ -144,46 +146,43 @@ export async function getPaginatedBlogs(
         { author: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ];
     }
-    
+
     // Add status filter if provided
     if (status && status !== "ALL") {
       where.status = status as Prisma.EnumVisibilityFilter;
     }
-    
+
     // Execute the queries
     const [blogs, totalCount] = await Promise.all([
       prisma.blogPost.findMany({
         where,
         skip,
         take: pageSize,
-        orderBy: [
-          { publishedAt: "desc" },
-          { createdAt: "desc" }
-        ],
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       }),
       prisma.blogPost.count({ where }),
     ]);
 
     // Calculate pagination info
     const totalPages = Math.ceil(totalCount / pageSize);
-    
-    return { 
-      success: true, 
-      data: { 
-        blogs, 
+
+    return {
+      success: true,
+      data: {
+        blogs,
         pagination: {
           currentPage: page,
           totalPages,
           totalCount,
           pageSize,
-        }
-      } 
+        },
+      },
     };
   } catch (error) {
     console.error("Error fetching blog posts:", error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }

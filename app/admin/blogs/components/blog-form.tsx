@@ -58,7 +58,9 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
       content: initialData?.content || "",
       author: initialData?.author || "",
       status: initialData?.status || Visibility.DRAFT,
-      publishedAt: initialData?.publishedAt ? new Date(initialData.publishedAt) : null,
+      publishedAt: initialData?.publishedAt
+        ? new Date(initialData.publishedAt)
+        : null,
       isFeatured: initialData?.isFeatured || false,
     },
   });
@@ -67,7 +69,7 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
   const generateSlugFromTitle = () => {
     const title = form.getValues("title");
     const currentSlug = form.getValues("slug");
-    
+
     if (title && (!currentSlug || !isEditing)) {
       const newSlug = slugify(title, { lower: true, strict: true });
       form.setValue("slug", newSlug);
@@ -110,7 +112,9 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isEditing ? "Edit Blog Post" : "Create New Blog Post"}</CardTitle>
+        <CardTitle>
+          {isEditing ? "Edit Blog Post" : "Create New Blog Post"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -124,9 +128,9 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                   <FormItem>
                     <FormLabel>Blog Title</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter blog title" 
-                        {...field} 
+                      <Input
+                        placeholder="Enter blog title"
+                        {...field}
                         onChange={(e) => {
                           field.onChange(e);
                           if (!isEditing) {
@@ -150,13 +154,11 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                   <FormItem>
                     <FormLabel>URL Slug</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="enter-url-slug" 
-                        {...field}
-                      />
+                      <Input placeholder="enter-url-slug" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This will be used in the URL. Use lowercase letters, numbers, and hyphens only.
+                      This will be used in the URL. Use lowercase letters,
+                      numbers, and hyphens only.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -170,8 +172,8 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                   <FormItem>
                     <FormLabel>Author Name</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter author name (optional)" 
+                      <Input
+                        placeholder="Enter author name (optional)"
                         {...field}
                         value={field.value || ""}
                       />
@@ -209,7 +211,7 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
             {/* Publication Settings */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Publication Settings</h3>
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -253,7 +255,9 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={field.value ? formatDateForInput(field.value) : ""}
+                          value={
+                            field.value ? formatDateForInput(field.value) : ""
+                          }
                           onChange={(e) => {
                             const date = e.target.value
                               ? new Date(e.target.value)

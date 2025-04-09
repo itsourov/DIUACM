@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  BookOpen,
-  Plus,
-  Calendar,
-  MessageSquare,
-  Pencil,
-} from "lucide-react";
+import { BookOpen, Plus, Calendar, MessageSquare, Pencil } from "lucide-react";
 import { Metadata } from "next";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -148,11 +142,13 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
               <div className="rounded-full bg-muted p-3">
                 <BookOpen className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold">No blog posts found</h3>
+              <h3 className="mt-4 text-lg font-semibold">
+                No blog posts found
+              </h3>
               {search || status ? (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
-                  No blog posts match your search criteria. Try different filters or
-                  create a new post.
+                  No blog posts match your search criteria. Try different
+                  filters or create a new post.
                 </p>
               ) : (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
@@ -173,11 +169,15 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[250px]">Title</TableHead>
-                      <TableHead className="hidden md:table-cell">Status</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status
+                      </TableHead>
                       <TableHead className="hidden md:table-cell">
                         Published Date
                       </TableHead>
-                      <TableHead className="hidden md:table-cell">Author</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Author
+                      </TableHead>
                       <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -236,10 +236,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteBlogButton
-                              id={blog.id}
-                              title={blog.title}
-                            />
+                            <DeleteBlogButton id={blog.id} title={blog.title} />
                           </div>
                         </TableCell>
                       </TableRow>
