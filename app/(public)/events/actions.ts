@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { EventType, AttendanceScope, Prisma } from "@prisma/client";
+import { EventType, AttendanceScope, Prisma, Visibility } from "@prisma/client";
 
 // Define types based on Prisma schema
 export type Event = {
@@ -49,7 +49,7 @@ export async function getEvents(
 
   // Build where conditions for Prisma query
   const where: Prisma.EventWhereInput = {};
-
+  where.status = Visibility.PUBLISHED; // Only fetch active events
   // Filter by event type (category)
   if (validatedFilters.categoryId) {
     where.type = validatedFilters.categoryId as EventType;

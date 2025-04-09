@@ -65,7 +65,11 @@ export default async function EventDetailsPage({
 
   // Check if event is published
   if (event.status !== Visibility.PUBLISHED) {
-    redirect("/events");
+    return (
+      <div className="container mx-auto p-4">
+        <p>Event is not public. </p>
+      </div>
+    );
   }
 
   // Check if current user has attendance
