@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
-// Import KaTeX CSS
-import "katex/dist/katex.min.css";
+// KaTeX CSS will be loaded in useEffect
 
 // Add MathJax interface to Window object
 declare global {
@@ -46,6 +45,21 @@ export default function MarkdownEditorWrapper({
   // Handle client-side rendering of the Markdown editor
 
   useEffect(() => {
+    // Load KaTeX CSS dynamically on the client side
+    const loadKatexCSS = async () => {
+      // Create a link element for KaTeX CSS
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href =
+        "https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css";
+      link.integrity =
+        "sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn";
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+    };
+
+    loadKatexCSS();
+
     // Initialize MathJax
     if (typeof window !== "undefined") {
       window.MathJax = {
