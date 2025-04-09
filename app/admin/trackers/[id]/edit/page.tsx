@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
+import { TrendingUp } from "lucide-react";
 import { getTracker } from "../../actions";
 import {
   Breadcrumb,
@@ -9,7 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
+import { Button } from "@/components/ui/button";
 import { TrackerForm } from "../../components/tracker-form";
 
 interface EditTrackerPageProps {
@@ -27,9 +28,7 @@ export default async function EditTrackerPage({
   params,
 }: EditTrackerPageProps) {
   const resolvedParams = await params;
-  const trackerId = (resolvedParams.id);
-
- 
+  const trackerId = resolvedParams.id;
 
   const { data: tracker, error } = await getTracker(trackerId);
 
@@ -70,6 +69,14 @@ export default async function EditTrackerPage({
             <p className="text-sm text-muted-foreground mt-1">
               Modify tracker details and settings
             </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/admin/trackers/${trackerId}/ranklists`}>
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Manage Ranklists
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
