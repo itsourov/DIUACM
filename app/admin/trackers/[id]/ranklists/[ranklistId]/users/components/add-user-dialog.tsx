@@ -1,9 +1,13 @@
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Plus, Search, UserPlus, X } from "lucide-react";
-import { RankListUser, User } from "@prisma/client";
-import { searchUsersForRanklist, addRanklistUser } from "../actions";
+import { Plus, Search, Users, X } from "lucide-react";
+import { User, RankListUser } from "@prisma/client";
+import {
+  searchUsersForRanklist,
+  addUserToRanklist,
+} from "@/app/admin/trackers/[id]/ranklists/[ranklistId]/users/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,18 +23,28 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/use-debounce";
 
-type UserSearchResult = Pick<
+type UserData = Pick<
   User,
-  "id" | "name" | "email" | "username" | "image" | "studentId" | "department"
+  | "id"
+  | "name"
+  | "email"
+  | "username"
+  | "image"
+  | "studentId"
+  | "department"
+  | "codeforcesHandle"
+  | "atcoderHandle"
+  | "vjudgeHandle"
 >;
 
-type RanklistUserWithUser = RankListUser & {
-  user: UserSearchResult;
+// Define type for user with data
+type UserWithData = RankListUser & {
+  user: UserData;
 };
 
 interface AddUserDialogProps {
   ranklistId: string;
-  onUserAdded?: (user: RanklistUserWithUser) => void;
+  onUserAdded?: (user: UserWithData) => void;
 }
 
 export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
@@ -39,7 +53,7 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [isSearching, setIsSearching] = useState(false);
   const [isAdding, setIsAdding] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<UserData[]>([]);
 
   const handleSearch = useCallback(
     async (query = debouncedSearch) => {
@@ -47,9 +61,11 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
         setSearchResults([]);
         return;
       }
+
       try {
         setIsSearching(true);
         const response = await searchUsersForRanklist(ranklistId, query);
+
         if (response.success && response.data) {
           setSearchResults(response.data);
         } else {
@@ -64,7 +80,7 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
         setIsSearching(false);
       }
     },
-    [debouncedSearch, ranklistId, setIsSearching, setSearchResults]
+    [debouncedSearch, ranklistId]
   );
 
   // Effect to trigger search when debounced search value changes
@@ -74,17 +90,23 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
     }
   }, [debouncedSearch, handleSearch]);
 
-  const handleAddUser = async (userId: string) => {
+  const handleAddUser = async (user: UserData) => {
     try {
-      setIsAdding(userId);
-      const response = await addRanklistUser(ranklistId, userId);
+      setIsAdding(user.id);
+      // Initial score is 0
+      const response = await addUserToRanklist(ranklistId, user.id);
+
       if (response.success) {
         toast.success("User added successfully");
+
         // Remove user from search results
-        setSearchResults((prev) => prev.filter((user) => user.id !== userId));
+        setSearchResults((prev) => prev.filter((item) => item.id !== user.id));
+
+        // If it was the last item in the results, refresh the search
         if (searchResults.length === 1) {
           handleSearch();
         }
+
         // Call the callback function with the new user data
         if (onUserAdded && response.data) {
           onUserAdded(response.data);
@@ -100,15 +122,6 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const clearSearch = () => {
     setSearchQuery("");
     setSearchResults([]);
@@ -122,27 +135,38 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
     }
   }, [open]);
 
+  // Helper to get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <UserPlus className="h-4 w-4 mr-2" />
+          <Users className="h-4 w-4 mr-2" />
           Add User
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Ranklist User</DialogTitle>
+          <DialogTitle>Add User</DialogTitle>
           <DialogDescription>
             Search for users to add to this ranklist
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search users by name, email, or ID (min. 2 characters)"
+              placeholder="Search users by name, email, or student ID (min. 2 characters)"
               className="pl-8 pr-10"
               value={searchQuery}
               onChange={(e) => {
@@ -169,6 +193,7 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
               </Button>
             )}
           </div>
+
           <div className="border rounded-md">
             {isSearching ? (
               <div className="divide-y">
@@ -177,8 +202,8 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
                     key={i}
                     className="p-3 flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-3">
-                      <Skeleton className="h-8 w-8 rounded-full" />
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
                       <div className="space-y-1">
                         <Skeleton className="h-4 w-40" />
                         <Skeleton className="h-3 w-32" />
@@ -195,8 +220,8 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
                     key={user.id}
                     className="p-3 flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
                         <AvatarImage
                           src={user.image || undefined}
                           alt={user.name}
@@ -207,14 +232,15 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
                       </Avatar>
                       <div>
                         <div className="font-medium">{user.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {user.email} {user.studentId && `• ${user.studentId}`}
+                        <div className="flex items-center mt-1 space-x-2 text-sm text-muted-foreground">
+                          <span>{user.username}</span>
+                          {user.studentId && <span>• {user.studentId}</span>}
                         </div>
                       </div>
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => handleAddUser(user.id)}
+                      onClick={() => handleAddUser(user)}
                       disabled={isAdding === user.id}
                     >
                       {isAdding === user.id ? (
@@ -244,6 +270,7 @@ export function AddUserDialog({ ranklistId, onUserAdded }: AddUserDialogProps) {
             )}
           </div>
         </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Close

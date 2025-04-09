@@ -1,12 +1,11 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function getRanklistUsers(ranklistId: string) {
+export async function getRanklistUsers(rankListId: string) {
   try {
     const users = await prisma.rankListUser.findMany({
-      where: { rankListId: ranklistId },
+      where: { rankListId },
       include: {
         user: {
           select: {
@@ -17,10 +16,13 @@ export async function getRanklistUsers(ranklistId: string) {
             image: true,
             studentId: true,
             department: true,
+            codeforcesHandle: true,
+            atcoderHandle: true,
+            vjudgeHandle: true,
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ score: "desc" }, { createdAt: "asc" }],
     });
 
     return {
@@ -37,41 +39,27 @@ export async function getRanklistUsers(ranklistId: string) {
 }
 
 export async function searchUsersForRanklist(
-  ranklistId: string,
+  rankListId: string,
   search: string,
   limit: number = 10
 ) {
   try {
-    // Find users that aren't already in this ranklist
+    // Find users that aren't already connected to this ranklist
     // and match the search query
     const users = await prisma.user.findMany({
       where: {
         AND: [
           {
             OR: [
-              {
-                name: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                email: { contains: search, mode: Prisma.QueryMode.insensitive },
-              },
-              {
-                username: {
-                  contains: search,
-                  mode: Prisma.QueryMode.insensitive,
-                },
-              },
-              {
-                studentId: {
-                  contains: search,
-                  mode: Prisma.QueryMode.insensitive,
-                },
-              },
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+              { username: { contains: search, mode: "insensitive" } },
+              { studentId: { contains: search, mode: "insensitive" } },
             ],
           },
           {
-            rankLists: {
-              none: { rankListId: ranklistId },
+            rankListUsers: {
+              none: { rankListId },
             },
           },
         ],
@@ -84,6 +72,9 @@ export async function searchUsersForRanklist(
         image: true,
         studentId: true,
         department: true,
+        codeforcesHandle: true,
+        atcoderHandle: true,
+        vjudgeHandle: true,
       },
       take: limit,
       orderBy: { name: "asc" },
@@ -102,25 +93,17 @@ export async function searchUsersForRanklist(
   }
 }
 
-export async function addRanklistUser(ranklistId: string, userId: string) {
+export async function addUserToRanklist(
+  rankListId: string,
+  userId: string,
+  score: number = 0
+) {
   try {
-    // Get the tracker ID for path revalidation
-    const ranklist = await prisma.rankList.findUnique({
-      where: { id: ranklistId },
-      select: { trackerId: true },
-    });
-
-    if (!ranklist) {
-      return {
-        success: false,
-        error: "Ranklist not found",
-      };
-    }
-
-    const ranklistUser = await prisma.rankListUser.create({
+    const rankListUser = await prisma.rankListUser.create({
       data: {
-        rankListId: ranklistId,
+        rankListId,
         userId,
+        score,
       },
       include: {
         user: {
@@ -132,18 +115,20 @@ export async function addRanklistUser(ranklistId: string, userId: string) {
             image: true,
             studentId: true,
             department: true,
+            codeforcesHandle: true,
+            atcoderHandle: true,
+            vjudgeHandle: true,
           },
         },
       },
     });
 
-    revalidatePath(
-      `/admin/trackers/${ranklist.trackerId}/ranklists/${ranklistId}/users`
-    );
+    // Fix revalidation path to match the project structure
+    revalidatePath(`/admin/trackers/[id]/ranklists/${rankListId}/users`);
 
     return {
       success: true,
-      data: ranklistUser,
+      data: rankListUser,
     };
   } catch (error) {
     console.error(error);
@@ -154,33 +139,62 @@ export async function addRanklistUser(ranklistId: string, userId: string) {
   }
 }
 
-export async function removeRanklistUser(userId: string, ranklistId: string) {
+export async function updateUserScore(
+  rankListUserId: string,
+  rankListId: string,
+  score: number
+) {
   try {
-    // Get the tracker ID for path revalidation
-    const ranklist = await prisma.rankList.findUnique({
-      where: { id: ranklistId },
-      select: { trackerId: true },
-    });
-
-    if (!ranklist) {
-      return {
-        success: false,
-        error: "Ranklist not found",
-      };
-    }
-
-    await prisma.rankListUser.delete({
-      where: {
-        userId_rankListId: {
-          userId,
-          rankListId: ranklistId,
+    const rankListUser = await prisma.rankListUser.update({
+      where: { id: rankListUserId },
+      data: {
+        score,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            username: true,
+            image: true,
+            studentId: true,
+            department: true,
+            codeforcesHandle: true,
+            atcoderHandle: true,
+            vjudgeHandle: true,
+          },
         },
       },
     });
 
-    revalidatePath(
-      `/admin/trackers/${ranklist.trackerId}/ranklists/${ranklistId}/users`
-    );
+    // Fix revalidation path to match the project structure
+    revalidatePath(`/admin/trackers/[id]/ranklists/${rankListId}/users`);
+
+    return {
+      success: true,
+      data: rankListUser,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    };
+  }
+}
+
+export async function removeUserFromRanklist(
+  rankListUserId: string,
+  rankListId: string
+) {
+  try {
+    await prisma.rankListUser.delete({
+      where: { id: rankListUserId },
+    });
+
+    // Fix revalidation path to match the project structure
+    revalidatePath(`/admin/trackers/[id]/ranklists/${rankListId}/users`);
 
     return { success: true };
   } catch (error) {

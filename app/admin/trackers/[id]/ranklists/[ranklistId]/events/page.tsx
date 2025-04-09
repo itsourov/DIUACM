@@ -14,17 +14,17 @@ import { getRanklistEvents } from "./actions";
 import { EventList } from "./components/events-list";
 
 interface RanklistEventsPageProps {
-  params: {
+  params: Promise<{
     id: string;
     ranklistId: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({
   params,
 }: RanklistEventsPageProps): Promise<Metadata> {
-  const trackerId = params.id;
-  const ranklistId = params.ranklistId;
+  const trackerId = (await params).id;
+  const ranklistId = (await params).ranklistId;
 
   const [trackerResponse, ranklistResponse] = await Promise.all([
     getTracker(trackerId),
@@ -50,8 +50,8 @@ export async function generateMetadata({
 export default async function RanklistEventsPage({
   params,
 }: RanklistEventsPageProps) {
-  const trackerId = params.id;
-  const ranklistId = params.ranklistId;
+  const trackerId = (await params).id;
+  const ranklistId = (await params).ranklistId;
 
   const [trackerResponse, ranklistResponse, eventsResponse] = await Promise.all(
     [

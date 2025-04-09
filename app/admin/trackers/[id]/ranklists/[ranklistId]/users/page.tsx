@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { Metadata } from "next";
+import Link from "next/link";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,23 +8,23 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getTracker } from "../../../../actions";
-import { getRanklist } from "../../actions";
 import { getRanklistUsers } from "./actions";
-import { UsersList } from "./components/users-list";
+import { UserList } from "./components/users-list";
+import { getTracker } from "@/app/admin/trackers/actions";
+import { getRanklist } from "../../actions";
 
-interface RanklistUsersPageProps {
-  params: {
+interface PageProps {
+  params: Promise<{
     id: string;
     ranklistId: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({
   params,
-}: RanklistUsersPageProps): Promise<Metadata> {
-  const trackerId = params.id;
-  const ranklistId = params.ranklistId;
+}: PageProps): Promise<Metadata> {
+  const awaitedParams = await params;
+  const { id: trackerId, ranklistId } = awaitedParams;
 
   const [trackerResponse, ranklistResponse] = await Promise.all([
     getTracker(trackerId),
@@ -42,16 +42,15 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Ranklist Users - ${ranklist.keyword} | DIU ACM Admin`,
-    description: `Manage users for ranklist ${ranklist.keyword}`,
+    title: `Users - ${ranklist.keyword} | ${tracker.title} | DIU ACM Admin`,
+    description: `Manage users for ${ranklist.keyword} ranklist in ${tracker.title}`,
   };
 }
 
-export default async function RanklistUsersPage({
-  params,
-}: RanklistUsersPageProps) {
-  const trackerId = params.id;
-  const ranklistId = params.ranklistId;
+export default async function Page({ params }: PageProps) {
+  const awaitedParams = await params;
+
+  const { id: trackerId, ranklistId } = awaitedParams;
 
   const [trackerResponse, ranklistResponse, usersResponse] = await Promise.all([
     getTracker(trackerId),
@@ -86,7 +85,7 @@ export default async function RanklistUsersPage({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href={`/admin/trackers/${trackerId}/edit`}>
+                <Link href={`/admin/trackers/${trackerId}`}>
                   {tracker.title}
                 </Link>
               </BreadcrumbLink>
@@ -103,7 +102,7 @@ export default async function RanklistUsersPage({
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link
-                  href={`/admin/trackers/${trackerId}/ranklists/${ranklistId}/edit`}
+                  href={`/admin/trackers/${trackerId}/ranklists/${ranklistId}`}
                 >
                   {ranklist.keyword}
                 </Link>
@@ -120,13 +119,12 @@ export default async function RanklistUsersPage({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Ranklist Users</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage users for ranklist &quot;{ranklist.keyword}&quot; in tracker
-            &quot;
-            {tracker.title}&quot;
+            Manage users for the {ranklist.keyword} ranklist
           </p>
         </div>
       </div>
-      <UsersList ranklistId={ranklistId} initialUsers={users} />
+
+      <UserList ranklistId={ranklistId} initialUsers={users} />
     </div>
   );
 }
