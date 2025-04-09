@@ -282,3 +282,18 @@ model ContactFormSubmission {
 
   @@map("contact_form_submissions")
 }
+
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  content     String?
+  author      String?
+  status      Visibility @default(DRAFT)
+  publishedAt DateTime?  @map("published_at")
+  isFeatured  Boolean    @default(false) @map("is_featured")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@map("blog_posts")
+}
