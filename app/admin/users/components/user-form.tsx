@@ -54,7 +54,7 @@ export function UserForm({ initialData, isEditing = false }: UserFormProps) {
       email: initialData?.email || "",
       username: initialData?.username || "",
       password: "",
-      gender: initialData?.gender || Gender.UNSPECIFIED,
+      gender: initialData?.gender || undefined,
       phone: initialData?.phone || "",
       codeforcesHandle: initialData?.codeforcesHandle || "",
       atcoderHandle: initialData?.atcoderHandle || "",
@@ -223,12 +223,12 @@ export function UserForm({ initialData, isEditing = false }: UserFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={Gender.MALE}>Male</SelectItem>
-                        <SelectItem value={Gender.FEMALE}>Female</SelectItem>
-                        <SelectItem value={Gender.OTHER}>Other</SelectItem>
-                        <SelectItem value={Gender.UNSPECIFIED}>
-                          Unspecified
-                        </SelectItem>
+                        {Object.values(Gender).map((gender) => (
+                          <SelectItem key={gender} value={gender}>
+                            {gender.charAt(0).toUpperCase() +
+                              gender.slice(1).toLowerCase()}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

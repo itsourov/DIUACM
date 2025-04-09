@@ -9,7 +9,10 @@ export const userFormSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters long")
     .max(20, "Username must not exceed 20 characters")
-    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
+    .regex(
+      /^[a-zA-Z0-9_-]+$/,
+      "Username can only contain letters, numbers, underscores, and hyphens"
+    ),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
@@ -18,8 +21,8 @@ export const userFormSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one number")
     .optional()
     .nullable()
-    .or(z.literal('')),
-  gender: z.nativeEnum(Gender).default(Gender.UNSPECIFIED),
+    .or(z.literal("")),
+  gender: z.nativeEnum(Gender).optional(),
   phone: z.string().optional().nullable(),
   codeforcesHandle: z.string().optional().nullable(),
   atcoderHandle: z.string().optional().nullable(),
@@ -40,7 +43,7 @@ export const userUpdateFormSchema = userFormSchema.extend({
     .regex(/[0-9]/, "Password must contain at least one number")
     .optional()
     .nullable()
-    .or(z.literal('')),
+    .or(z.literal("")),
 });
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
