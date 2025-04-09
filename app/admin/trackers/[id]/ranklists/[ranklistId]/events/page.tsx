@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
-import { Users, Calendar } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,24 +8,23 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { getTracker } from "../../../../actions";
 import { getRanklist } from "../../actions";
-import { RanklistForm } from "../../components/ranklist-form";
+import { getRanklistEvents } from "./actions";
+import { EventList } from "./components/events-list";
 
-interface EditRanklistPageProps {
-  params: Promise<{
+interface RanklistEventsPageProps {
+  params: {
     id: string;
     ranklistId: string;
-  }>;
+  };
 }
 
 export async function generateMetadata({
   params,
-}: EditRanklistPageProps): Promise<Metadata> {
-  const awaitedParams = await params;
-  const trackerId = awaitedParams.id;
-  const ranklistId = awaitedParams.ranklistId;
+}: RanklistEventsPageProps): Promise<Metadata> {
+  const trackerId = params.id;
+  const ranklistId = params.ranklistId;
 
   const [trackerResponse, ranklistResponse] = await Promise.all([
     getTracker(trackerId),
@@ -44,25 +42,28 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Edit ${ranklist.keyword} - ${tracker.title} | DIU ACM Admin`,
-    description: `Edit ranklist details for ${ranklist.keyword}`,
+    title: `Ranklist Events - ${ranklist.keyword} | DIU ACM Admin`,
+    description: `Manage events for ranklist ${ranklist.keyword}`,
   };
 }
 
-export default async function EditRanklistPage({
+export default async function RanklistEventsPage({
   params,
-}: EditRanklistPageProps) {
-  const awaitedParams = await params;
-  const trackerId = awaitedParams.id;
-  const ranklistId = awaitedParams.ranklistId;
+}: RanklistEventsPageProps) {
+  const trackerId = params.id;
+  const ranklistId = params.ranklistId;
 
-  const [trackerResponse, ranklistResponse] = await Promise.all([
-    getTracker(trackerId),
-    getRanklist(ranklistId),
-  ]);
+  const [trackerResponse, ranklistResponse, eventsResponse] = await Promise.all(
+    [
+      getTracker(trackerId),
+      getRanklist(ranklistId),
+      getRanklistEvents(ranklistId),
+    ]
+  );
 
   const tracker = trackerResponse.data;
   const ranklist = ranklistResponse.data;
+  const events = eventsResponse.data || [];
 
   if (!tracker || !ranklist) {
     notFound();
@@ -102,42 +103,32 @@ export default async function EditRanklistPage({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link
+                  href={`/admin/trackers/${trackerId}/ranklists/${ranklistId}/edit`}
+                >
+                  {ranklist.keyword}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
               <BreadcrumbLink className="text-foreground font-medium">
-                Edit Ranklist
+                Events
               </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Edit Ranklist: {ranklist.keyword}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Modify ranklist details for {tracker.title}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link
-                href={`/admin/trackers/${trackerId}/ranklists/${ranklistId}/events`}
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Manage Events
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link
-                href={`/admin/trackers/${trackerId}/ranklists/${ranklistId}/users`}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Manage Users
-              </Link>
-            </Button>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Ranklist Events</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage events for ranklist &quot;{ranklist.keyword}&quot; in tracker
+            &quot;
+            {tracker.title}&quot;
+          </p>
         </div>
       </div>
-      <RanklistForm trackerId={trackerId} initialData={ranklist} isEditing />
+      <EventList ranklistId={ranklistId} initialEvents={events} />
     </div>
   );
 }
