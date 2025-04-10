@@ -81,7 +81,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
   }, [onChange]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-md">
       <div className="flex items-center gap-4">
         <Button
           type="button"
@@ -122,7 +122,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
       {value && (
         <Card className="overflow-hidden">
-          <CardContent className="p-0">
+          <CardContent className="p-0 ">
             <div className="relative aspect-video">
               <Image
                 src={value}
