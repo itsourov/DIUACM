@@ -20,6 +20,7 @@ import {
   Mail,
   Calendar,
   ListChecks,
+  BookOpen,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ const menuItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Events", href: "/events", icon: Calendar },
   { name: "Trackers", href: "/trackers", icon: ListChecks },
+  { name: "Blog", href: "/blogs", icon: BookOpen },
   { name: "Programmers", href: "/programmers", icon: Users },
   { name: "About", href: "/about", icon: Info },
   { name: "Contact", href: "/contact", icon: Mail },
