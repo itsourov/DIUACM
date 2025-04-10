@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       "lh3.googleusercontent.com",
       "nextacm.sgp1.cdn.digitaloceanspaces.com",
       "cdn.diuacm.com",
+      "pub-15f222a0e56543078803204afc924060.r2.dev",
     ],
   },
   // Configure webpack to handle MDEditor
