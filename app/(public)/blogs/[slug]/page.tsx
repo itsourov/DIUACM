@@ -35,7 +35,8 @@ export async function generateMetadata({
 
   return {
     title: `${blog.title} - DIU ACM Blog`,
-    description: blog.content?.substring(0, 160) || "Read this article on DIU ACM Blog",
+    description:
+      blog.content?.substring(0, 160) || "Read this article on DIU ACM Blog",
   };
 }
 
@@ -53,7 +54,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   }
 
   // Format the published date
-  const formattedDate = blog.publishedAt 
+  const formattedDate = blog.publishedAt
     ? format(new Date(blog.publishedAt), "MMMM d, yyyy")
     : format(new Date(blog.createdAt), "MMMM d, yyyy");
 
@@ -67,7 +68,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             variant="ghost"
             className="pl-0 hover:pl-2 transition-all duration-200"
           >
-            <Link href="/blogs" className="flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+            <Link
+              href="/blogs"
+              className="flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Blog
             </Link>
@@ -100,11 +104,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
             {/* Blog content with math formula support */}
             <div className="prose prose-slate dark:prose-invert max-w-none">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm, remarkMath]} 
-                rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[
+                  [rehypeKatex, { throwOnError: false, strict: false }],
+                ]}
               >
-                {blog.content || 'No content available.'}
+                {blog.content || "No content available."}
               </ReactMarkdown>
             </div>
           </div>

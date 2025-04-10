@@ -20,7 +20,7 @@ type PageProps = {
 export default async function BlogsPage({ searchParams }: PageProps) {
   // Await searchParams to get the actual values
   const awaitedSearchParams = await searchParams;
-  
+
   // Parse pagination parameters
   const currentPage = awaitedSearchParams.page
     ? parseInt(awaitedSearchParams.page)
@@ -51,7 +51,8 @@ export default async function BlogsPage({ searchParams }: PageProps) {
             <div>
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
                 <BookOpen className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                {pagination.total} {pagination.total === 1 ? "Article" : "Articles"}
+                {pagination.total}{" "}
+                {pagination.total === 1 ? "Article" : "Articles"}
               </h2>
               {pagination.total > 0 && pagination.pages > 1 && (
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">

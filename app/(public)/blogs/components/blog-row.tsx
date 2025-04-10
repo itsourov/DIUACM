@@ -13,22 +13,23 @@ interface BlogRowProps {
 
 export function BlogRow({ blog }: BlogRowProps) {
   // Format the published date
-  const formattedDate = blog.publishedAt 
+  const formattedDate = blog.publishedAt
     ? format(new Date(blog.publishedAt), "MMMM d, yyyy")
     : format(new Date(blog.createdAt), "MMMM d, yyyy");
 
   // Calculate excerpt (first 150 chars - shorter for grid layout)
-  const excerpt = blog.content 
-    ? blog.content.replace(/[#*`]/g, '').substring(0, 150) + (blog.content.length > 150 ? '...' : '')
-    : '';
+  const excerpt = blog.content
+    ? blog.content.replace(/[#*`]/g, "").substring(0, 150) +
+      (blog.content.length > 150 ? "..." : "")
+    : "";
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 h-full flex flex-col">
       {/* Feature Image */}
       {blog.featuredImage && (
         <div className="aspect-video w-full overflow-hidden relative">
-          <Image 
-            src={blog.featuredImage} 
+          <Image
+            src={blog.featuredImage}
             alt={blog.title}
             fill
             className="object-cover transition-transform duration-300 hover:scale-105"
@@ -36,12 +37,12 @@ export function BlogRow({ blog }: BlogRowProps) {
           />
         </div>
       )}
-      
+
       <div className="p-5 flex flex-col flex-grow">
         {/* Title and meta information */}
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-2">
-          <Link 
-            href={`/blogs/${blog.slug}`} 
+          <Link
+            href={`/blogs/${blog.slug}`}
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {blog.title}
@@ -75,7 +76,10 @@ export function BlogRow({ blog }: BlogRowProps) {
           className="h-8 rounded-full text-sm w-full mt-auto"
           size="sm"
         >
-          <Link href={`/blogs/${blog.slug}`} className="flex items-center justify-center">
+          <Link
+            href={`/blogs/${blog.slug}`}
+            className="flex items-center justify-center"
+          >
             Read More
             <ArrowRight className="ml-1 h-3 w-3" />
           </Link>

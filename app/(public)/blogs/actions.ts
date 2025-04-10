@@ -27,10 +27,13 @@ export type PaginatedBlogs = {
 };
 
 // Function to get paginated blog posts for the public site
-export async function getPublicBlogs(page: number = 1, limit: number = 10): Promise<PaginatedBlogs> {
+export async function getPublicBlogs(
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedBlogs> {
   // Only show published blogs
   const where: Prisma.BlogPostWhereInput = {
-    status: Visibility.PUBLISHED
+    status: Visibility.PUBLISHED,
   };
 
   // Count total blogs matching filters (published only)
