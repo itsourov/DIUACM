@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'nextjs-toploader/app';
+import { useRouter } from "nextjs-toploader/app";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,7 @@ import slugify from "slugify";
 import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
 import { createBlog, updateBlog } from "../actions";
 import MarkdownEditorWrapper from "./markdown-editor-wrapper";
+import { ImageUpload } from "./image-upload";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +59,7 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
       slug: initialData?.slug || "",
       content: initialData?.content || "",
       author: initialData?.author || "",
+      featuredImage: initialData?.featuredImage || "",
       status: initialData?.status || Visibility.DRAFT,
       publishedAt: initialData?.publishedAt
         ? new Date(initialData.publishedAt)
@@ -179,6 +181,28 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
                         value={field.value || ""}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="featuredImage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Featured Image</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a featured image for your blog post. This will be
+                      displayed on the blog listing page and at the top of your
+                      post.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

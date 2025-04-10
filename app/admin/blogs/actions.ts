@@ -5,6 +5,74 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { blogFormSchema, type BlogFormValues } from "./schemas/blog";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client } from "@aws-sdk/client-s3";
+import { v4 as uuid } from "uuid";
+import { auth } from "@/lib/auth";
+
+// Create S3 client for R2
+const s3 = new S3Client({
+  region: "auto",
+  endpoint: process.env.S3_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+  },
+});
+
+// Maximum file size: 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+// Generate pre-signed URL for image upload
+export async function generatePresignedUrl(fileType: string, fileSize: number) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Validate mime type
+    if (!fileType.startsWith("image/")) {
+      return { success: false, error: "Only image files are allowed" };
+    }
+
+    // Validate file size on the server as well
+    if (fileSize > MAX_FILE_SIZE) {
+      return { success: false, error: "File size exceeds the 5MB limit" };
+    }
+
+    const fileExtension = fileType.split("/")[1];
+    const key = `blog-images/${uuid()}.${fileExtension}`;
+
+    const putObjectCommand = new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+      ContentType: fileType,
+      // Set max content length to prevent uploading files larger than 5MB
+      ContentLength: fileSize,
+    });
+
+    const presignedUrl = await getSignedUrl(s3, putObjectCommand, {
+      expiresIn: 600,
+    }); // URL expires in 10 minutes
+
+    return {
+      success: true,
+      data: {
+        presignedUrl,
+        fileUrl: `${process.env.NEXT_PUBLIC_S3_DOMAIN}/${key}`,
+        key,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating presigned URL:", error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    };
+  }
+}
 
 // Create a new blog post
 export async function createBlog(values: BlogFormValues) {

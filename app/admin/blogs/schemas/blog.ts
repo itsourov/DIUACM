@@ -15,6 +15,7 @@ export const blogFormSchema = z.object({
     }),
   content: z.string().optional().nullable(),
   author: z.string().optional().nullable(),
+  featuredImage: z.string().optional().nullable(),
   status: z.nativeEnum(Visibility), // Making this required without default
   publishedAt: z.date().nullable().optional(),
   isFeatured: z.boolean(), // Making this required without default
