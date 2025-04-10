@@ -15,6 +15,7 @@ import {
   MoonStar,
   FileBarChart2,
   Award,
+  FileText,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -56,7 +57,11 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
       label: "Events",
       href: "/admin/events",
     },
-
+    {
+      icon: <FileText className="h-5 w-5" />,
+      label: "Blogs",
+      href: "/admin/blogs",
+    },
     {
       icon: <FileBarChart2 className="h-5 w-5" />,
       label: "Trackers",
