@@ -1,6 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from 'nextjs-toploader/app';
+
 import { useCallback, useEffect, useState } from "react";
 import { Filter, Tag, X, Search as SearchIcon, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";

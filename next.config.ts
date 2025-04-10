@@ -7,8 +7,26 @@ const nextConfig: NextConfig = {
       "lh3.googleusercontent.com",
       "nextacm.sgp1.cdn.digitaloceanspaces.com",
       "cdn.diuacm.com",
+      "pub-15f222a0e56543078803204afc924060.r2.dev",
     ],
   },
+  // Configure webpack to handle MDEditor
+  webpack: (config) => {
+    // Fix for @uiw/react-md-editor
+    config.resolve = {
+      ...config.resolve,
+      fallback: {
+        ...config.resolve?.fallback,
+        fs: false,
+        path: false,
+      },
+    };
+
+    return config;
+  },
+  // Add KaTeX and MathJax to allowed external packages
+  // Updated from experimental.serverComponentsExternalPackages to serverExternalPackages
+  serverExternalPackages: ["katex", "mathjax"],
 };
 
 export default nextConfig;

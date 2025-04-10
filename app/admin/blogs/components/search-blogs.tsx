@@ -15,27 +15,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
-import { EventType } from "@prisma/client";
+import { Visibility } from "@prisma/client";
 
-export function SearchEvents() {
+export function SearchBlogs() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const initialQuery = searchParams.get("search") || "";
-  const initialType = searchParams.get("type") || "ALL";
+  const initialStatus = searchParams.get("status") || "ALL";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [eventType, setEventType] = useState(initialType);
+  const [blogStatus, setBlogStatus] = useState(initialStatus);
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   const prevSearch = useRef(initialQuery);
-  const prevType = useRef(initialType);
+  const prevStatus = useRef(initialStatus);
 
   const updateSearchParams = useCallback(
-    (query: string, type: string) => {
-      // Only update if search or type actually changed
-      if (prevSearch.current === query && prevType.current === type) {
+    (query: string, status: string) => {
+      // Only update if search or status actually changed
+      if (prevSearch.current === query && prevStatus.current === status) {
         return;
       }
 
@@ -50,14 +50,14 @@ export function SearchEvents() {
         params.delete("search");
       }
 
-      if (type && type !== "ALL") {
-        params.set("type", type);
+      if (status && status !== "ALL") {
+        params.set("status", status);
       } else {
-        params.delete("type");
+        params.delete("status");
       }
 
       prevSearch.current = query;
-      prevType.current = type;
+      prevStatus.current = status;
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [router, pathname, searchParams]
@@ -65,12 +65,12 @@ export function SearchEvents() {
 
   // Update URL when debounced search changes
   useEffect(() => {
-    updateSearchParams(debouncedSearch, eventType);
-  }, [debouncedSearch, eventType, updateSearchParams]);
+    updateSearchParams(debouncedSearch, blogStatus);
+  }, [debouncedSearch, blogStatus, updateSearchParams]);
 
   const handleClear = () => {
     setSearchQuery("");
-    setEventType("ALL");
+    setBlogStatus("ALL");
   };
 
   return (
@@ -79,7 +79,7 @@ export function SearchEvents() {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search events by title or description..."
+          placeholder="Search blogs by title, content, or author..."
           className="pl-8 w-full"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -97,15 +97,15 @@ export function SearchEvents() {
         )}
       </div>
 
-      <Select value={eventType} onValueChange={setEventType}>
+      <Select value={blogStatus} onValueChange={setBlogStatus}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by type" />
+          <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ALL">All Types</SelectItem>
-          {Object.values(EventType).map((type) => (
-            <SelectItem key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+          <SelectItem value="ALL">All Status</SelectItem>
+          {Object.values(Visibility).map((status) => (
+            <SelectItem key={status} value={status}>
+              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
             </SelectItem>
           ))}
         </SelectContent>
