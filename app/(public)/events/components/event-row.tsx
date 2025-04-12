@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Event } from "../actions";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, Users } from "lucide-react";
+import { CalendarDays, Clock, Users, ArrowUpRight } from "lucide-react";
 
 type EventRowProps = {
   event: Event;
@@ -126,8 +126,14 @@ export function EventRow({ event }: EventRowProps) {
   const getStatusBadge = () => {
     if (isRunning)
       return (
-        <Badge variant="destructive" className="animate-pulse">
-          Happening Now
+        <Badge
+          variant="outline"
+          className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-300/70 dark:border-blue-700/70 text-blue-700 dark:text-blue-300 shadow-sm"
+        >
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+            Happening Now
+          </span>
         </Badge>
       );
     if (isUpcoming)
@@ -139,7 +145,14 @@ export function EventRow({ event }: EventRowProps) {
           {formatEventStatus(startDate, currentTime)}
         </Badge>
       );
-    return <Badge variant="secondary">Ended</Badge>;
+    return (
+      <Badge
+        variant="secondary"
+        className="bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+      >
+        Ended
+      </Badge>
+    );
   };
 
   const scopeConfig = getScopeConfig(event.participationScope);
@@ -157,22 +170,38 @@ export function EventRow({ event }: EventRowProps) {
   // Get attendance count
   const attendanceCount = event._count?.attendances || 0;
 
+  // Determine badge style based on event type
+  const getEventTypeBadgeStyle = () => {
+    switch (event.type) {
+      case "CONTEST":
+        return "bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white border-none shadow-sm";
+      case "CLASS":
+        return "bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-500 text-white border-none shadow-sm";
+      default:
+        return "bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 text-white border-none shadow-sm";
+    }
+  };
+
   return (
     <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all overflow-hidden group hover:shadow-lg">
-      {/* Subtle gradient overlay for modern look */}
+      {/* Ambient light effect */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-purple-500/10 rounded-xl blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+
+      {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-slate-50 dark:from-slate-800 dark:to-slate-900 opacity-50 -z-10"></div>
 
-      {/* Decorative accent circle */}
+      {/* Decorative accent element */}
       <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-blue-100/40 dark:bg-blue-900/20 -z-10"></div>
 
       <Link href={`/events/${event.id}`} className="block p-5 relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
-          <div>
+        {/* Top row with title and status */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
+          <div className="flex-1">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
               {event.title}
             </h3>
 
-            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4 text-blue-500" />
                 <span>{formatDate(startDate)}</span>
@@ -185,19 +214,14 @@ export function EventRow({ event }: EventRowProps) {
             </div>
           </div>
 
-          <div>{getStatusBadge()}</div>
+          <div className="sm:self-start">{getStatusBadge()}</div>
         </div>
 
+        {/* Tags section */}
         <div className="flex flex-wrap gap-2 mt-4">
           <Badge
-            variant={
-              event.type === "CONTEST"
-                ? "default"
-                : event.type === "CLASS"
-                ? "secondary"
-                : "outline"
-            }
-            className="capitalize"
+            variant="default"
+            className={`${getEventTypeBadgeStyle()} capitalize`}
           >
             {event.type === "CLASS" && "📚 "}
             {event.type === "CONTEST" && "🏆 "}
@@ -205,19 +229,29 @@ export function EventRow({ event }: EventRowProps) {
             {event.type.toLowerCase()}
           </Badge>
 
-          <Badge variant="outline">
+          <Badge
+            variant="outline"
+            className="backdrop-blur-sm bg-white/30 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700"
+          >
             {scopeConfig.icon} {scopeConfig.label}
           </Badge>
 
-          <Badge variant="outline">⏱️ {formatDuration()}</Badge>
+          <Badge
+            variant="outline"
+            className="backdrop-blur-sm bg-white/30 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700"
+          >
+            ⏱️ {formatDuration()}
+          </Badge>
         </div>
 
         {/* Attendance information */}
         {event.openForAttendance && (
           <div className="mt-4 flex items-center text-sm text-slate-600 dark:text-slate-400">
             <Users className="h-4 w-4 mr-1.5 text-blue-500" />
-            <span>
-              {attendanceCount}{" "}
+            <span className="flex items-center gap-1">
+              <span className="font-medium text-slate-800 dark:text-slate-200">
+                {attendanceCount}
+              </span>
               {attendanceCount === 1 ? "attendee" : "attendees"}
             </span>
           </div>
@@ -225,30 +259,26 @@ export function EventRow({ event }: EventRowProps) {
 
         {/* Progress Indicator for Running Events */}
         {isRunning && (
-          <div className="mt-4 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
+              <span>{Math.round(progress)}% complete</span>
+              <span>
+                Time remaining: {formatEventStatus(endDate, currentTime)}
+              </span>
+            </div>
+            <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div
+                suppressHydrationWarning
+                className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 rounded-full"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
         )}
 
         {/* Arrow indicator for clickable card */}
-        <div className="absolute bottom-4 right-4 h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-3 w-3 text-blue-700 dark:text-blue-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+        <div className="absolute bottom-4 right-4 h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1">
+          <ArrowUpRight className="h-4 w-4 text-blue-700 dark:text-blue-400" />
         </div>
       </Link>
     </div>
