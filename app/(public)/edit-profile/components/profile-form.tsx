@@ -218,16 +218,19 @@ export function ProfileForm({ userData }: ProfileFormProps) {
   return (
     <>
       {/* Profile Header with Picture */}
-      <div className="mb-10 py-8 px-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-900/20 dark:to-purple-900/20 rounded-3xl border border-slate-200/70 dark:border-slate-700/70">
+      <div className="mb-10 py-8 px-6 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-3xl border border-slate-200/70 dark:border-slate-700/70 shadow-md hover:shadow-lg transition-shadow">
         <div className="flex flex-col md:flex-row gap-8 items-center">
           <div className="relative">
             <div className="relative flex items-center justify-center">
-              <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-800 shadow-lg">
+              {/* Ambient light effect */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-purple-500/20 rounded-full blur-2xl opacity-25 dark:opacity-40 group-hover:opacity-30 dark:group-hover:opacity-50 transition-opacity duration-500"></div>
+
+              <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-800 shadow-lg relative z-10">
                 <AvatarImage
                   src={profileImageUrl || undefined}
                   alt={userData.name}
                 />
-                <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
                   {getInitials(userData.name)}
                 </AvatarFallback>
               </Avatar>
@@ -235,7 +238,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
               <button
                 type="button"
                 onClick={() => setShowImageCropper(true)}
-                className="absolute bottom-0 right-0 rounded-full bg-blue-600 text-white p-2.5 shadow-lg hover:bg-blue-700 transition-all hover:scale-105"
+                className="absolute bottom-0 right-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white p-2.5 shadow-lg hover:scale-105 transition-all z-20"
                 aria-label="Change profile picture"
                 disabled={isUploadingImage}
               >
@@ -262,11 +265,12 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                 size="sm"
                 onClick={() => setShowImageCropper(true)}
                 disabled={isUploadingImage}
+                className="border-slate-200 hover:border-blue-200 hover:bg-blue-50 dark:border-slate-700 dark:hover:border-blue-700 dark:hover:bg-blue-900/20 transition-colors"
               >
                 {isUploadingImage ? (
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
                 ) : (
-                  <Upload className="h-4 w-4 mr-1.5" />
+                  <Upload className="h-4 w-4 mr-1.5 text-blue-600 dark:text-blue-400" />
                 )}
                 {profileImageUrl ? "Change" : "Upload"} Photo
               </Button>
@@ -277,7 +281,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                   variant="outline"
                   onClick={handleRemoveImage}
                   disabled={isUploadingImage}
-                  className="text-destructive hover:text-destructive"
+                  className="text-red-600 hover:text-red-700 border-slate-200 hover:border-red-200 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:border-slate-700 dark:hover:border-red-900 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <X className="h-4 w-4 mr-1.5" />
                   Remove Photo
@@ -296,9 +300,9 @@ export function ProfileForm({ userData }: ProfileFormProps) {
             className="space-y-8 relative z-0"
           >
             {/* Personal Information Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center mb-6">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 flex items-center justify-center mr-4">
                   <UserIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-lg font-medium text-slate-900 dark:text-white">
@@ -322,7 +326,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                         <Input
                           placeholder="Enter your full name"
                           {...field}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -336,7 +340,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-2 mb-2">
-                        <Mail className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        <Mail className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                         <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
                           Username
                         </FormLabel>
@@ -345,10 +349,10 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                         <Input
                           placeholder="Enter username"
                           {...field}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-violet-500 dark:focus:ring-violet-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-cyan-400 focus:border-cyan-500 dark:focus:border-cyan-400 transition-colors"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-slate-500 dark:text-slate-400">
                         This will be used in your public profile URL
                       </FormDescription>
                       <FormMessage />
@@ -362,7 +366,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center gap-2 mb-2">
-                        <UserCheck className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                        <UserCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                         <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
                           Password
                         </FormLabel>
@@ -373,10 +377,10 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="Leave blank to keep current password"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-pink-500 dark:focus:ring-pink-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 transition-colors"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-slate-500 dark:text-slate-400">
                         Leave blank to keep current password
                       </FormDescription>
                       <FormMessage />
@@ -400,7 +404,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                         defaultValue={field.value || undefined}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-slate-300 dark:border-slate-600 focus:ring-emerald-500 dark:focus:ring-emerald-400">
+                          <SelectTrigger className="border-slate-300 dark:border-slate-600 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors">
                             <SelectValue placeholder="Select gender" />
                           </SelectTrigger>
                         </FormControl>
@@ -434,7 +438,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="Phone number (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-amber-500 dark:focus:ring-amber-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-amber-500 dark:focus:border-amber-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -445,9 +449,9 @@ export function ProfileForm({ userData }: ProfileFormProps) {
             </div>
 
             {/* Academic Information Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center mb-6">
-                <div className="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center mr-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30 flex items-center justify-center mr-4">
                   <GraduationCap className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-medium text-slate-900 dark:text-white">
@@ -472,7 +476,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="Student ID (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-cyan-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-cyan-400 focus:border-cyan-500 dark:focus:border-cyan-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -496,7 +500,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="Department (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-teal-500 dark:focus:ring-teal-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -520,7 +524,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="e.g. Fall 2020 (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -531,9 +535,9 @@ export function ProfileForm({ userData }: ProfileFormProps) {
             </div>
 
             {/* Competitive Programming Profiles */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center mb-6">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 flex items-center justify-center mr-4">
                   <Code className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="text-lg font-medium text-slate-900 dark:text-white">
@@ -558,7 +562,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="Codeforces handle (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-red-500 dark:focus:ring-red-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -582,7 +586,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="AtCoder handle (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-orange-500 dark:focus:ring-orange-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-orange-500 dark:focus:ring-orange-400 focus:border-orange-500 dark:focus:border-orange-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -606,7 +610,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                           placeholder="VJudge handle (optional)"
                           {...field}
                           value={field.value || ""}
-                          className="border-slate-300 dark:border-slate-600 focus:ring-purple-500 dark:focus:ring-purple-400"
+                          className="border-slate-300 dark:border-slate-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 transition-colors"
                         />
                       </FormControl>
                       <FormMessage />
@@ -621,7 +625,7 @@ export function ProfileForm({ userData }: ProfileFormProps) {
                 type="submit"
                 disabled={isSubmitting || isUploadingImage}
                 size="lg"
-                className="rounded-full px-8 bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all dark:from-blue-700 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-400 min-w-[200px]"
+                className="rounded-full px-8 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all dark:from-blue-500 dark:to-cyan-500 dark:hover:from-blue-600 dark:hover:to-cyan-600 min-w-[200px]"
               >
                 {isSubmitting ? (
                   <>
