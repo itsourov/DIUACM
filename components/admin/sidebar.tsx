@@ -16,6 +16,7 @@ import {
   FileBarChart2,
   Award,
   FileText,
+  Shield,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -71,6 +72,11 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
       icon: <Award className="h-5 w-5" />,
       label: "Contests",
       href: "/admin/contests",
+    },
+    {
+      icon: <Shield className="h-5 w-5" />,
+      label: "Permissions",
+      href: "/admin/permissions",
     },
     {
       icon: <Settings className="h-5 w-5" />,
