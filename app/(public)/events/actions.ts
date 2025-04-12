@@ -83,7 +83,7 @@ export async function getEvents(
     skip,
     take: limit,
     orderBy: {
-      startingAt: "asc", // Order by start date ascending
+      startingAt: "desc", // Order by start date ascending
     },
     include: {
       _count: {
