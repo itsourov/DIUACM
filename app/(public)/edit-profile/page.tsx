@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
-import { Shield } from "lucide-react";
+import { UserCog, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "./actions";
 import { ProfileForm } from "./components/profile-form";
 
@@ -21,34 +23,35 @@ export default async function EditProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Header section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Edit Profile
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Update your personal information and competitive programming profiles
-        </p>
-      </div>
+    <div className="relative py-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <Button
+          asChild
+          variant="ghost"
+          className="mb-6 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+        >
+          <Link href={`/programmers/${userData.username}`}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Profile
+          </Link>
+        </Button>
 
-      <div className="mb-8">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
-          <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+        <div className="mb-8 flex items-center">
+          <div className="mr-4 h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-400 flex items-center justify-center shadow-lg">
+            <UserCog className="h-6 w-6 text-white" />
+          </div>
           <div>
-            <h3 className="font-medium text-blue-800 dark:text-blue-300">
-              Privacy Note
-            </h3>
-            <p className="text-sm text-blue-700 dark:text-blue-400">
-              Your email address is managed by your authentication provider and
-              cannot be changed here. Other profile information will be visible
-              on your public profile page.
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              Edit Profile
+            </h1>
+            <p className="text-slate-600 dark:text-slate-300 mt-1">
+              Update your personal information
             </p>
           </div>
         </div>
-      </div>
 
-      <ProfileForm userData={userData} />
+        <ProfileForm userData={userData} />
+      </div>
     </div>
   );
 }

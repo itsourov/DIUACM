@@ -28,8 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   SaveIcon,
   Loader2,
@@ -37,6 +35,12 @@ import {
   X,
   User as UserIcon,
   Mail,
+  Phone,
+  UserCheck,
+  GraduationCap,
+  School,
+  Code,
+  Upload,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageCropper } from "@/components/image-cropper";
@@ -213,375 +217,427 @@ export function ProfileForm({ userData }: ProfileFormProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Profile picture and personal info */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold flex items-center">
-                <UserIcon className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                Profile Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Profile Picture */}
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <Avatar className="w-32 h-32 border-4 border-white dark:border-slate-700 shadow-md">
-                    <AvatarImage
-                      src={profileImageUrl || undefined}
-                      alt={userData.name}
-                    />
-                    <AvatarFallback className="text-3xl bg-slate-100 dark:bg-slate-700">
-                      {getInitials(userData.name)}
-                    </AvatarFallback>
-                  </Avatar>
+      {/* Profile Header with Picture */}
+      <div className="mb-10 py-8 px-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-900/20 dark:to-purple-900/20 rounded-3xl border border-slate-200/70 dark:border-slate-700/70">
+        <div className="flex flex-col md:flex-row gap-8 items-center">
+          <div className="relative">
+            <div className="relative flex items-center justify-center">
+              <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-800 shadow-lg">
+                <AvatarImage
+                  src={profileImageUrl || undefined}
+                  alt={userData.name}
+                />
+                <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                  {getInitials(userData.name)}
+                </AvatarFallback>
+              </Avatar>
 
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 bg-white dark:bg-slate-700 shadow-sm"
-                    onClick={() => setShowImageCropper(true)}
-                    disabled={isUploadingImage}
-                    type="button"
-                  >
-                    {isUploadingImage ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Camera className="h-4 w-4" />
-                    )}
-                    <span className="sr-only">Change profile picture</span>
-                  </Button>
-                </div>
-
-                {profileImageUrl && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive"
-                    onClick={handleRemoveImage}
-                    disabled={isUploadingImage}
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Remove photo
-                  </Button>
+              <button
+                type="button"
+                onClick={() => setShowImageCropper(true)}
+                className="absolute bottom-0 right-0 rounded-full bg-blue-600 text-white p-2.5 shadow-lg hover:bg-blue-700 transition-all hover:scale-105"
+                aria-label="Change profile picture"
+                disabled={isUploadingImage}
+              >
+                {isUploadingImage ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5" />
                 )}
-              </div>
+              </button>
+            </div>
+          </div>
 
-              {/* Static Info Display */}
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <Mail className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-3 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Email
-                    </p>
-                    <p className="text-slate-900 dark:text-slate-100">
-                      {userData.email}
-                    </p>
-                  </div>
-                </div>
+          <div className="text-center md:text-left">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-1">
+              {userData.name || userData.username}
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-2">
+              {userData.email}
+            </p>
 
-                {userData.createdAt && (
-                  <div className="flex items-start">
-                    <UserIcon className="h-5 w-5 text-slate-500 dark:text-slate-400 mr-3 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Member Since
-                      </p>
-                      <p className="text-slate-900 dark:text-slate-100">
-                        {new Date(userData.createdAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </p>
-                    </div>
-                  </div>
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImageCropper(true)}
+                disabled={isUploadingImage}
+              >
+                {isUploadingImage ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-1.5" />
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                {profileImageUrl ? "Change" : "Upload"} Photo
+              </Button>
 
-        {/* Right Column - Form */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Profile</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-6"
+              {profileImageUrl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRemoveImage}
+                  disabled={isUploadingImage}
+                  className="text-destructive hover:text-destructive"
                 >
-                  {/* Personal Information Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">
-                      Personal Information
-                    </h3>
-                    <Separator className="my-2" />
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter your full name"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter username" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              This will be used in your public profile URL
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="password"
-                                placeholder="Leave blank to keep current password"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Leave blank to keep current password
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Gender</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value || undefined}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Object.values(Gender).map((gender) => (
-                                  <SelectItem key={gender} value={gender}>
-                                    {gender.charAt(0).toUpperCase() +
-                                      gender.slice(1).toLowerCase()}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Phone number (optional)"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Academic Information Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">
-                      Academic Information
-                    </h3>
-                    <Separator className="my-2" />
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="studentId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Student ID</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Student ID (optional)"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="department"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Department</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Department (optional)"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="startingSemester"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Starting Semester</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g. Fall 2020 (optional)"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Competitive Programming Profiles */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">
-                      Competitive Programming Profiles
-                    </h3>
-                    <Separator className="my-2" />
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="codeforcesHandle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Codeforces Handle</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Codeforces handle (optional)"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="atcoderHandle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>AtCoder Handle</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="AtCoder handle (optional)"
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="vjudgeHandle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>VJudge Handle</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="VJudge handle (optional)"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Updating...
-                        </>
-                      ) : (
-                        <>
-                          <SaveIcon className="h-4 w-4 mr-2" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+                  <X className="h-4 w-4 mr-1.5" />
+                  Remove Photo
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Form Sections */}
+      <div className="relative w-full">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 relative z-0"
+          >
+            {/* Personal Information Section */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4">
+                  <UserIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white">
+                  Personal Information
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Full Name
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your full name"
+                          {...field}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Mail className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Username
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter username"
+                          {...field}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-violet-500 dark:focus:ring-violet-400"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This will be used in your public profile URL
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserCheck className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Password
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Leave blank to keep current password"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-pink-500 dark:focus:ring-pink-400"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Leave blank to keep current password
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Gender
+                        </FormLabel>
+                      </div>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value || undefined}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-slate-300 dark:border-slate-600 focus:ring-emerald-500 dark:focus:ring-emerald-400">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(Gender).map((gender) => (
+                            <SelectItem key={gender} value={gender}>
+                              {gender.charAt(0).toUpperCase() +
+                                gender.slice(1).toLowerCase()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Phone className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Phone Number
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Phone number (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-amber-500 dark:focus:ring-amber-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Academic Information Section */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center mr-4">
+                  <GraduationCap className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white">
+                  Academic Information
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="studentId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <School className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Student ID
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Student ID (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-cyan-500 dark:focus:ring-cyan-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="department"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <School className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Department
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Department (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-teal-500 dark:focus:ring-teal-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="startingSemester"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <School className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Starting Semester
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. Fall 2020 (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Competitive Programming Profiles */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-4">
+                  <Code className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white">
+                  Competitive Programming Profiles
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="codeforcesHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          Codeforces Handle
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="Codeforces handle (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-red-500 dark:focus:ring-red-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="atcoderHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          AtCoder Handle
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="AtCoder handle (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-orange-500 dark:focus:ring-orange-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="vjudgeHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Code className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        <FormLabel className="text-slate-700 dark:text-slate-300 m-0">
+                          VJudge Handle
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="VJudge handle (optional)"
+                          {...field}
+                          value={field.value || ""}
+                          className="border-slate-300 dark:border-slate-600 focus:ring-purple-500 dark:focus:ring-purple-400"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="text-center pt-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting || isUploadingImage}
+                size="lg"
+                className="rounded-full px-8 bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all dark:from-blue-700 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-400 min-w-[200px]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <SaveIcon className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
 
       {/* Image Cropper Dialog */}
