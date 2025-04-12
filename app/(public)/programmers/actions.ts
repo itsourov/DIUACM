@@ -36,7 +36,12 @@ export async function getProgrammers({
         codeforcesHandle: true,
         maxCfRating: true,
       },
-      orderBy: [{ maxCfRating: "desc" as const }, { name: "asc" as const }],
+      orderBy: {
+        maxCfRating: {
+          sort: "desc",
+          nulls: "last",
+        },
+      },
       skip,
       take: limit,
     }),
