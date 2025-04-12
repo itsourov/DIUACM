@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { Visibility } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 
 // Function to get a specific tracker by slug
 export async function getTrackerBySlug(slug: string) {
@@ -134,4 +136,111 @@ export async function getUserSolveStats(userId: string, rankListId: string) {
   });
 
   return statsWithPoints;
+}
+
+// Function to join a ranklist (for logged in users)
+export async function joinRanklist(rankListId: string) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "You must be logged in to join a ranklist",
+      };
+    }
+
+    const userId = session.user.id;
+
+    // Check if user is already in the ranklist
+    const existingEntry = await prisma.rankListUser.findFirst({
+      where: {
+        userId,
+        rankListId,
+      },
+    });
+
+    if (existingEntry) {
+      return {
+        success: false,
+        error: "You are already part of this ranklist",
+      };
+    }
+
+    // Add user to ranklist with initial score of 0
+    await prisma.rankListUser.create({
+      data: {
+        rankListId,
+        userId,
+        score: 0,
+      },
+    });
+
+    // Revalidate the path to update the UI - adding type parameter for dynamic routes
+    revalidatePath(`/trackers/[slug]/[id]`, "page");
+
+    return {
+      success: true,
+      message:
+        "You have successfully joined the ranklist. Your score will be updated automatically soon.",
+    };
+  } catch (error) {
+    console.error("Join ranklist error:", error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    };
+  }
+}
+
+// Function to leave a ranklist (for logged in users)
+export async function leaveRanklist(rankListId: string) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: "You must be logged in to leave a ranklist",
+      };
+    }
+
+    const userId = session.user.id;
+
+    // Check if user is in the ranklist
+    const existingEntry = await prisma.rankListUser.findFirst({
+      where: {
+        userId,
+        rankListId,
+      },
+    });
+
+    if (!existingEntry) {
+      return {
+        success: false,
+        error: "You are not part of this ranklist",
+      };
+    }
+
+    // Remove user from ranklist
+    await prisma.rankListUser.delete({
+      where: {
+        id: existingEntry.id,
+      },
+    });
+
+    // Revalidate the path to update the UI - adding type parameter for dynamic routes
+    revalidatePath(`/trackers/[slug]/[id]`, "page");
+
+    return {
+      success: true,
+      message: "You have successfully left the ranklist",
+    };
+  } catch (error) {
+    console.error("Leave ranklist error:", error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    };
+  }
 }

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTrackerBySlug, getRankList } from "../actions";
 import { UserStatsModal } from "./components/user-stats-modal";
+import { RanklistMembership } from "./components/ranklist-membership";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileText, TrendingUp } from "lucide-react";
+import { auth } from "@/lib/auth";
 
 export default async function TrackerRanklistPage({
   params,
@@ -33,6 +35,14 @@ export default async function TrackerRanklistPage({
   if (!rankList) {
     notFound();
   }
+
+  // Check if current user is logged in and is part of this ranklist
+  const session = await auth();
+  const isLoggedIn = !!session?.user?.id;
+  const currentUserId = session?.user?.id;
+  const isUserInRanklist = currentUserId
+    ? rankList.rankListUsers.some((entry) => entry.user.id === currentUserId)
+    : false;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,15 +84,25 @@ export default async function TrackerRanklistPage({
       {/* Ranklist with clean design */}
       <div className="rounded-lg overflow-hidden shadow-md border border-slate-200 dark:border-slate-700">
         <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-            <TrendingUp className="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" />
-            {rankList.keyword} Ranklist
-          </h2>
-          {rankList.description && (
-            <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-3xl">
-              {rankList.description}
-            </p>
-          )}
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                <TrendingUp className="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" />
+                {rankList.keyword} Ranklist
+              </h2>
+              {rankList.description && (
+                <p className="mt-2 text-slate-600 dark:text-slate-300 max-w-3xl">
+                  {rankList.description}
+                </p>
+              )}
+            </div>
+
+            <RanklistMembership
+              rankListId={rankList.id}
+              isUserInRanklist={isUserInRanklist}
+              isLoggedIn={isLoggedIn}
+            />
+          </div>
         </div>
 
         <div className="overflow-x-auto bg-white dark:bg-slate-900">
@@ -111,7 +131,11 @@ export default async function TrackerRanklistPage({
                     index % 2 === 0
                       ? "bg-slate-50 dark:bg-slate-800/30"
                       : "bg-white dark:bg-slate-900"
-                  } hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}
+                  } hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
+                    entry.user.id === currentUserId
+                      ? "bg-blue-50 dark:bg-blue-950/20"
+                      : ""
+                  }`}
                 >
                   <TableCell className="font-medium text-center">
                     {index < 3 ? (
@@ -144,6 +168,11 @@ export default async function TrackerRanklistPage({
                       <div>
                         <div className="font-semibold text-slate-800 dark:text-slate-200">
                           {entry.user.name}
+                          {entry.user.id === currentUserId && (
+                            <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded">
+                              You
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           @{entry.user.username}
@@ -175,9 +204,16 @@ export default async function TrackerRanklistPage({
                         No users in this ranklist yet
                       </p>
                       <p className="text-sm mt-2 max-w-md">
-                        Users will appear once they participate in events. Check
-                        back later!
+                        Be the first to join this ranklist!
                       </p>
+
+                      <div className="mt-4">
+                        <RanklistMembership
+                          rankListId={rankList.id}
+                          isUserInRanklist={isUserInRanklist}
+                          isLoggedIn={isLoggedIn}
+                        />
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
