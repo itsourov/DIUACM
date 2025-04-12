@@ -16,7 +16,6 @@ import {
   ExternalLink,
   Users,
   CalendarCheck,
-  AlertCircle,
   TrendingUp,
   Info,
 } from "lucide-react";
@@ -25,7 +24,6 @@ import { AttendanceModal } from "./components/attendance-modal";
 import { EventSolveStats } from "./components/event-solve-stats";
 import { EventAttendanceList } from "./components/event-attendance-list";
 import { auth } from "@/lib/auth";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 
 interface EventDetailsPageProps {
@@ -99,13 +97,12 @@ export default async function EventDetailsPage({
   // 1. Event is open for attendance
   // 2. User is logged in
   // 3. User doesn't already have attendance
-  // 4. We're within the attendance window OR strictAttendance is false
+  // 4. We're within the attendance window
   const showAttendanceButton =
     event.openForAttendance &&
     !!session?.user &&
     !userHasAttendance &&
-    (isWithinAttendanceWindow ||
-      (!event.strictAttendance && !attendanceWindowPassed));
+    (isWithinAttendanceWindow || !attendanceWindowPassed);
 
   const isContest = event.type === EventType.CONTEST;
   const hasAttendanceList =
@@ -134,7 +131,7 @@ export default async function EventDetailsPage({
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="mx-auto space-y-8">
         {/* Event Header Section */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden">
           <div className="p-6 md:p-8">
@@ -301,18 +298,6 @@ export default async function EventDetailsPage({
                     </Button>
                   )}
                 </div>
-
-                {session?.user &&
-                  event.strictAttendance &&
-                  !userHasAttendance &&
-                  !showAttendanceButton && (
-                    <Alert variant="destructive" className="mt-4">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        This event has strict attendance policy.
-                      </AlertDescription>
-                    </Alert>
-                  )}
 
                 {session?.user && (
                   <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
