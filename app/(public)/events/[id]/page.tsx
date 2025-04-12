@@ -132,9 +132,9 @@ export default async function EventDetailsPage({
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mx-auto space-y-8">
-        {/* Event Header Section */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden">
-          <div className="p-6 md:p-8">
+        {/* Event Header Section - Enhanced with gradient styling from event-row */}
+        <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all overflow-hidden group hover:shadow-lg">
+          <div className="p-6 md:p-8 relative z-10">
             {/* Event Title and Type */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
@@ -216,7 +216,7 @@ export default async function EventDetailsPage({
             {/* Event Description (if available) */}
             {event.description && (
               <div className="mb-6">
-                <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-700">
+                <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
                   <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
                     <div className="text-slate-700 dark:text-slate-300 text-sm">
@@ -300,7 +300,7 @@ export default async function EventDetailsPage({
                 </div>
 
                 {session?.user && (
-                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
                     <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                       Attendance Window
                     </h4>
@@ -344,59 +344,61 @@ export default async function EventDetailsPage({
           </div>
         </div>
 
-        {/* Tabs Section: Statistics & Attendance */}
+        {/* Tabs Section: Statistics & Attendance - Also Enhanced with gradient styling */}
         {(hasSolveStats || hasAttendanceList) && (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6">
-            {showTabs ? (
-              <Tabs defaultValue={defaultTab}>
-                <TabsList className="mb-6 p-1 bg-slate-100 dark:bg-slate-900/50 w-full sm:w-fit">
-                  <TabsTrigger
-                    value="stats"
-                    className="flex items-center gap-2 rounded-lg"
-                  >
-                    <TrendingUp className="h-4 w-4" />
-                    <span>Solve Statistics</span>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="attendance"
-                    className="flex items-center gap-2 rounded-lg"
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Attendees ({attendanceList.length})</span>
-                  </TabsTrigger>
-                </TabsList>
+          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all overflow-hidden group hover:shadow-lg">
+            <div className="p-6 relative z-10">
+              {showTabs ? (
+                <Tabs defaultValue={defaultTab}>
+                  <TabsList className="mb-6 p-1 bg-slate-100 dark:bg-slate-800 w-full sm:w-fit">
+                    <TabsTrigger
+                      value="stats"
+                      className="flex items-center gap-2 rounded-lg"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      <span>Solve Statistics</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="attendance"
+                      className="flex items-center gap-2 rounded-lg"
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Attendees ({attendanceList.length})</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="stats" className="p-0 mt-4">
-                  <EventSolveStats stats={solveStats} />
-                </TabsContent>
-
-                <TabsContent value="attendance" className="p-0 mt-4">
-                  <EventAttendanceList attendees={attendanceList} />
-                </TabsContent>
-              </Tabs>
-            ) : (
-              <>
-                {hasSolveStats && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      Solve Statistics
-                    </h2>
+                  <TabsContent value="stats" className="p-0 mt-4">
                     <EventSolveStats stats={solveStats} />
-                  </div>
-                )}
+                  </TabsContent>
 
-                {hasAttendanceList && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      Attendees ({attendanceList.length})
-                    </h2>
+                  <TabsContent value="attendance" className="p-0 mt-4">
                     <EventAttendanceList attendees={attendanceList} />
-                  </div>
-                )}
-              </>
-            )}
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                <>
+                  {hasSolveStats && (
+                    <div>
+                      <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Solve Statistics
+                      </h2>
+                      <EventSolveStats stats={solveStats} />
+                    </div>
+                  )}
+
+                  {hasAttendanceList && (
+                    <div>
+                      <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Attendees ({attendanceList.length})
+                      </h2>
+                      <EventAttendanceList attendees={attendanceList} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         )}
 
