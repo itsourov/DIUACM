@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       "nextacm.sgp1.cdn.digitaloceanspaces.com",
       "cdn.diuacm.com",
       "pub-15f222a0e56543078803204afc924060.r2.dev",
+      "nextacm-backup.diuacm.com",
     ],
   },
   // Configure webpack to handle MDEditor
