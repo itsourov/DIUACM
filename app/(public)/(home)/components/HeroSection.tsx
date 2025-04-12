@@ -2,9 +2,9 @@ import { ArrowRight, Code2, Trophy, Terminal } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import LocalTime from "./local-time";
 
 const HeroSection = () => {
-  const currentTime = new Date().toLocaleTimeString();
   const currentUser = "diuacm";
 
   return (
@@ -173,7 +173,7 @@ const HeroSection = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-medium">
-                      {currentTime}
+                      <LocalTime />
                     </div>
                   </div>
                 </div>
