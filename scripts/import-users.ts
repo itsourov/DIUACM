@@ -22,8 +22,8 @@ interface DIUACMUser {
   department: string | null;
   student_id: string | null;
   max_cf_rating: number | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // Convert gender string from API to Gender enum
@@ -104,8 +104,8 @@ async function importUsers() {
           department: user.department,
           studentId: user.student_id,
           maxCfRating: user.max_cf_rating,
-          createdAt: new Date(user.created_at),
-          updatedAt: new Date(user.updated_at),
+          createdAt: user.created_at ? new Date(user.created_at) : new Date(),
+          updatedAt: user.updated_at ? new Date(user.updated_at) : new Date(),
         },
       });
 
