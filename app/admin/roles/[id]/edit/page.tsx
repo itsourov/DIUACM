@@ -9,6 +9,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { UsersRound } from "lucide-react";
 
 import { RoleForm } from "../../components/role-form";
 
@@ -71,6 +73,12 @@ export default async function EditRolePage({ params }: EditRolePageProps) {
               Modify role details and permissions
             </p>
           </div>
+          <Link href={`/admin/roles/${roleId}/users`}>
+            <Button variant="outline">
+              <UsersRound className="h-4 w-4 mr-2" />
+              Manage Users
+            </Button>
+          </Link>
         </div>
       </div>
 
