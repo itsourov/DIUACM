@@ -48,6 +48,8 @@ interface BlogsPageProps {
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 export default async function BlogsPage({ searchParams }: BlogsPageProps) {
+
+
   const awaitedSearchParams = await searchParams;
   const page = parseInt(awaitedSearchParams.page ?? "1", 10);
   const search = awaitedSearchParams.search || undefined;
