@@ -32,7 +32,7 @@ export default function UnauthorizedPage() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <Button variant="default" asChild>
-            <Link href="/admin/dashboard">Back to Admin Dashboard</Link>
+            <Link href="/admin">Back to Admin Dashboard</Link>
           </Button>
 
           <Button variant="outline" asChild>
