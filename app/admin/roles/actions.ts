@@ -5,10 +5,15 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { roleFormSchema, type RoleFormValues } from "./schemas/role";
 import { Prisma } from "@prisma/client";
+import { hasPermission } from "@/lib/authorization";
 
 // Create a new role
 export async function createRole(values: RoleFormValues) {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = roleFormSchema.parse(values);
 
     // Check if role with same name already exists
@@ -55,6 +60,10 @@ export async function createRole(values: RoleFormValues) {
 // Update an existing role
 export async function updateRole(id: string, values: RoleFormValues) {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = roleFormSchema.parse(values);
 
     // Check if role exists
@@ -118,6 +127,10 @@ export async function updateRole(id: string, values: RoleFormValues) {
 // Delete a role
 export async function deleteRole(id: string) {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     // Check if role exists
     const existingRole = await prisma.role.findUnique({
       where: { id },
@@ -162,6 +175,10 @@ export async function deleteRole(id: string) {
 // Get a single role by ID
 export async function getRole(id: string) {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const role = await prisma.role.findUnique({
       where: { id },
       include: {
@@ -190,6 +207,10 @@ export async function getPaginatedRoles(
   search?: string
 ) {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const skip = (page - 1) * pageSize;
 
     // Build where conditions
@@ -256,6 +277,10 @@ export async function getPaginatedRoles(
 // Get all permissions (for role form)
 export async function getAllPermissions() {
   try {
+    // Check if the user has permission to manage roles
+    if (!(await hasPermission("ROLES:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const permissions = await prisma.permission.findMany({
       orderBy: { name: "asc" },
     });

@@ -65,7 +65,7 @@ export function RoleForm({
         if (result.success && result.data) {
           setPermissions(result.data);
         } else {
-          toast.error("Failed to load permissions");
+          toast.error(result.error ?? "Failed to load permissions");
         }
       } catch (error) {
         console.error("Error loading permissions:", error);

@@ -8,10 +8,15 @@ import {
   type PermissionFormValues,
 } from "./schemas/permission";
 import { Prisma } from "@prisma/client";
+import { hasPermission } from "@/lib/authorization";
 
 // Create a new permission
 export async function createPermission(values: PermissionFormValues) {
   try {
+    // Check if the user has permission to manage permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = permissionFormSchema.parse(values);
 
     // Check if permission with same name already exists
@@ -51,6 +56,10 @@ export async function updatePermission(
   values: PermissionFormValues
 ) {
   try {
+    // Check if the user has permission to manage permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = permissionFormSchema.parse(values);
 
     // Check if permission exists
@@ -104,6 +113,11 @@ export async function updatePermission(
 // Delete a permission
 export async function deletePermission(id: string) {
   try {
+    // Check if the user has permission to manage permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     // Check if permission exists
     const existingPermission = await prisma.permission.findUnique({
       where: { id },
@@ -134,6 +148,10 @@ export async function deletePermission(id: string) {
 // Get a single permission by ID
 export async function getPermission(id: string) {
   try {
+    // Check if the user has permission to manage permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const permission = await prisma.permission.findUnique({
       where: { id },
     });
@@ -159,6 +177,10 @@ export async function getPaginatedPermissions(
   search?: string
 ) {
   try {
+    // Check if the user has permission to manage permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const skip = (page - 1) * pageSize;
 
     // Build where conditions

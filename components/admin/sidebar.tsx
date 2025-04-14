@@ -47,7 +47,7 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
     {
       icon: <LayoutDashboard className="h-5 w-5" />,
       label: "Dashboard",
-      href: "/admin/dashboard",
+      href: "/admin",
     },
     {
       icon: <Users className="h-5 w-5" />,

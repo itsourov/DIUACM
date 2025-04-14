@@ -5,23 +5,28 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { trackerFormSchema, type TrackerFormValues } from "./schemas/tracker";
+import { hasPermission } from "@/lib/authorization";
 
 export async function createTracker(values: TrackerFormValues) {
   try {
+    // Check if the user has permission to manage trackers
+    if (!(await hasPermission("TRACKERS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = trackerFormSchema.parse(values);
-    
+
     // Check if slug is already taken
     const existingTracker = await prisma.tracker.findUnique({
-      where: { slug: validatedFields.slug }
+      where: { slug: validatedFields.slug },
     });
 
     if (existingTracker) {
-      return { 
-        success: false, 
-        error: { slug: ["This slug is already in use."] } 
+      return {
+        success: false,
+        error: { slug: ["This slug is already in use."] },
       };
     }
-    
+
     const tracker = await prisma.tracker.create({
       data: validatedFields,
     });
@@ -32,33 +37,34 @@ export async function createTracker(values: TrackerFormValues) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
     }
-    
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
-export async function updateTracker(
-  id: string,
-  values: TrackerFormValues
-) {
+export async function updateTracker(id: string, values: TrackerFormValues) {
   try {
+    // Check if the user has permission to manage trackers
+    if (!(await hasPermission("TRACKERS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = trackerFormSchema.parse(values);
-    
+
     // Check if slug is already taken by another tracker
     const existingTracker = await prisma.tracker.findUnique({
-      where: { slug: validatedFields.slug }
+      where: { slug: validatedFields.slug },
     });
 
     if (existingTracker && existingTracker.id !== id) {
-      return { 
-        success: false, 
-        error: { slug: ["This slug is already in use."] } 
+      return {
+        success: false,
+        error: { slug: ["This slug is already in use."] },
       };
     }
-    
+
     const tracker = await prisma.tracker.update({
       where: { id },
       data: validatedFields,
@@ -71,16 +77,20 @@ export async function updateTracker(
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
     }
-    
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function deleteTracker(id: string) {
   try {
+    // Check if the user has permission to manage trackers
+    if (!(await hasPermission("TRACKERS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     await prisma.tracker.delete({
       where: { id },
     });
@@ -89,15 +99,19 @@ export async function deleteTracker(id: string) {
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function getTracker(id: string) {
   try {
+    // Check if the user has permission to manage trackers
+    if (!(await hasPermission("TRACKERS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const tracker = await prisma.tracker.findUnique({
       where: { id },
     });
@@ -109,31 +123,40 @@ export async function getTracker(id: string) {
     return { success: true, data: tracker };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function getPaginatedTrackers(
-  page: number = 1, 
-  pageSize: number = 10, 
+  page: number = 1,
+  pageSize: number = 10,
   search?: string
 ) {
   try {
+    // Check if the user has permission to manage trackers
+    if (!(await hasPermission("TRACKERS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const skip = (page - 1) * pageSize;
-    
+
     const where: Prisma.TrackerWhereInput = search
       ? {
           OR: [
             { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
             { slug: { contains: search, mode: Prisma.QueryMode.insensitive } },
-            { description: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            {
+              description: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
           ],
         }
       : {};
-    
+
     const [trackers, totalCount] = await Promise.all([
       prisma.tracker.findMany({
         where,
@@ -143,33 +166,33 @@ export async function getPaginatedTrackers(
         include: {
           _count: {
             select: {
-              rankLists: true
-            }
-          }
-        }
+              rankLists: true,
+            },
+          },
+        },
       }),
       prisma.tracker.count({ where }),
     ]);
 
     const totalPages = Math.ceil(totalCount / pageSize);
-    
-    return { 
-      success: true, 
-      data: { 
-        trackers, 
+
+    return {
+      success: true,
+      data: {
+        trackers,
         pagination: {
           currentPage: page,
           totalPages,
           totalCount,
           pageSize,
-        }
-      } 
+        },
+      },
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
