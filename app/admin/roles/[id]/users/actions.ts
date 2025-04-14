@@ -1,19 +1,16 @@
 "use server";
-import { hasPermission } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function getTeamMembers(teamId: string) {
+// Get users assigned to a specific role
+export async function getRoleUsers(roleId: string) {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
-    const members = await prisma.teamMember.findMany({
-      where: { teamId },
+    // Find the role with its users
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -23,14 +20,21 @@ export async function getTeamMembers(teamId: string) {
             studentId: true,
             department: true,
           },
+          orderBy: { name: "asc" },
         },
       },
-      orderBy: { createdAt: "desc" },
     });
+
+    if (!role) {
+      return {
+        success: false,
+        error: "Role not found",
+      };
+    }
 
     return {
       success: true,
-      data: members,
+      data: role.users,
     };
   } catch (error) {
     console.error(error);
@@ -41,18 +45,14 @@ export async function getTeamMembers(teamId: string) {
   }
 }
 
-export async function searchUsersForTeam(
-  teamId: string,
+// Search for users that are not already assigned to the role
+export async function searchUsersForRole(
+  roleId: string,
   search: string,
   limit: number = 10
 ) {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
-
-    // Find users that aren't already members of this team
+    // Find users that aren't already assigned to this role
     // and match the search query
     const users = await prisma.user.findMany({
       where: {
@@ -80,8 +80,8 @@ export async function searchUsersForTeam(
             ],
           },
           {
-            teamMemberships: {
-              none: { teamId },
+            roles: {
+              none: { id: roleId },
             },
           },
         ],
@@ -112,32 +112,46 @@ export async function searchUsersForTeam(
   }
 }
 
-export async function addTeamMember(teamId: string, userId: string) {
+// Add a user to a role
+export async function addUserToRole(roleId: string, userId: string) {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
-    // Check if team exists
-    const team = await prisma.team.findUnique({
-      where: { id: teamId },
-      select: { contestId: true },
+    // Check if role exists
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
+      include: {
+        users: {
+          where: { id: userId },
+          select: { id: true },
+        },
+      },
     });
 
-    if (!team) {
+    if (!role) {
       return {
         success: false,
-        error: "Team not found",
+        error: "Role not found",
       };
     }
 
-    const member = await prisma.teamMember.create({
+    // Check if the user is already assigned to the role
+    if (role.users.length > 0) {
+      return {
+        success: false,
+        error: "User is already assigned to this role",
+      };
+    }
+
+    // Add user to the role
+    const updatedRole = await prisma.role.update({
+      where: { id: roleId },
       data: {
-        teamId,
-        userId,
+        users: {
+          connect: { id: userId },
+        },
       },
       include: {
-        user: {
+        users: {
+          where: { id: userId },
           select: {
             id: true,
             name: true,
@@ -151,11 +165,11 @@ export async function addTeamMember(teamId: string, userId: string) {
       },
     });
 
-    revalidatePath(`/admin/contests/${team.contestId}/teams/${teamId}/members`);
+    revalidatePath(`/admin/roles/${roleId}/users`);
 
     return {
       success: true,
-      data: member,
+      data: updatedRole.users[0],
     };
   } catch (error) {
     console.error(error);
@@ -166,30 +180,32 @@ export async function addTeamMember(teamId: string, userId: string) {
   }
 }
 
-export async function removeTeamMember(memberId: string, teamId: string) {
+// Remove a user from a role
+export async function removeUserFromRole(roleId: string, userId: string) {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
-    // Get the contest ID for path revalidation
-    const team = await prisma.team.findUnique({
-      where: { id: teamId },
-      select: { contestId: true },
+    // Check if role exists
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
     });
 
-    if (!team) {
+    if (!role) {
       return {
         success: false,
-        error: "Team not found",
+        error: "Role not found",
       };
     }
 
-    await prisma.teamMember.delete({
-      where: { id: memberId },
+    // Remove user from role
+    await prisma.role.update({
+      where: { id: roleId },
+      data: {
+        users: {
+          disconnect: { id: userId },
+        },
+      },
     });
 
-    revalidatePath(`/admin/contests/${team.contestId}/teams/${teamId}/members`);
+    revalidatePath(`/admin/roles/${roleId}/users`);
 
     return { success: true };
   } catch (error) {

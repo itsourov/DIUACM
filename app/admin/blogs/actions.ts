@@ -9,7 +9,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
-import { auth } from "@/lib/auth";
+import { hasPermission } from "@/lib/authorization";
 
 // Create S3 client for R2
 const s3 = new S3Client({
@@ -27,8 +27,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // Generate pre-signed URL for image upload
 export async function generatePresignedUrl(fileType: string, fileSize: number) {
   try {
-    const session = await auth();
-    if (!session) {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -77,6 +77,11 @@ export async function generatePresignedUrl(fileType: string, fileSize: number) {
 // Create a new blog post
 export async function createBlog(values: BlogFormValues) {
   try {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const validatedFields = blogFormSchema.parse(values);
 
     // Check for duplicate slug
@@ -114,6 +119,10 @@ export async function createBlog(values: BlogFormValues) {
 // Update an existing blog post
 export async function updateBlog(id: string, values: BlogFormValues) {
   try {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const validatedFields = blogFormSchema.parse(values);
 
     // Check if the slug is already in use by another post
@@ -157,6 +166,10 @@ export async function updateBlog(id: string, values: BlogFormValues) {
 // Delete a blog post
 export async function deleteBlog(id: string) {
   try {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     await prisma.blogPost.delete({
       where: { id },
     });
@@ -175,6 +188,10 @@ export async function deleteBlog(id: string) {
 // Get a single blog post by ID
 export async function getBlog(id: string) {
   try {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const blog = await prisma.blogPost.findUnique({
       where: { id },
     });
@@ -201,6 +218,10 @@ export async function getPaginatedBlogs(
   status?: string
 ) {
   try {
+    // Check if the user has permission to manage blogs
+    if (!(await hasPermission("BLOGS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const skip = (page - 1) * pageSize;
 
     // Build where conditions

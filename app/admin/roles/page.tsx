@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { BookOpen, Plus, Calendar, MessageSquare, Pencil } from "lucide-react";
+import { UsersRound, Plus, Pencil, Shield } from "lucide-react";
 import { Metadata } from "next";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -18,11 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedBlogs } from "./actions";
-import { DeleteBlogButton } from "./components/delete-blog-button";
-import { SearchBlogs } from "./components/search-blogs";
+import { getPaginatedRoles } from "./actions";
+import { DeleteRoleButton } from "./components/delete-role-button";
+import { SearchRoles } from "./components/search-roles";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,65 +37,30 @@ import {
 } from "@/components/ui/breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Blog Management | DIU ACM Admin",
-  description: "Manage all your blog posts in one place",
+  title: "Roles Management | DIU ACM Admin",
+  description: "Manage user roles and permissions",
 };
 
-interface BlogsPageProps {
+interface RolesPageProps {
   searchParams: Promise<{
     page?: string;
     search?: string;
-    status?: string;
   }>;
 }
 
-// Define badge variant types
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
-
-export default async function BlogsPage({ searchParams }: BlogsPageProps) {
-
-
+export default async function RolesPage({ searchParams }: RolesPageProps) {
   const awaitedSearchParams = await searchParams;
   const page = parseInt(awaitedSearchParams.page ?? "1", 10);
   const search = awaitedSearchParams.search || undefined;
-  const status = awaitedSearchParams.status || undefined;
 
-  const { data } = await getPaginatedBlogs(page, 10, search, status);
+  const { data } = await getPaginatedRoles(page, 10, search);
 
-  const blogs = data?.blogs ?? [];
+  const roles = data?.roles ?? [];
   const pagination = data?.pagination ?? {
     currentPage: 1,
     totalPages: 1,
     totalCount: 0,
     pageSize: 10,
-  };
-
-  // Helper function to determine badge variant based on blog status
-  const getStatusVariant = (status: string): BadgeVariant => {
-    switch (status) {
-      case "PUBLISHED":
-        return "default"; // Use default (blue) for published
-      case "DRAFT":
-        return "secondary"; // Use secondary (gray) for drafts
-      case "PRIVATE":
-        return "outline"; // Use outline for private
-      default:
-        return "default";
-    }
-  };
-
-  // Format date for display
-  const formatDate = (date: Date | null | undefined) => {
-    if (!date) return "Not published";
-    return format(new Date(date), "MMM d, yyyy");
-  };
-
-  // Truncate content for preview
-  const truncateContent = (content: string | null, maxLength: number = 100) => {
-    if (!content) return "No content";
-    return content.length > maxLength
-      ? `${content.substring(0, maxLength)}...`
-      : content;
   };
 
   return (
@@ -106,22 +76,22 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink className="text-foreground font-medium">
-                Blog Posts
+                Roles
               </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Blog Posts</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Roles</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage your website content and articles
+              Manage roles and their permissions
             </p>
           </div>
           <Button asChild className="w-full sm:w-auto">
-            <Link href="/admin/blogs/create">
+            <Link href="/admin/roles/create">
               <Plus className="h-4 w-4 mr-2" />
-              Create Blog Post
+              Create Role
             </Link>
           </Button>
         </div>
@@ -130,37 +100,35 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
       <Card>
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
           <div>
-            <CardTitle className="text-xl">Blog Posts</CardTitle>
+            <CardTitle className="text-xl">Roles List</CardTitle>
             <CardDescription>
-              Total: {pagination.totalCount} post
+              Total: {pagination.totalCount} role
               {pagination.totalCount !== 1 ? "s" : ""}
             </CardDescription>
           </div>
-          <SearchBlogs />
+          <SearchRoles />
         </CardHeader>
         <CardContent>
-          {blogs.length === 0 ? (
+          {roles.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
               <div className="rounded-full bg-muted p-3">
-                <BookOpen className="h-6 w-6" />
+                <UsersRound className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold">
-                No blog posts found
-              </h3>
-              {search || status ? (
+              <h3 className="mt-4 text-lg font-semibold">No roles found</h3>
+              {search ? (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
-                  No blog posts match your search criteria. Try different
-                  filters or create a new post.
+                  No roles match your search criteria. Try a different search
+                  query or create a new role.
                 </p>
               ) : (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
-                  Get started by creating your first blog post.
+                  Get started by creating your first role.
                 </p>
               )}
               <Button asChild variant="outline" className="mt-2">
-                <Link href="/admin/blogs/create">
+                <Link href="/admin/roles/create">
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Blog Post
+                  Create Role
                 </Link>
               </Button>
             </div>
@@ -170,57 +138,79 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[250px]">Title</TableHead>
+                      <TableHead className="w-[250px]">Name</TableHead>
                       <TableHead className="hidden md:table-cell">
-                        Status
+                        Description
                       </TableHead>
                       <TableHead className="hidden md:table-cell">
-                        Published Date
+                        Permissions
                       </TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Author
+                      <TableHead className="w-[100px] text-center">
+                        Users
                       </TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
+                      <TableHead className="w-[80px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {blogs.map((blog) => (
-                      <TableRow key={blog.id}>
+                    {roles.map((role) => (
+                      <TableRow key={role.id}>
                         <TableCell>
-                          <div className="space-y-1">
-                            <div className="font-medium text-base">
-                              {blog.title}
-                            </div>
-                            <div className="text-xs text-muted-foreground line-clamp-1">
-                              {truncateContent(blog.content)}
-                            </div>
-                            {blog.isFeatured && (
-                              <Badge variant="outline" className="text-xs">
-                                Featured
-                              </Badge>
+                          <div className="font-medium">{role.name}</div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {role.description || (
+                            <span className="text-muted-foreground italic">
+                              No description
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="flex flex-wrap gap-1">
+                            {role.permissions.length > 0 ? (
+                              role.permissions.length <= 3 ? (
+                                role.permissions.map((permission) => (
+                                  <Badge
+                                    key={permission.id}
+                                    variant="outline"
+                                    className="flex items-center"
+                                  >
+                                    <Shield className="h-3 w-3 mr-1" />
+                                    {permission.name}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Badge
+                                        variant="outline"
+                                        className="flex items-center cursor-help"
+                                      >
+                                        <Shield className="h-3 w-3 mr-1" />
+                                        {role.permissions.length} permissions
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="max-w-sm">
+                                      <ul className="list-disc ml-4 space-y-1 text-sm">
+                                        {role.permissions.map((permission) => (
+                                          <li key={permission.id}>
+                                            {permission.name}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )
+                            ) : (
+                              <span className="text-muted-foreground italic">
+                                No permissions
+                              </span>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <Badge variant={getStatusVariant(blog.status)}>
-                            {blog.status.toLowerCase()}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="flex items-center">
-                            <Calendar className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                            <span className="text-sm">
-                              {formatDate(blog.publishedAt)}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <div className="flex items-center">
-                            <MessageSquare className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
-                            <span className="text-sm">
-                              {blog.author || "Anonymous"}
-                            </span>
-                          </div>
+                        <TableCell className="text-center">
+                          {role._count?.users || 0}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
@@ -231,14 +221,18 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                               asChild
                             >
                               <Link
-                                href={`/admin/blogs/${blog.id}/edit`}
+                                href={`/admin/roles/${role.id}/edit`}
                                 className="flex items-center justify-center"
                               >
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteBlogButton id={blog.id} title={blog.title} />
+                            <DeleteRoleButton
+                              id={role.id}
+                              name={role.name}
+                              userCount={role._count?.users || 0}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

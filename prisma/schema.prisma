@@ -66,8 +66,34 @@ model User {
   rankListUsers    RankListUser[]
   solveStats       UserSolveStatOnEvent[]
   teamMemberships  TeamMember[]
+  roles            Role[]
 
   @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  users       User[]
+  permissions Permission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  roles Role[]
+
+  @@map("permissions")
 }
 
 model Account {

@@ -1,46 +1,58 @@
 "use server";
+import { hasPermission } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function getTeams(contestId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const teams = await prisma.team.findMany({
       where: { contestId },
       include: {
         _count: {
-          select: { members: true }
-        }
+          select: { members: true },
+        },
       },
       orderBy: { name: "asc" },
     });
 
-    return { 
-      success: true, 
-      data: teams 
+    return {
+      success: true,
+      data: teams,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
-export async function createTeam(contestId: string, data: { name: string; rank?: number; solveCount?: number }) {
+export async function createTeam(
+  contestId: string,
+  data: { name: string; rank?: number; solveCount?: number }
+) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     // Check if team with same name exists in this contest
     const existingTeam = await prisma.team.findFirst({
       where: {
         contestId,
-        name: data.name
-      }
+        name: data.name,
+      },
     });
 
     if (existingTeam) {
       return {
         success: false,
-        error: "A team with this name already exists in this contest."
+        error: "A team with this name already exists in this contest.",
       };
     }
 
@@ -54,35 +66,43 @@ export async function createTeam(contestId: string, data: { name: string; rank?:
     });
 
     revalidatePath(`/admin/contests/${contestId}/teams`);
-    
-    return { 
-      success: true, 
-      data: team 
+
+    return {
+      success: true,
+      data: team,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
-export async function updateTeam(teamId: string, contestId: string, data: { name: string; rank?: number; solveCount?: number }) {
+export async function updateTeam(
+  teamId: string,
+  contestId: string,
+  data: { name: string; rank?: number; solveCount?: number }
+) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     // Check if another team with the same name exists in this contest
     const existingTeam = await prisma.team.findFirst({
       where: {
         contestId,
         name: data.name,
-        id: { not: teamId } // Exclude the current team from the check
-      }
+        id: { not: teamId }, // Exclude the current team from the check
+      },
     });
 
     if (existingTeam) {
       return {
         success: false,
-        error: "Another team with this name already exists in this contest."
+        error: "Another team with this name already exists in this contest.",
       };
     }
 
@@ -97,22 +117,27 @@ export async function updateTeam(teamId: string, contestId: string, data: { name
 
     revalidatePath(`/admin/contests/${contestId}/teams`);
     revalidatePath(`/admin/contests/${contestId}/teams/${teamId}/edit`);
-    
-    return { 
-      success: true, 
-      data: team 
+
+    return {
+      success: true,
+      data: team,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function getTeam(teamId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const team = await prisma.team.findUnique({
       where: { id: teamId },
     });
@@ -120,37 +145,42 @@ export async function getTeam(teamId: string) {
     if (!team) {
       return {
         success: false,
-        error: "Team not found"
+        error: "Team not found",
       };
     }
 
-    return { 
-      success: true, 
-      data: team 
+    return {
+      success: true,
+      data: team,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function deleteTeam(teamId: string, contestId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     await prisma.team.delete({
       where: { id: teamId },
     });
 
     revalidatePath(`/admin/contests/${contestId}/teams`);
-    
+
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }

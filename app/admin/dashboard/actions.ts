@@ -1,26 +1,9 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-
-// Function to check if the current user is an admin
-async function isAdmin() {
-  const session = await auth();
-  return session?.user?.email === "sourov2305101004@diu.edu.bd";
-}
 
 // Get summary stats for the dashboard
 export async function getStats() {
-  const userIsAdmin = await isAdmin();
-
-  if (!userIsAdmin) {
-    return {
-      success: false,
-      message: "Unauthorized access",
-      data: null,
-    };
-  }
-
   try {
     // Fetch counts in parallel for better performance
     const [
