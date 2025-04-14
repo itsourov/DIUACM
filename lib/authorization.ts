@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
 // Define permission types
 export type Permission = {
@@ -53,40 +52,6 @@ export async function hasPermission(permissionName: string): Promise<boolean> {
     role.permissions.some((permission) => permission.name === permissionName)
   );
 }
-
-/**
- * A higher-order function that checks if the user has any of the specified permissions
- * @param permissionNames - Array of permission names to check
- * @param redirectTo - Path to redirect to if not authorized
- */
-export async function checkPermissions(
-  permissionNames: string[],
-  redirectTo: string = "/admin/unauthorized"
-): Promise<void> {
-  const session = await auth();
-
-  // If no session, redirect to login
-  if (!session?.user?.email) {
-    redirect("/login");
-  }
-
-  // Check if user is super admin - they can access everything
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
-  if (superAdminEmail && session.user.email === superAdminEmail) {
-    return;
-  }
-
-  // For regular users, check if they have any of the required permissions
-  const hasAnyPermission = await Promise.all(
-    permissionNames.map((name) => hasPermission(name))
-  ).then((results) => results.some(Boolean));
-
-  if (!hasAnyPermission) {
-    redirect(redirectTo);
-  }
-}
-
-
 
 /**
  * Get user permissions

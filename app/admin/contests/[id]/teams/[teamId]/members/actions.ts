@@ -1,10 +1,15 @@
 "use server";
+import { hasPermission } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function getTeamMembers(teamId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     const members = await prisma.teamMember.findMany({
       where: { teamId },
       include: {
@@ -17,21 +22,21 @@ export async function getTeamMembers(teamId: string) {
             image: true,
             studentId: true,
             department: true,
-          }
-        }
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return { 
-      success: true, 
-      data: members 
+    return {
+      success: true,
+      data: members,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
@@ -42,6 +47,11 @@ export async function searchUsersForTeam(
   limit: number = 10
 ) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     // Find users that aren't already members of this team
     // and match the search query
     const users = await prisma.user.findMany({
@@ -49,18 +59,32 @@ export async function searchUsersForTeam(
         AND: [
           {
             OR: [
-              { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-              { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
-              { username: { contains: search, mode: Prisma.QueryMode.insensitive } },
-              { studentId: { contains: search, mode: Prisma.QueryMode.insensitive } },
+              {
+                name: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                email: { contains: search, mode: Prisma.QueryMode.insensitive },
+              },
+              {
+                username: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                studentId: {
+                  contains: search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
             ],
           },
           {
             teamMemberships: {
-              none: { teamId }
-            }
-          }
-        ]
+              none: { teamId },
+            },
+          },
+        ],
       },
       select: {
         id: true,
@@ -77,29 +101,33 @@ export async function searchUsersForTeam(
 
     return {
       success: true,
-      data: users
+      data: users,
     };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      error: "Something went wrong. Please try again."
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function addTeamMember(teamId: string, userId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     // Check if team exists
     const team = await prisma.team.findUnique({
       where: { id: teamId },
-      select: { contestId: true }
+      select: { contestId: true },
     });
 
     if (!team) {
       return {
         success: false,
-        error: "Team not found"
+        error: "Team not found",
       };
     }
 
@@ -118,38 +146,42 @@ export async function addTeamMember(teamId: string, userId: string) {
             image: true,
             studentId: true,
             department: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     revalidatePath(`/admin/contests/${team.contestId}/teams/${teamId}/members`);
-    
-    return { 
-      success: true, 
-      data: member 
+
+    return {
+      success: true,
+      data: member,
     };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
 
 export async function removeTeamMember(memberId: string, teamId: string) {
   try {
+    // Check if the user has permission to manage contests
+    if (!(await hasPermission("CONTESTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
     // Get the contest ID for path revalidation
     const team = await prisma.team.findUnique({
       where: { id: teamId },
-      select: { contestId: true }
+      select: { contestId: true },
     });
 
     if (!team) {
       return {
         success: false,
-        error: "Team not found"
+        error: "Team not found",
       };
     }
 
@@ -158,13 +190,13 @@ export async function removeTeamMember(memberId: string, teamId: string) {
     });
 
     revalidatePath(`/admin/contests/${team.contestId}/teams/${teamId}/members`);
-    
+
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { 
-      success: false, 
-      error: "Something went wrong. Please try again." 
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
     };
   }
 }
