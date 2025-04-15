@@ -9,7 +9,7 @@ const LocalTime = () => {
     hour12: true,
   });
 
-  return <span>{time}</span>;
+  return <span suppressHydrationWarning>{time}</span>;
 };
 
 export default LocalTime;
