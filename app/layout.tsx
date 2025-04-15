@@ -6,8 +6,7 @@ import NextTopLoader from "nextjs-toploader";
 import React from "react";
 
 import { Metadata } from "next";
-import SessionProvider from "@/providers/SessionProvider";
-import { auth } from "@/lib/auth";
+import { AuthProvider } from "@/providers/SessionProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -16,10 +15,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased flex flex-col min-h-screen">
@@ -32,7 +30,7 @@ export default async function RootLayout({
           disableTransitionOnChange
           scriptProps={{ "data-cfasync": "false" }}
         >
-          <SessionProvider session={session}>
+          <AuthProvider>
             {/* Background elements */}
             <div className="fixed inset-0 -z-10">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-950" />
@@ -43,7 +41,7 @@ export default async function RootLayout({
 
             {children}
             <Toaster richColors />
-          </SessionProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
