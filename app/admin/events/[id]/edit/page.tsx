@@ -9,6 +9,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
 
 import { EventForm } from "../../components/event-form";
 
@@ -70,6 +72,14 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
             <p className="text-sm text-muted-foreground mt-1">
               Modify event details and settings
             </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/admin/events/${eventId}/attendees`}>
+                <Users className="h-4 w-4 mr-2" />
+                Manage Attendees
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
