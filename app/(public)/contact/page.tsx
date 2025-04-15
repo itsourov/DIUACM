@@ -98,8 +98,7 @@ export default function ContactPage() {
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mt-3">
                 We typically respond to inquiries within 24-48 hours during
-                weekdays. For urgent matters, please message us directly on our
-                Facebook page.
+                weekdays.
               </p>
             </CardContent>
           </Card>
