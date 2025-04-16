@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Trackers - DIU ACM",
   description: "Browse DIU ACM performance trackers and ranking lists",
 };
+export const revalidate = 3600;
 
 export default async function TrackersPage() {
   // Get trackers data
