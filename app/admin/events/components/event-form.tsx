@@ -33,6 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { QuickFillDialog } from "./quick-fill-dialog";
 
 interface EventFormProps {
   initialData?: Event | null;
@@ -116,10 +117,22 @@ export function EventForm({
     }
   };
 
+  // Handler for when contest data is fetched from quick fill
+  const handleQuickFill = (contestData: Partial<EventFormValues>) => {
+    // Update the form with the fetched contest data
+    form.reset({
+      ...form.getValues(),
+      ...contestData
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isEditing ? "Edit Event" : "Create New Event"}</CardTitle>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <CardTitle>{isEditing ? "Edit Event" : "Create New Event"}</CardTitle>
+          {!isEditing && <QuickFillDialog onFill={handleQuickFill} />}
+        </div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
