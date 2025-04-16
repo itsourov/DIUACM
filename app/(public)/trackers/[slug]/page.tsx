@@ -12,8 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FileText, TrendingUp } from "lucide-react";
+import { FileText, TrendingUp, Grid } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export default async function TrackerRanklistPage({
   params,
@@ -64,10 +65,25 @@ export default async function TrackerRanklistPage({
 
       {/* Ranklist Navigation - Clean design */}
       <div className="mb-8 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-lg border border-slate-200 dark:border-slate-700">
-        <h2 className="text-sm font-bold mb-4 text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
-          <FileText className="w-4 h-4 mr-2" />
-          Available Ranklists
-        </h2>
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+          <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+            <FileText className="w-4 h-4 mr-2" />
+            Available Ranklists
+          </h2>
+
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              href={`/trackers/${slug}/grid${
+                keyword ? `?keyword=${keyword}` : ""
+              }`}
+              className="flex items-center"
+            >
+              <Grid className="w-4 h-4 mr-2" />
+              Grid View
+            </Link>
+          </Button>
+        </div>
+
         <div className="flex flex-wrap gap-3">
           {tracker.rankLists.map((list) => (
             <Link
