@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'nextjs-toploader/app';
+import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -122,7 +122,7 @@ export function EventForm({
     // Update the form with the fetched contest data
     form.reset({
       ...form.getValues(),
-      ...contestData
+      ...contestData,
     });
   };
 

@@ -222,7 +222,7 @@ export async function fetchContestData(contestLink: string) {
 
     const parsedUrl = new URL(contestLink);
     const hostname = parsedUrl.hostname;
-    
+
     // Determine the platform and fetch data accordingly
     if (hostname === "codeforces.com") {
       return await fetchCodeforcesContest(contestLink);
@@ -233,7 +233,8 @@ export async function fetchContestData(contestLink: string) {
     } else {
       return {
         success: false,
-        error: "Unsupported platform. Currently supporting Codeforces, AtCoder, and VJudge.",
+        error:
+          "Unsupported platform. Currently supporting Codeforces, AtCoder, and VJudge.",
       };
     }
   } catch (error) {
@@ -249,9 +250,9 @@ export async function fetchContestData(contestLink: string) {
 async function fetchCodeforcesContest(contestLink: string) {
   try {
     // Extract contest ID from URL
-    const urlPathParts = new URL(contestLink).pathname.split('/');
+    const urlPathParts = new URL(contestLink).pathname.split("/");
     const contestId = urlPathParts[2];
-    
+
     if (!contestId || isNaN(Number(contestId))) {
       return { success: false, error: "Invalid Codeforces contest URL" };
     }
@@ -261,7 +262,10 @@ async function fetchCodeforcesContest(contestLink: string) {
     const data = await response.json();
 
     if (data.status !== "OK") {
-      return { success: false, error: "Failed to fetch contest data from Codeforces" };
+      return {
+        success: false,
+        error: "Failed to fetch contest data from Codeforces",
+      };
     }
 
     // Define a type for the contest object
@@ -282,7 +286,9 @@ async function fetchCodeforcesContest(contestLink: string) {
 
     // Calculate start and end times
     const startTime = new Date(contest.startTimeSeconds * 1000);
-    const endTime = new Date((contest.startTimeSeconds + contest.durationSeconds) * 1000);
+    const endTime = new Date(
+      (contest.startTimeSeconds + contest.durationSeconds) * 1000
+    );
 
     // Format data according to our event schema
     return {
@@ -297,7 +303,7 @@ async function fetchCodeforcesContest(contestLink: string) {
         participationScope: AttendanceScope.OPEN_FOR_ALL,
         openForAttendance: true,
         strictAttendance: false,
-      }
+      },
     };
   } catch (error) {
     console.error("Error fetching Codeforces contest:", error);
@@ -311,35 +317,36 @@ async function fetchAtcoderContest(contestLink: string) {
     // Fetch the HTML content of the contest page
     const response = await fetch(contestLink, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
-    
+
     if (!response.ok) {
       return { success: false, error: "Failed to fetch AtCoder contest page" };
     }
-    
+
     const html = await response.text();
-    
+
     // Extract contest title
     const titleMatch = html.match(/<title>(.*?) - AtCoder<\/title>/i);
     const title = titleMatch ? titleMatch[1].trim() : "";
-    
+
     if (!title) {
       return { success: false, error: "Could not find contest title" };
     }
-    
+
     // Extract start and end times
     const startTimeMatch = html.match(/var startTime = moment\("([^"]+)"\);/);
     const endTimeMatch = html.match(/var endTime = moment\("([^"]+)"\);/);
-    
+
     if (!startTimeMatch || !endTimeMatch) {
       return { success: false, error: "Could not find contest times" };
     }
-    
+
     const startTime = new Date(startTimeMatch[1]);
     const endTime = new Date(endTimeMatch[1]);
-    
+
     // Format data according to our event schema
     return {
       success: true,
@@ -353,7 +360,7 @@ async function fetchAtcoderContest(contestLink: string) {
         participationScope: AttendanceScope.OPEN_FOR_ALL,
         openForAttendance: true,
         strictAttendance: false,
-      }
+      },
     };
   } catch (error) {
     console.error("Error fetching AtCoder contest:", error);
@@ -367,32 +374,37 @@ async function fetchVjudgeContest(contestLink: string) {
     // Fetch the HTML content of the contest page
     const response = await fetch(contestLink, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
-    
+
     if (!response.ok) {
       return { success: false, error: "Failed to fetch VJudge contest page" };
     }
-    
+
     const html = await response.text();
-    
+
     // Try to extract JSON data from the textarea with name="dataJson"
-    const match = html.match(/<textarea[^>]*name=\"dataJson\"[^>]*>(.*?)<\/textarea>/s);
-    
+    // Using a regex pattern that works without the 's' flag
+    const pattern = /<textarea[^>]*name="dataJson"[^>]*>([\s\S]*?)<\/textarea>/;
+    const match = html.match(pattern);
+
     if (!match || !match[1]) {
       return { success: false, error: "Could not find contest data" };
     }
-    
+
     try {
       const jsonText = match[1];
       const contestData = JSON.parse(jsonText);
-      
+
       // Extract relevant contest information
-      const title = contestData.title ? decodeHTMLEntities(contestData.title) : "Unknown Contest";
+      const title = contestData.title
+        ? decodeHTMLEntities(contestData.title)
+        : "Unknown Contest";
       const startTime = new Date(contestData.begin);
       const endTime = new Date(contestData.end);
-      
+
       // Format data according to our event schema
       return {
         success: true,
@@ -406,7 +418,7 @@ async function fetchVjudgeContest(contestLink: string) {
           participationScope: AttendanceScope.OPEN_FOR_ALL,
           openForAttendance: true,
           strictAttendance: false,
-        }
+        },
       };
     } catch (parseError) {
       console.error("Error parsing VJudge contest data:", parseError);
@@ -421,10 +433,10 @@ async function fetchVjudgeContest(contestLink: string) {
 // Helper function to decode HTML entities (like &amp; to &)
 function decodeHTMLEntities(text: string): string {
   return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&#x2F;/g, '/');
+    .replace(/&#x2F;/g, "/");
 }

@@ -5,8 +5,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EventFormValues } from "../schemas/event";
@@ -14,7 +27,7 @@ import { fetchContestData } from "../actions";
 import { Loader2 } from "lucide-react";
 
 const quickFillSchema = z.object({
-  contestLink: z.string().url("Please enter a valid URL")
+  contestLink: z.string().url("Please enter a valid URL"),
 });
 
 type QuickFillFormValues = z.infer<typeof quickFillSchema>;
@@ -23,6 +36,11 @@ interface QuickFillDialogProps {
   onFill: (data: Partial<EventFormValues>) => void;
 }
 
+// Define the response type to properly handle the success/error cases
+type ContestResponse =
+  | { success: true; data: Partial<EventFormValues>; error?: undefined }
+  | { success: false; error: string; data?: undefined };
+
 export function QuickFillDialog({ onFill }: QuickFillDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,16 +48,18 @@ export function QuickFillDialog({ onFill }: QuickFillDialogProps) {
   const form = useForm<QuickFillFormValues>({
     resolver: zodResolver(quickFillSchema),
     defaultValues: {
-      contestLink: ""
-    }
+      contestLink: "",
+    },
   });
 
   const onSubmit = async (values: QuickFillFormValues) => {
     setLoading(true);
     try {
-      const response = await fetchContestData(values.contestLink);
-      
-      if (response.success) {
+      const response = (await fetchContestData(
+        values.contestLink
+      )) as ContestResponse;
+
+      if (response.success && response.data) {
         onFill(response.data);
         toast.success("Contest data imported successfully!");
         setOpen(false);
@@ -64,7 +84,7 @@ export function QuickFillDialog({ onFill }: QuickFillDialogProps) {
         <DialogHeader>
           <DialogTitle>Quick Fill Contest Data</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -74,8 +94,8 @@ export function QuickFillDialog({ onFill }: QuickFillDialogProps) {
                 <FormItem>
                   <FormLabel>Contest URL</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="https://codeforces.com/contest/1234 or AtCoder/VJudge URL" 
+                    <Input
+                      placeholder="https://codeforces.com/contest/1234 or AtCoder/VJudge URL"
                       {...field}
                     />
                   </FormControl>
@@ -83,7 +103,7 @@ export function QuickFillDialog({ onFill }: QuickFillDialogProps) {
                 </FormItem>
               )}
             />
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
