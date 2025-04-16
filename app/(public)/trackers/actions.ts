@@ -3,10 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { Visibility } from "@prisma/client";
 
-
-
 // Function to get all published trackers
-export async function getTrackers(){
+export async function getTrackers() {
   const trackers = await prisma.tracker.findMany({
     where: {
       status: Visibility.PUBLISHED,
@@ -15,16 +13,6 @@ export async function getTrackers(){
       updatedAt: "desc",
     },
     include: {
-      rankLists: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1,
-        select: {
-          id: true,
-          keyword: true,
-        },
-      },
       _count: {
         select: {
           rankLists: true,

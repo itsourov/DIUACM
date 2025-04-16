@@ -54,9 +54,7 @@ export default async function TrackersPage() {
               <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-blue-100/40 dark:bg-blue-900/20 -z-10"></div>
 
               <Link
-                href={`/trackers/${tracker.slug}/?keyword=${
-                  tracker.rankLists?.[0]?.keyword || ""
-                }`}
+                href={`/trackers/${tracker.slug}/`}
                 className="block p-5 relative z-10"
               >
                 <div>
@@ -68,13 +66,6 @@ export default async function TrackersPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {tracker.rankLists && tracker.rankLists.length > 0 && (
-                      <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        <ListChecks className="mr-1 h-3.5 w-3.5" />
-                        Latest: {tracker.rankLists[0].keyword}
-                      </div>
-                    )}
-
                     <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
                       {tracker._count?.rankLists || 0}{" "}
                       {tracker._count?.rankLists === 1
