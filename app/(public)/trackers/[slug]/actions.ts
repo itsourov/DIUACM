@@ -31,12 +31,15 @@ export async function getTrackerBySlug(slug: string) {
 }
 
 // Function to get ranklist by keyword for a specific tracker
-export async function getRankListByKeyword(trackerId: string, keyword: string) {
-  const rankList = await prisma.rankList.findUnique({
+export async function getRankListByKeyword(
+  trackerId: string,
+  keyword: string | undefined
+) {
+  let rankList = await prisma.rankList.findUnique({
     where: {
       trackerId_keyword: {
         trackerId,
-        keyword: keyword,
+        keyword: keyword || "default",
       },
     },
     include: {
@@ -67,6 +70,40 @@ export async function getRankListByKeyword(trackerId: string, keyword: string) {
       },
     },
   });
+  if (!rankList) {
+    rankList = await prisma.rankList.findFirst({
+      where: {
+        trackerId,
+      },
+      include: {
+        rankListUsers: {
+          orderBy: {
+            score: "desc",
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true,
+              },
+            },
+          },
+        },
+        eventRankLists: {
+          include: {
+            event: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 
   return rankList;
 }

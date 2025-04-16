@@ -30,7 +30,7 @@ export default async function TrackerRanklistPage({
   if (!tracker) {
     notFound();
   }
-  if (!keyword) {
+  if (!tracker.rankLists.length) {
     notFound();
   }
 
