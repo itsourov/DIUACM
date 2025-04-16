@@ -30,20 +30,16 @@ export async function getTrackerBySlug(slug: string) {
   return tracker;
 }
 
-// Function to get ranklist with users
-export async function getRankList(rankListId: string) {
+// Function to get ranklist by keyword for a specific tracker
+export async function getRankListByKeyword(trackerId: string, keyword: string) {
   const rankList = await prisma.rankList.findUnique({
     where: {
-      id: rankListId,
+      trackerId_keyword: {
+        trackerId,
+        keyword: keyword,
+      },
     },
     include: {
-      tracker: {
-        select: {
-          title: true,
-          description: true,
-          slug: true,
-        },
-      },
       rankListUsers: {
         orderBy: {
           score: "desc",
@@ -176,8 +172,8 @@ export async function joinRanklist(rankListId: string) {
       },
     });
 
-    // Revalidate the path to update the UI - adding type parameter for dynamic routes
-    revalidatePath(`/trackers/[slug]/[id]`, "page");
+    // Revalidate the path to update the UI
+    revalidatePath(`/trackers/[slug]`, "page");
 
     return {
       success: true,
@@ -229,8 +225,8 @@ export async function leaveRanklist(rankListId: string) {
       },
     });
 
-    // Revalidate the path to update the UI - adding type parameter for dynamic routes
-    revalidatePath(`/trackers/[slug]/[id]`, "page");
+    // Revalidate the path to update the UI
+    revalidatePath(`/trackers/[slug]`, "page");
 
     return {
       success: true,

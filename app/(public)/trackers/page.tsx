@@ -54,8 +54,8 @@ export default async function TrackersPage() {
               <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-blue-100/40 dark:bg-blue-900/20 -z-10"></div>
 
               <Link
-                href={`/trackers/${tracker.slug}/${
-                  tracker.rankLists?.[0]?.id || ""
+                href={`/trackers/${tracker.slug}/?keyword=${
+                  tracker.rankLists?.[0]?.keyword || ""
                 }`}
                 className="block p-5 relative z-10"
               >

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus, Loader2, LogIn } from "lucide-react";
-import { joinRanklist, leaveRanklist } from "../../actions";
+import { joinRanklist, leaveRanklist } from "../actions";
 import { useRouter } from "next/navigation";
 
 interface RanklistMembershipProps {

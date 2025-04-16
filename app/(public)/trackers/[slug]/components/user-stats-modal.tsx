@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getUserSolveStats } from "../../actions";
+import { getUserSolveStats } from "../actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

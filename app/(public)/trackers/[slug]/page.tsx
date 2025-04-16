@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getTrackerBySlug, getRankList } from "../actions";
+import { getTrackerBySlug, getRankListByKeyword } from "./actions";
 import { UserStatsModal } from "./components/user-stats-modal";
 import { RanklistMembership } from "./components/ranklist-membership";
 import {
@@ -17,20 +17,25 @@ import { auth } from "@/lib/auth";
 
 export default async function TrackerRanklistPage({
   params,
+  searchParams,
 }: {
-  params: Promise<{
-    slug: string;
-    id: string;
-  }>;
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ keyword?: string }>;
 }) {
-  const awaitedParams = await params;
-  const tracker = await getTrackerBySlug(awaitedParams.slug);
+  const { slug } = await params;
+  const { keyword } = await searchParams;
+
+  const tracker = await getTrackerBySlug(slug);
 
   if (!tracker) {
     notFound();
   }
+  if (!keyword) {
+    notFound();
+  }
 
-  const rankList = await getRankList(awaitedParams.id);
+  // Get either the specified ranklist by keyword or the latest one
+  const rankList = await getRankListByKeyword(tracker.id, keyword);
 
   if (!rankList) {
     notFound();
@@ -67,10 +72,10 @@ export default async function TrackerRanklistPage({
           {tracker.rankLists.map((list) => (
             <Link
               key={list.id}
-              href={`/trackers/${awaitedParams.slug}/${list.id}`}
+              href={`/trackers/${slug}?keyword=${list.keyword}`}
               className={`px-4 py-2 text-sm rounded-md font-medium transition-all
                 ${
-                  awaitedParams.id === list.id
+                  list.keyword === (keyword || rankList.keyword)
                     ? "bg-blue-600 text-white dark:bg-blue-700 shadow-sm"
                     : "bg-white border border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:border-blue-600 dark:hover:text-blue-400"
                 }`}
