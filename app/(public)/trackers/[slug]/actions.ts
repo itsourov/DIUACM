@@ -277,3 +277,59 @@ export async function leaveRanklist(rankListId: string) {
     };
   }
 }
+
+// Function to get all solve stats for a ranklist with grid view data
+export async function getRanklistSolveStatsForGrid(rankListId: string) {
+  // Get all events in this ranklist
+  const rankList = await prisma.rankList.findUnique({
+    where: { id: rankListId },
+    include: {
+      eventRankLists: {
+        include: {
+          event: true,
+        },
+        orderBy: {
+          event: {
+            startingAt: "asc",
+          },
+        },
+      },
+    },
+  });
+
+  if (!rankList) return null;
+
+  // Get all users in this ranklist
+  const rankListUsers = await prisma.rankListUser.findMany({
+    where: { rankListId },
+    orderBy: { score: "desc" },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+        },
+      },
+    },
+  });
+
+  // Get all events in this ranklist
+  const eventIds = rankList.eventRankLists.map((erl) => erl.eventId);
+
+  // Fetch all solve stats for these events
+  const solveStats = await prisma.userSolveStatOnEvent.findMany({
+    where: {
+      eventId: { in: eventIds },
+      userId: { in: rankListUsers.map((rlu) => rlu.userId) },
+    },
+  });
+
+  return {
+    rankList,
+    users: rankListUsers,
+    events: rankList.eventRankLists,
+    solveStats,
+  };
+}

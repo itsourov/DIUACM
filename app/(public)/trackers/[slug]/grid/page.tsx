@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getTrackerBySlug, getRankListByKeyword } from "../actions";
+import {
+  getTrackerBySlug,
+  getRankListByKeyword,
+  getRanklistSolveStatsForGrid,
+} from "../actions";
 import {
   Table,
   TableBody,
@@ -13,68 +17,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileText, Grid, TrendingUp, ScrollText } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { prisma } from "@/lib/prisma";
+import { ResponsiveTableContainer } from "./client-components";
 
 // Helper function to truncate text
 function truncateText(text: string, limit: number): string {
   if (text.length <= limit) return text;
   return text.substring(0, limit) + "…";
-}
-
-// Fetch all solve stats for a ranklist
-async function getRanklistSolveStats(rankListId: string) {
-  // Get all events in this ranklist
-  const rankList = await prisma.rankList.findUnique({
-    where: { id: rankListId },
-    include: {
-      eventRankLists: {
-        include: {
-          event: true,
-        },
-        orderBy: {
-          event: {
-            startingAt: "asc",
-          },
-        },
-      },
-    },
-  });
-
-  if (!rankList) return null;
-
-  // Get all users in this ranklist
-  const rankListUsers = await prisma.rankListUser.findMany({
-    where: { rankListId },
-    orderBy: { score: "desc" },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: true,
-        },
-      },
-    },
-  });
-
-  // Get all events in this ranklist
-  const eventIds = rankList.eventRankLists.map((erl) => erl.eventId);
-
-  // Fetch all solve stats for these events
-  const solveStats = await prisma.userSolveStatOnEvent.findMany({
-    where: {
-      eventId: { in: eventIds },
-      userId: { in: rankListUsers.map((rlu) => rlu.userId) },
-    },
-  });
-
-  return {
-    rankList,
-    users: rankListUsers,
-    events: rankList.eventRankLists,
-    solveStats,
-  };
 }
 
 export default async function TrackerRanklistGridPage({
@@ -104,7 +52,7 @@ export default async function TrackerRanklistGridPage({
   }
 
   // Get all solve stats for this ranklist
-  const stats = await getRanklistSolveStats(rankList.id);
+  const stats = await getRanklistSolveStatsForGrid(rankList.id);
 
   if (!stats) {
     notFound();
@@ -205,7 +153,7 @@ export default async function TrackerRanklistGridPage({
           </div>
         </div>
 
-        <div className="overflow-x-auto bg-white dark:bg-slate-900">
+        <div className="overflow-hidden bg-white dark:bg-slate-900">
           {events.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-slate-600 dark:text-slate-400">
@@ -213,15 +161,19 @@ export default async function TrackerRanklistGridPage({
               </p>
             </div>
           ) : (
-            <div className="overflow-auto max-w-full">
+            <ResponsiveTableContainer>
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-100 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                    <TableHead className="min-w-[40px] w-12 sticky left-0 z-20 bg-slate-100 dark:bg-slate-800/50 font-bold text-slate-700 dark:text-slate-300 text-center">
+                    <TableHead className="min-w-[40px] w-12 sticky left-0 z-30 bg-slate-100 dark:bg-slate-800/50 font-bold text-slate-700 dark:text-slate-300 text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       #
                     </TableHead>
-                    <TableHead className="min-w-[140px] sticky left-[40px] z-20 bg-slate-100 dark:bg-slate-800/50 font-bold text-slate-700 dark:text-slate-300">
-                      User
+                    <TableHead className="sticky left-[40px] z-20 bg-slate-100 dark:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                      <div className="flex items-center min-w-[140px]">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">
+                          User
+                        </span>
+                      </div>
                     </TableHead>
                     <TableHead className="min-w-[60px] font-bold text-slate-700 dark:text-slate-300 text-right">
                       Score
@@ -277,7 +229,7 @@ export default async function TrackerRanklistGridPage({
                             : ""
                         }`}
                       >
-                        <TableCell className="sticky left-0 z-20 bg-white dark:bg-slate-900 text-center font-medium min-w-[40px] w-12">
+                        <TableCell className="sticky left-0 z-30 bg-white dark:bg-slate-900 text-center font-medium min-w-[40px] w-12 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                           {index < 3 ? (
                             <div
                               className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-sm ${
@@ -294,18 +246,22 @@ export default async function TrackerRanklistGridPage({
                             <span>{index + 1}</span>
                           )}
                         </TableCell>
-                        <TableCell className="sticky left-[40px] z-20 bg-white dark:bg-slate-900 min-w-[140px]">
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-slate-200 dark:border-slate-700">
-                              <AvatarImage
-                                src={entry.user.image || ""}
-                                alt={entry.user.name}
-                              />
-                              <AvatarFallback className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs sm:text-sm">
-                                {entry.user.name.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
+                        <TableCell className="sticky left-[40px] z-20 bg-white dark:bg-slate-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                          <div className="flex items-center min-w-[140px] sm:min-w-[160px]">
+                            <div className="sticky left-[40px] z-20 h-7 w-7 sm:h-8 sm:w-8">
+                              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 border border-slate-200 dark:border-slate-700">
+                                <AvatarImage
+                                  src={entry.user.image || ""}
+                                  alt={entry.user.name}
+                                />
+                                <AvatarFallback className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs sm:text-sm">
+                                  {entry.user.name
+                                    .substring(0, 2)
+                                    .toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <div className="pl-2 sm:pl-3 transition-opacity duration-200 ease-in-out md:opacity-100 group-data-[scrolling=true]:opacity-0 sm:group-data-[scrolling=true]:opacity-100">
                               <div
                                 className="font-semibold text-slate-800 dark:text-slate-200 text-sm"
                                 title={entry.user.name}
@@ -414,7 +370,7 @@ export default async function TrackerRanklistGridPage({
                   )}
                 </TableBody>
               </Table>
-            </div>
+            </ResponsiveTableContainer>
           )}
         </div>
       </div>
