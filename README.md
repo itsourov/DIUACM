@@ -1,81 +1,72 @@
-# DIU ACM Website
+# DIU ACM Website (Archived)
 
-This is a web application designed to manage attendance, classes, contests, and other events for the DIU ACM community. The project aims to streamline operations and introduce additional features like score calculation and individual progress tracking.
-
----
-
-## Table of Contents
-
-1. [Features](#features)
-2. [Requirements](#requirements)
-3. [Installation](#installation)
-4. [Running the Project](#running-the-project)
-5. [Branching and Contributing](#branching-and-contributing)
-6. [Contributors](#contributors)
+> ⚠️ **This repository is archived and no longer maintained.**  
+> The DIU ACM website has been rewritten using a new framework and is now maintained at [**itsourov/diuacm-web**](https://github.com/itsourov/diuacm-web).
 
 ---
 
-## Features
+This project was originally built to manage attendance, classes, contests, and other events for the **DIU ACM** community. It helped streamline internal operations and introduced features like score calculation, email notifications, and more.
+
+The project served its purpose well and laid the foundation for the current system.
+
+---
+
+## 🚀 What's in the New Version?
+
+The new version of the website brings:
+
+- A modern framework with better performance and maintainability  
+- A fresh UI and improved UX  
+- Enhanced features like individual practice tracking, leaderboard, and more
+
+Check it out here: [https://github.com/itsourov/diuacm-web](https://github.com/itsourov/diuacm-web)
+
+---
+
+## 🧾 Original Documentation (For Reference)
+
+### Features
 
 - Attendance management for events (classes, contests, etc.)
-- Individual contest tracker, Score Calculation
+- Individual contest tracker, score calculation
 - Gallery for special events
-- Educational and Informative Blog 
+- Educational and informative blog
 - Event notifications via email
-- Future features: Individual practice tracker
+- Planned: individual practice tracker
+
+### Requirements
+
+- PHP >= 8.2  
+- Composer  
+- MySQL (optional)  
+- Node.js & npm  
+- Git  
+
+### Installation
+
+```bash
+git clone https://github.com/itsourov/DIUACM.git
+cd DIUACM
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run dev
+php artisan serve
+```
+
+To reset the database:
+```bash
+php artisan migrate:fresh
+```
+
+To reset and seed with dummy data:
+```bash
+php artisan migrate:fresh --seed
+```
 
 ---
 
-## Requirements
-
-Before setting up the project locally, ensure you have the following tools installed:
-
-- PHP >= 8.2
-- Composer
-- MySQL (optional)
-- Node.js & npm
-- Git
-
----
-
-## Installation
-
-To set up the project locally, follow these steps:
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/itsourov/DIUACM.git
-   cd DIUACM
-   ```
-2. **Install php libraries**:
-    ```bash
-    composer install
-    ```
-3. **Setup Project**:
-    ```bash
-    composer install
-    cp .env.example .env
-    php artisan key:generate
-    ```
-4. **Setup Database**:
-    ```bash
-    php artisan migrate
-    ```
-    run this if you need a fresh database
-    ```bash
-    php artisan migrate:fresh
-    ```
-    run this if you need a fresh database with random dummy data
-    ```bash
-    php artisan migrate:fresh --seed
-    ```
-5. **install npm packages**:
-    ```bash
-    npm install
-    npm run dev
-    ```
-6. **Run local server**:
-    ```bash
-    php artisan serve
-    ```
-
+Thanks to everyone who used this version of the DIU ACM website! 🎉  
+Let’s continue building cool things together at [**diuacm-web**](https://github.com/itsourov/diuacm-web).
