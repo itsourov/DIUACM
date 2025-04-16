@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
+import {  useSearchParams } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
+
 import { AtSign, Lock, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";

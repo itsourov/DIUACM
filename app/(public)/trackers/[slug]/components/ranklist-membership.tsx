@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus, Loader2, LogIn } from "lucide-react";
 import { joinRanklist, leaveRanklist } from "../actions";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
+
 
 interface RanklistMembershipProps {
   rankListId: string;
