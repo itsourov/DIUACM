@@ -32,5 +32,28 @@ export const profileFormSchema = z.object({
   image: z.string().optional().nullable(),
 });
 
+// Password change form validation schema
+export const passwordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+// Type for password update responses
+export type PasswordUpdateResponse = {
+  success: boolean;
+  error?: string | Record<string, string[]>;
+};
+
 // Form values type for TypeScript
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+export type PasswordFormValues = z.infer<typeof passwordSchema>;

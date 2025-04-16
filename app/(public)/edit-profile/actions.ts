@@ -5,12 +5,17 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
-import { profileFormSchema, type ProfileFormValues } from "./schema";
+import {
+  passwordSchema,
+  profileFormSchema,
+  type PasswordUpdateResponse,
+  type ProfileFormValues,
+} from "./schema";
+import crypto from "crypto";
 
 // AWS S3 imports for presigned URLs
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import crypto from "crypto";
 
 // Configure S3 client
 const s3Client = new S3Client({
@@ -21,6 +26,72 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
   },
 });
+
+// Function to generate Laravel compatible bcrypt hash
+async function generateLaravelCompatibleHash(
+  password: string
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Generate a random salt (22 characters)
+    const salt = crypto.randomBytes(16).toString("base64").slice(0, 22);
+
+    // Format the salt with Laravel's preferred prefix ($2y$12$)
+    const formattedSalt = `$2y$12$${salt}`;
+
+    import("bcryptjs").then(async ({ hash }) => {
+      try {
+        // Use the formatted salt to generate the hash
+        const hashedPassword = await hash(password, formattedSalt);
+        resolve(hashedPassword);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
+
+export async function updatePassword(
+  data: z.infer<typeof passwordSchema>
+): Promise<PasswordUpdateResponse> {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
+    const hashedPassword = await generateLaravelCompatibleHash(
+      data.newPassword
+    );
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        password: hashedPassword,
+        updatedAt: new Date(),
+      },
+    });
+
+    revalidatePath("/edit-profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Password update error:", error);
+
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: error.flatten().fieldErrors as Record<string, string[]>,
+      };
+    }
+
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
 
 export async function getCurrentUser() {
   const session = await auth();

@@ -4,8 +4,10 @@ import { UserCog, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentUser } from "./actions";
 import { ProfileForm } from "./components/profile-form";
+import { PasswordForm } from "./components/password-form";
 
 export const metadata: Metadata = {
   title: "Edit Profile - DIU ACM",
@@ -50,7 +52,20 @@ export default async function EditProfilePage() {
           </div>
         </div>
 
-        <ProfileForm userData={userData} />
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="mb-8 grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="profile">Profile Information</TabsTrigger>
+            <TabsTrigger value="password">Change Password</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile">
+            <ProfileForm userData={userData} />
+          </TabsContent>
+
+          <TabsContent value="password">
+            <PasswordForm />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
