@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { Users } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 type AttendeeWithUser = EventAttendance & {
   user: Pick<
@@ -66,7 +67,10 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
               {attendees.map((attendee) => (
                 <TableRow key={attendee.id}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link 
+                      href={`/programmers/${attendee.user.username}`}
+                      className="flex items-center gap-3 hover:underline"
+                    >
                       <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-700">
                         {attendee.user.image && (
                           <Image
@@ -83,10 +87,15 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
                       <span className="font-medium text-slate-900 dark:text-white">
                         {attendee.user.name}
                       </span>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-slate-700 dark:text-slate-300">
-                    {attendee.user.username}
+                    <Link 
+                      href={`/programmers/${attendee.user.username}`}
+                      className="hover:underline hover:text-blue-600 dark:hover:text-blue-400"
+                    >
+                      {attendee.user.username}
+                    </Link>
                   </TableCell>
                   <TableCell className="text-slate-700 dark:text-slate-300">
                     {attendee.user.studentId || "—"}

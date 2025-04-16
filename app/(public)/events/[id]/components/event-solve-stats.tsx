@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { TrendingUp, Medal } from "lucide-react";
+import Link from "next/link";
 
 type SolveStatWithUser = UserSolveStatOnEvent & {
   user: Pick<
@@ -85,7 +86,10 @@ export function EventSolveStats({ stats }: EventSolveStatsProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link
+                      href={`/programmers/${stat.user.username}`}
+                      className="flex items-center gap-3 hover:underline"
+                    >
                       <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-700">
                         {stat.user.image && (
                           <Image
@@ -103,11 +107,11 @@ export function EventSolveStats({ stats }: EventSolveStatsProps) {
                         <div className="font-medium text-slate-900 dark:text-white">
                           {stat.user.name}
                         </div>
-                        <div className="text-sm text-slate-500 dark:text-slate-400">
+                        <div className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                           {stat.user.username}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30">
