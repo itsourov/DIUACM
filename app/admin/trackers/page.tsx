@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeInfo, Plus, BookText, Tag, Pencil } from "lucide-react";
+import { BadgeInfo, Plus, BookText, Tag, Pencil, ListChecks } from "lucide-react";
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { CustomPagination } from "@/components/custom-pagination";
 import { getPaginatedTrackers } from "./actions";
 import { DeleteTrackerButton } from "./components/delete-tracker-button";
@@ -189,20 +194,50 @@ export default async function TrackersPage({
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              asChild
-                            >
-                              <Link
-                                href={`/admin/trackers/${tracker.id}/edit`}
-                                className="flex items-center justify-center"
-                              >
-                                <Pencil className="h-4 w-4" />
-                                <span className="sr-only">Edit</span>
-                              </Link>
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  asChild
+                                >
+                                  <Link
+                                    href={`/admin/trackers/${tracker.id}/edit`}
+                                    className="flex items-center justify-center"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                    <span className="sr-only">Edit</span>
+                                  </Link>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Edit Tracker
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  asChild
+                                >
+                                  <Link
+                                    href={`/admin/trackers/${tracker.id}/ranklists`}
+                                    className="flex items-center justify-center"
+                                  >
+                                    <ListChecks className="h-4 w-4" />
+                                    <span className="sr-only">Manage Ranklists</span>
+                                  </Link>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Manage Ranklists
+                              </TooltipContent>
+                            </Tooltip>
+
                             <DeleteTrackerButton
                               id={tracker.id}
                               title={tracker.title}
