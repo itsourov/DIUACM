@@ -10,7 +10,6 @@ import {
   LayoutDashboard,
   Users,
   CalendarDays,
-  Settings,
   SunMedium,
   MoonStar,
   FileBarChart2,
@@ -83,11 +82,6 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
       icon: <Shield className="h-5 w-5" />,
       label: "Permissions",
       href: "/admin/permissions",
-    },
-    {
-      icon: <Settings className="h-5 w-5" />,
-      label: "Settings",
-      href: "/admin/settings",
     },
   ];
 
