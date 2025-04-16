@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'nextjs-toploader/app';
+import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -113,7 +113,7 @@ export function RanklistForm({
                   <FormControl>
                     <Input
                       type="number"
-                      step="0.1"
+                      step="0.01"
                       min="0"
                       max="1"
                       placeholder="Enter upsolve weight"
