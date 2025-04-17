@@ -53,7 +53,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">
-          Events
+          Events ok2
         </h1>
         <p className="text-slate-600 dark:text-slate-300">
           Discover and register for upcoming workshops, competitions, and more

@@ -145,7 +145,7 @@ jobs:
 
             # Start the application with PM2
             cd ~/$APP_DIR
-            pm2 start ecosystem.config.js
+            pm2 reload ecosystem.config.js
 
             # Save the PM2 configuration
             pm2 save
