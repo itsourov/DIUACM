@@ -1,5 +1,3 @@
-name: Deploy Next.js to VPS
-
 on:
   push:
     branches:
@@ -20,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
 
       - name: Cache node modules and Next.js cache
@@ -76,7 +74,6 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
             echo "DEPLOY_TYPE=prod" >> $GITHUB_ENV
-            echo "PORT=3001" >> $GITHUB_ENV
           else
             echo "DEPLOY_TYPE=preview" >> $GITHUB_ENV
             echo "PORT=3005" >> $GITHUB_ENV
@@ -93,6 +90,7 @@ jobs:
           strip_components: 0
 
       - name: Deploy application
+        if: env.DEPLOY_TYPE != 'prod'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -108,7 +106,7 @@ jobs:
             mkdir -p ~/$APP_DIR
 
             # Stop the existing application if running
-            pm2 stop $PM2_NAME || echo "No existing process to stop"
+            pm2 list | grep -q "$PM2_NAME" && pm2 stop $PM2_NAME
 
             # Clear the directory but keep the ecosystem file if it exists
             if [ -f ~/$APP_DIR/ecosystem.config.js ]; then
@@ -126,22 +124,20 @@ jobs:
             sed -i '/^PORT=/d' .env || echo "No .env file found, creating one"
             echo "PORT=$PORT" >> .env
 
-            # Create PM2 ecosystem file with explicit path to next binary
-            cat > ecosystem.config.js << EOL
-            module.exports = {
+            # Create PM2 ecosystem file with explicitly defined values
+            echo "module.exports = {
               apps: [{
-                name: "${PM2_NAME}",
-                cwd: "${HOME}/${APP_DIR}",
-                script: "${HOME}/${APP_DIR}/node_modules/.bin/next",
-                args: "start",
+                name: \"$PM2_NAME\",
+                cwd: \"$HOME/$APP_DIR\",
+                script: \"$HOME/$APP_DIR/node_modules/.bin/next\",
+                args: \"start\",
                 env: {
-                  PORT: ${PORT},
-                  NODE_ENV: "production"
+                  PORT: $PORT,
+                  NODE_ENV: \"production\"
                 },
-                max_memory_restart: "300M"
+                max_memory_restart: \"300M\"
               }]
-            };
-            EOL
+            };" > ecosystem.config.js
 
             # Start the application with PM2
             cd ~/$APP_DIR
@@ -154,3 +150,162 @@ jobs:
             rm ~/${{ env.REPO_NAME }}/build.tar.gz
 
             echo "Deployment completed successfully on port $PORT!"
+
+      - name: Deploy production with blue-green strategy
+        if: env.DEPLOY_TYPE == 'prod'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Set up main variables
+            BASE_DIR="${{ env.REPO_NAME }}"
+            FIRST_APP_DIR="${{ env.REPO_NAME }}/${{ env.REPO_NAME }}-prod-1"
+            SECOND_APP_DIR="${{ env.REPO_NAME }}/${{ env.REPO_NAME }}-prod-2"
+            FIRST_PORT=3001
+            SECOND_PORT=3002
+            FIRST_PM2_NAME="${{ env.REPO_NAME }}-prod-1"
+            SECOND_PM2_NAME="${{ env.REPO_NAME }}-prod-2"
+            HEALTH_CHECK_URL="http://localhost:${FIRST_PORT}"
+            MAX_RETRIES=10
+            RETRY_INTERVAL=5
+            DEPLOYMENT_STATUS_FILE="/tmp/deployment_status.txt"
+
+            # Start with empty status file
+            echo "" > $DEPLOYMENT_STATUS_FILE
+
+            echo "Starting blue-green deployment process..."
+
+            # Step 1: Update the first instance
+            echo "Updating first instance on port ${FIRST_PORT}..."
+
+            # Ensure directory exists
+            mkdir -p ~/$FIRST_APP_DIR
+
+            # Stop the existing application if running
+            pm2 list | grep -q "$FIRST_PM2_NAME" && pm2 stop $FIRST_PM2_NAME
+
+            # Backup ecosystem file if it exists
+            if [ -f ~/$FIRST_APP_DIR/ecosystem.config.js ]; then
+              mv ~/$FIRST_APP_DIR/ecosystem.config.js ~/$FIRST_APP_DIR/ecosystem.config.js.bak
+            fi
+
+            # Clear the directory 
+            rm -rf ~/$FIRST_APP_DIR/*
+
+            # Extract the build to the app directory
+            tar -xzf ~/$BASE_DIR/build.tar.gz -C ~/$FIRST_APP_DIR
+
+            # Configure environment
+            cd ~/$FIRST_APP_DIR
+            sed -i '/^PORT=/d' .env || echo "No .env file found, creating one"
+            echo "PORT=$FIRST_PORT" >> .env
+
+            # Create PM2 ecosystem file with explicitly defined values
+            echo "module.exports = {
+              apps: [{
+                name: \"$FIRST_PM2_NAME\",
+                cwd: \"$HOME/$FIRST_APP_DIR\",
+                script: \"$HOME/$FIRST_APP_DIR/node_modules/.bin/next\",
+                args: \"start\",
+                env: {
+                  PORT: $FIRST_PORT,
+                  NODE_ENV: \"production\"
+                },
+                max_memory_restart: \"300M\"
+              }]
+            };" > ecosystem.config.js
+
+            # Start the application with PM2
+            cd ~/$FIRST_APP_DIR
+            pm2 start ecosystem.config.js
+            pm2 save
+
+            # Health check for the first instance
+            echo "Checking if first instance is running correctly..."
+            success=false
+            for i in $(seq 1 $MAX_RETRIES); do
+              echo "Health check attempt $i of $MAX_RETRIES..."
+              if curl -s --head --request GET $HEALTH_CHECK_URL | grep "200 OK" > /dev/null; then
+                echo "First instance is running correctly!"
+                success=true
+                break
+              else
+                echo "First instance not responding correctly, waiting ${RETRY_INTERVAL} seconds..."
+                sleep $RETRY_INTERVAL
+              fi
+            done
+
+            # Handle the result of health check
+            if [ "$success" = true ]; then
+              echo "Proceeding with second instance update on port ${SECOND_PORT}..."
+              
+              # Ensure directory exists
+              mkdir -p ~/$SECOND_APP_DIR
+              
+              # Stop the existing application if running
+              pm2 list | grep -q "$SECOND_PM2_NAME" && pm2 stop $SECOND_PM2_NAME
+              
+              # Backup ecosystem file if it exists
+              if [ -f ~/$SECOND_APP_DIR/ecosystem.config.js ]; then
+                mv ~/$SECOND_APP_DIR/ecosystem.config.js ~/$SECOND_APP_DIR/ecosystem.config.js.bak
+              fi
+              
+              # Clear the directory
+              rm -rf ~/$SECOND_APP_DIR/*
+              
+              # Extract the build to the app directory
+              tar -xzf ~/$BASE_DIR/build.tar.gz -C ~/$SECOND_APP_DIR
+              
+              # Configure environment
+              cd ~/$SECOND_APP_DIR
+              sed -i '/^PORT=/d' .env || echo "No .env file found, creating one"
+              echo "PORT=$SECOND_PORT" >> .env
+              
+              # Create PM2 ecosystem file with explicitly defined values
+              echo "module.exports = {
+                apps: [{
+                  name: \"$SECOND_PM2_NAME\",
+                  cwd: \"$HOME/$SECOND_APP_DIR\",
+                  script: \"$HOME/$SECOND_APP_DIR/node_modules/.bin/next\",
+                  args: \"start\",
+                  env: {
+                    PORT: $SECOND_PORT,
+                    NODE_ENV: \"production\"
+                  },
+                  max_memory_restart: \"300M\"
+                }]
+              };" > ecosystem.config.js
+              
+              # Start the application with PM2
+              cd ~/$SECOND_APP_DIR
+              pm2 start ecosystem.config.js
+              pm2 save
+              
+              echo "Blue-green deployment completed successfully!"
+              echo "SUCCESS" > $DEPLOYMENT_STATUS_FILE
+            else
+              # Stop the first app if health check failed
+              echo "WARNING: First instance health check failed. Stopping the first instance to prevent users from accessing buggy app."
+              pm2 list | grep -q "$FIRST_PM2_NAME" && pm2 stop $FIRST_PM2_NAME
+              pm2 save
+              
+              echo "Second instance NOT updated."
+              echo "Manual intervention required!"
+              echo "FAILED" > $DEPLOYMENT_STATUS_FILE
+            fi
+
+            # Cleanup
+            rm ~/$BASE_DIR/build.tar.gz
+
+            # Read the deployment status and exit with appropriate code
+            if [ "$(cat $DEPLOYMENT_STATUS_FILE)" == "FAILED" ]; then
+              echo "Deployment process failed due to health check failure."
+              exit 1
+            else
+              echo "Deployment process completed successfully."
+            fi
+
+            # Remove the status file
+            rm $DEPLOYMENT_STATUS_FILE
