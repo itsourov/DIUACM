@@ -1,0 +1,156 @@
+name: Deploy Next.js to VPS
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      REPO_NAME: ${{ github.event.repository.name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Cache node modules and Next.js cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Create build archive
+        run: |
+          # Create a list of files to include, checking if each exists
+          FILES_TO_INCLUDE=""
+
+          # Always include .next directory and node_modules (required)
+          FILES_TO_INCLUDE+=" .next"
+          FILES_TO_INCLUDE+=" node_modules"
+
+          # Check other files and include if they exist
+          [ -d "public" ] && FILES_TO_INCLUDE+=" public"
+          [ -f "package.json" ] && FILES_TO_INCLUDE+=" package.json"
+          [ -f "package-lock.json" ] && FILES_TO_INCLUDE+=" package-lock.json"
+          [ -f ".env" ] && FILES_TO_INCLUDE+=" .env"
+
+          # Check for either next.config.js or next.config.ts
+          if [ -f "next.config.js" ]; then
+            FILES_TO_INCLUDE+=" next.config.js"
+          elif [ -f "next.config.ts" ]; then
+            FILES_TO_INCLUDE+=" next.config.ts"
+          fi
+
+          # Create the archive with only existing files
+          tar -czf build.tar.gz $FILES_TO_INCLUDE
+
+          echo "Created archive with the following files:"
+          echo $FILES_TO_INCLUDE
+
+      - name: Set deployment variables
+        id: deploy-vars
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "DEPLOY_TYPE=prod" >> $GITHUB_ENV
+            echo "PORT=3001" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_TYPE=preview" >> $GITHUB_ENV
+            echo "PORT=3005" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "build.tar.gz"
+          target: "${{ env.REPO_NAME }}"
+          strip_components: 0
+
+      - name: Deploy application
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Set up variables
+            APP_DIR="${{ env.REPO_NAME }}/${{ env.REPO_NAME }}-${{ env.DEPLOY_TYPE }}"
+            PORT=${{ env.PORT }}
+            PM2_NAME="${{ env.REPO_NAME }}-${{ env.DEPLOY_TYPE }}"
+
+            # Ensure directory exists
+            mkdir -p ~/$APP_DIR
+
+            # Stop the existing application if running
+            pm2 stop $PM2_NAME || echo "No existing process to stop"
+
+            # Clear the directory but keep the ecosystem file if it exists
+            if [ -f ~/$APP_DIR/ecosystem.config.js ]; then
+              mv ~/$APP_DIR/ecosystem.config.js ~/$APP_DIR/ecosystem.config.js.bak
+            fi
+
+            # Remove all contents but preserve ecosystem file backup
+            rm -rf ~/$APP_DIR/*
+
+            # Extract the build directly to the app directory
+            tar -xzf ~/${{ env.REPO_NAME }}/build.tar.gz -C ~/$APP_DIR
+
+            # Configure environment
+            cd ~/$APP_DIR
+            sed -i '/^PORT=/d' .env || echo "No .env file found, creating one"
+            echo "PORT=$PORT" >> .env
+
+            # Create PM2 ecosystem file with explicit path to next binary
+            cat > ecosystem.config.js << EOL
+            module.exports = {
+              apps: [{
+                name: "${PM2_NAME}",
+                cwd: "${HOME}/${APP_DIR}",
+                script: "${HOME}/${APP_DIR}/node_modules/.bin/next",
+                args: "start",
+                env: {
+                  PORT: ${PORT},
+                  NODE_ENV: "production"
+                },
+                max_memory_restart: "300M"
+              }]
+            };
+            EOL
+
+            # Start the application with PM2
+            cd ~/$APP_DIR
+            pm2 start ecosystem.config.js
+
+            # Save the PM2 configuration
+            pm2 save
+
+            # Cleanup
+            rm ~/${{ env.REPO_NAME }}/build.tar.gz
+
+            echo "Deployment completed successfully on port $PORT!"
