@@ -55,6 +55,7 @@ jobs:
           [ -f "package.json" ] && FILES_TO_INCLUDE+=" package.json"
           [ -f "package-lock.json" ] && FILES_TO_INCLUDE+=" package-lock.json"
           [ -f ".env" ] && FILES_TO_INCLUDE+=" .env"
+          [ -f "lib/cloudflareImageLoader.ts" ] && FILES_TO_INCLUDE+=" lib/cloudflareImageLoader.ts"
 
           # Check for either next.config.js or next.config.ts
           if [ -f "next.config.js" ]; then
