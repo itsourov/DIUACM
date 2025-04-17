@@ -8,6 +8,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # Set environment based on the branch
+    environment: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && 'production' || 'preview' }}
+
     env:
       REPO_NAME: ${{ github.event.repository.name }}
 
@@ -36,10 +39,48 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+          # Create an empty .env file
+          touch .env
+
+          # Add environment-specific variables
+          # Start with Environment Variables
+          echo "# Environment Variables" >> .env
+          echo "AUTH_TRUST_HOST=${{ vars.AUTH_TRUST_HOST }}" >> .env
+          echo "AUTH_URL=${{ vars.AUTH_URL }}" >> .env
+          echo "NEXT_PUBLIC_APP_NAME=${{ vars.NEXT_PUBLIC_APP_NAME }}" >> .env
+          echo "NEXT_PUBLIC_S3_DOMAIN=${{ vars.NEXT_PUBLIC_S3_DOMAIN }}" >> .env
+          echo "S3_ACCESS_KEY_ID=${{ vars.S3_ACCESS_KEY_ID }}" >> .env
+          echo "S3_ACCOUNT_ID=${{ vars.S3_ACCOUNT_ID }}" >> .env
+          echo "S3_BUCKET_NAME=${{ vars.S3_BUCKET_NAME }}" >> .env
+          echo "S3_ENDPOINT=${{ vars.S3_ENDPOINT }}" >> .env
+          echo "NEXT_PUBLIC_ENV=${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && 'production' || 'preview' }}" >> .env
+
+          # Add any other Environment Variables
+          # You can add more variables as needed
+
+          # Then add Environment Secrets
+          echo "# Environment Secrets" >> .env
+          echo "AUTH_GOOGLE_SECRET=${{ secrets.AUTH_GOOGLE_SECRET }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "AUTH_GOOGLE_ID=${{ secrets.AUTH_GOOGLE_ID }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}" >> .env
+
+          # Add any other Environment Secrets
+          # You can add more secrets as needed
 
       - name: Build Next.js app
         run: npm run build
+
+      - name: Set deployment variables
+        id: deploy-vars
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "DEPLOY_TYPE=prod" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_TYPE=preview" >> $GITHUB_ENV
+            echo "PORT=3005" >> $GITHUB_ENV
+          fi
 
       - name: Create build archive
         run: |
@@ -70,16 +111,6 @@ jobs:
           echo "Created archive with the following files:"
           echo $FILES_TO_INCLUDE
 
-      - name: Set deployment variables
-        id: deploy-vars
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
-            echo "DEPLOY_TYPE=prod" >> $GITHUB_ENV
-          else
-            echo "DEPLOY_TYPE=preview" >> $GITHUB_ENV
-            echo "PORT=3005" >> $GITHUB_ENV
-          fi
-
       - name: Deploy to VPS
         uses: appleboy/scp-action@master
         with:
@@ -90,6 +121,7 @@ jobs:
           target: "${{ env.REPO_NAME }}"
           strip_components: 0
 
+      # The rest of the workflow remains unchanged
       - name: Deploy application
         if: env.DEPLOY_TYPE != 'prod'
         uses: appleboy/ssh-action@master
