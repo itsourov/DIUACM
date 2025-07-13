@@ -65,7 +65,7 @@ export const users = mysqlTable("user", {
   }),
   image: varchar("image", { length: 255 }),
   password: varchar("password", { length: 255 }),
-  gender: mysqlEnum("gender", ["male", "female", "other"]),
+  gender: mysqlEnum("gender", GenderType),
   phone: varchar("phone", { length: 255 }),
   codeforcesHandle: varchar("codeforces_handle", { length: 255 }),
   atcoderHandle: varchar("atcoder_handle", { length: 255 }),
@@ -134,8 +134,8 @@ export const galleries = mysqlTable("galleries", {
   title: varchar("title", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).unique().notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["published", "draft"])
-    .default("draft")
+  status: mysqlEnum("status", VisibilityStatus)
+    .default(VisibilityStatus.DRAFT)
     .notNull(),
   order: int("order").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
@@ -149,12 +149,7 @@ export const contests = mysqlTable("contests", {
   id: int("id").primaryKey().autoincrement(),
   name: varchar("name", { length: 255 }).unique().notNull(),
   galleryId: int("gallery_id").references(() => galleries.id),
-  contestType: mysqlEnum("contest_type", [
-    "icpc_regional",
-    "icpc_asia_west",
-    "iupc",
-    "other",
-  ]).notNull(),
+  contestType: mysqlEnum("contest_type", ContestType).notNull(),
   location: varchar("location", { length: 255 }),
   date: datetime("date"),
   description: text("description"),
@@ -189,8 +184,8 @@ export const events = mysqlTable("events", {
   id: int("id").primaryKey().autoincrement(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["published", "draft"])
-    .default("draft")
+  status: mysqlEnum("status", VisibilityStatus)
+    .default(VisibilityStatus.DRAFT)
     .notNull(),
   startingAt: datetime("starting_at").notNull(),
   endingAt: varchar("ending_at", { length: 255 }).notNull(),
@@ -198,16 +193,9 @@ export const events = mysqlTable("events", {
   eventPassword: varchar("event_password", { length: 255 }),
   openForAttendance: boolean("open_for_attendance").notNull(),
   strictAttendance: boolean("strict_attendance").notNull(),
-  type: mysqlEnum("type", ["contest", "class", "other"])
-    .default("contest")
-    .notNull(),
-  participationScope: mysqlEnum("participation_scope", [
-    "open_for_all",
-    "only_girls",
-    "junior_programmers",
-    "selected_persons",
-  ])
-    .default("open_for_all")
+  type: mysqlEnum("type", EventType).default(EventType.CONTEST).notNull(),
+  participationScope: mysqlEnum("participation_scope", ParticipationScope)
+    .default(ParticipationScope.OPEN_FOR_ALL)
     .notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" })
@@ -221,8 +209,8 @@ export const trackers = mysqlTable("trackers", {
   title: varchar("title", { length: 255 }).notNull(),
   slug: varchar("slug", { length: 255 }).unique().notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["published", "draft"])
-    .default("draft")
+  status: mysqlEnum("status", VisibilityStatus)
+    .default(VisibilityStatus.DRAFT)
     .notNull(),
   order: int("order").default(0).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
@@ -262,8 +250,8 @@ export const blogPosts = mysqlTable("blog_posts", {
   slug: varchar("slug", { length: 255 }).unique().notNull(),
   author: varchar("author", { length: 255 }).notNull(),
   content: longtext("content").notNull(),
-  status: mysqlEnum("status", ["published", "draft"])
-    .default("draft")
+  status: mysqlEnum("status", VisibilityStatus)
+    .default(VisibilityStatus.DRAFT)
     .notNull(),
   publishedAt: datetime("published_at"),
   isFeatured: boolean("is_featured").notNull(),
