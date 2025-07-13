@@ -7,6 +7,43 @@ import {
 } from "drizzle-orm/mysql-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
+export const VisibilityStatus = {
+  PUBLISHED: "published",
+  DRAFT: "draft",
+} as const;
+
+export const ContestType = {
+  ICPC_REGIONAL: "icpc_regional",
+  ICPC_ASIA_WEST: "icpc_asia_west",
+  IUPC: "iupc",
+  OTHER: "other",
+} as const;
+
+export const EventType = {
+  CONTEST: "contest",
+  CLASS: "class",
+  OTHER: "other",
+} as const;
+
+export const GenderType = {
+  MALE: "male",
+  FEMALE: "female",
+  OTHER: "other",
+} as const;
+export const ParticipationScope = {
+  OPEN_FOR_ALL: "open_for_all",
+  ONLY_GIRLS: "only_girls",
+  JUNIOR_PROGRAMMERS: "junior_programmers",
+  SELECTED_PERSONS: "selected_persons",
+} as const;
+
+export type VisibilityStatus =
+  (typeof VisibilityStatus)[keyof typeof VisibilityStatus];
+export type ContestType = (typeof ContestType)[keyof typeof ContestType];
+export type EventType = (typeof EventType)[keyof typeof EventType];
+export type GenderType = (typeof GenderType)[keyof typeof GenderType];
+export type ParticipationScope =
+  (typeof ParticipationScope)[keyof typeof ParticipationScope];
 
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 })
