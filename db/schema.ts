@@ -4,6 +4,13 @@ import {
   mysqlTable,
   primaryKey,
   varchar,
+  text,
+  longtext,
+  datetime,
+  boolean,
+  float,
+  mysqlEnum,
+  unique,
 } from "drizzle-orm/mysql-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -49,15 +56,28 @@ export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 })
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  username: varchar("username", { length: 255 }).unique(),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     fsp: 3,
   }),
   image: varchar("image", { length: 255 }),
-  username: varchar("username", { length: 100 }),
-  studentId: varchar("studentId", { length: 50 }),
+  password: varchar("password", { length: 255 }),
+  gender: mysqlEnum("gender", ["male", "female", "other"]),
+  phone: varchar("phone", { length: 255 }),
+  codeforcesHandle: varchar("codeforces_handle", { length: 255 }),
+  atcoderHandle: varchar("atcoder_handle", { length: 255 }),
+  vjudgeHandle: varchar("vjudge_handle", { length: 255 }),
+  startingSemester: varchar("starting_semester", { length: 255 }),
+  department: varchar("department", { length: 255 }),
+  studentId: varchar("student_id", { length: 255 }),
+  maxCfRating: int("max_cf_rating"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
 });
 
 export const accounts = mysqlTable(
@@ -106,6 +126,231 @@ export const verificationTokens = mysqlTable(
       columns: [table.identifier, table.token],
     }),
   ]
+);
+
+// Galleries table
+export const galleries = mysqlTable("galleries", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["published", "draft"])
+    .default("draft")
+    .notNull(),
+  order: int("order").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
+// Contests table
+export const contests = mysqlTable("contests", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).unique().notNull(),
+  galleryId: int("gallery_id").references(() => galleries.id),
+  contestType: mysqlEnum("contest_type", [
+    "icpc_regional",
+    "icpc_asia_west",
+    "iupc",
+    "other",
+  ]).notNull(),
+  location: varchar("location", { length: 255 }),
+  date: datetime("date"),
+  description: text("description"),
+  standingsUrl: varchar("standings_url", { length: 255 }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
+// Teams table
+export const teams = mysqlTable(
+  "teams",
+  {
+    id: int("id").primaryKey().autoincrement(),
+    name: varchar("name", { length: 255 }).notNull(),
+    contestId: int("contest_id")
+      .notNull()
+      .references(() => contests.id, { onDelete: "cascade" }),
+    rank: int("rank"),
+    solveCount: int("solveCount"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => [unique().on(table.name, table.contestId)]
+);
+
+// Events table
+export const events = mysqlTable("events", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["published", "draft"])
+    .default("draft")
+    .notNull(),
+  startingAt: datetime("starting_at").notNull(),
+  endingAt: varchar("ending_at", { length: 255 }).notNull(),
+  eventLink: varchar("event_link", { length: 255 }).unique(),
+  eventPassword: varchar("event_password", { length: 255 }),
+  openForAttendance: boolean("open_for_attendance").notNull(),
+  strictAttendance: boolean("strict_attendance").notNull(),
+  type: mysqlEnum("type", ["contest", "class", "other"])
+    .default("contest")
+    .notNull(),
+  participationScope: mysqlEnum("participation_scope", [
+    "open_for_all",
+    "only_girls",
+    "junior_programmers",
+    "selected_persons",
+  ])
+    .default("open_for_all")
+    .notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
+// Trackers table
+export const trackers = mysqlTable("trackers", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["published", "draft"])
+    .default("draft")
+    .notNull(),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
+// Rank Lists table
+export const rankLists = mysqlTable(
+  "rank_lists",
+  {
+    id: int("id").primaryKey().autoincrement(),
+    trackerId: int("tracker_id")
+      .notNull()
+      .references(() => trackers.id, { onDelete: "cascade" }),
+    keyword: varchar("keyword", { length: 255 }).notNull(),
+    description: text("description"),
+    weightOfUpsolve: float("weight_of_upsolve").notNull(),
+    order: int("order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    considerStrictAttendance: boolean("consider_strict_attendance")
+      .default(true)
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => [unique().on(table.keyword, table.trackerId)]
+);
+
+// Blog Posts table
+export const blogPosts = mysqlTable("blog_posts", {
+  id: int("id").primaryKey().autoincrement(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  author: varchar("author", { length: 255 }).notNull(),
+  content: longtext("content").notNull(),
+  status: mysqlEnum("status", ["published", "draft"])
+    .default("draft")
+    .notNull(),
+  publishedAt: datetime("published_at"),
+  isFeatured: boolean("is_featured").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
+// Junction tables
+export const eventRankList = mysqlTable(
+  "event_rank_list",
+  {
+    eventId: int("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    rankListId: int("rank_list_id")
+      .notNull()
+      .references(() => rankLists.id, { onDelete: "cascade" }),
+    weight: float("weight").notNull(),
+  },
+  (table) => [unique().on(table.eventId, table.rankListId)]
+);
+
+export const teamUser = mysqlTable(
+  "team_user",
+  {
+    teamId: int("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.teamId, table.userId)]
+);
+
+export const rankListUser = mysqlTable(
+  "rank_list_user",
+  {
+    rankListId: int("rank_list_id")
+      .notNull()
+      .references(() => rankLists.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    score: float("score").default(0).notNull(),
+  },
+  (table) => [unique().on(table.rankListId, table.userId)]
+);
+
+export const eventUserAttendance = mysqlTable(
+  "event_user_attendance",
+  {
+    eventId: int("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => [unique().on(table.eventId, table.userId)]
+);
+
+export const userSolveStatOnEvents = mysqlTable(
+  "user_solve_stat_on_events",
+  {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    eventId: int("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    solveCount: int("solve_count").notNull(),
+    upsolveCount: int("upsolve_count").notNull(),
+    participation: boolean("participation").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => [unique().on(table.userId, table.eventId)]
 );
 
 export const contactFormSubmissions = mysqlTable("contactFormSubmission", {
