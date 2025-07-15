@@ -84,7 +84,8 @@ export function ContestForm({
         const response = await getPublishedGalleries();
         if (response.success && response.data) {
           setGalleries(
-            response.data.map((gallery) => ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (response.data as any).map((gallery: any) => ({
               id: gallery.id,
               title: gallery.title,
             }))

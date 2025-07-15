@@ -30,14 +30,17 @@ export async function generateMetadata({
     };
   }
 
-  const { data: contest } = await getContest(contestId);
+  const { data: contestData } = await getContest(contestId);
 
-  if (!contest) {
+  if (!contestData) {
     return {
       title: "Contest not found",
       description: "The requested contest could not be found",
     };
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestData as any;
 
   return {
     title: `Add Team - ${contest.name} | DIU ACM Admin`,
@@ -53,11 +56,14 @@ export default async function CreateTeamPage({ params }: CreateTeamPageProps) {
     notFound();
   }
 
-  const { data: contest, error } = await getContest(contestId);
+  const { data: contestData, error } = await getContest(contestId);
 
-  if (error || !contest) {
+  if (error || !contestData) {
     notFound();
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestData as any;
 
   return (
     <div className="space-y-6">

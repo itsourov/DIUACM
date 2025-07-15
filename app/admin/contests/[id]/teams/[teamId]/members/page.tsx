@@ -39,8 +39,10 @@ export async function generateMetadata({
     getTeam(teamId),
   ]);
 
-  const contest = contestResponse.data;
-  const team = teamResponse.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestResponse.data as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const team = teamResponse.data as any;
 
   if (!contest || !team) {
     return {
@@ -70,8 +72,10 @@ export default async function MembersPage({ params }: MembersPageProps) {
     getTeamMembers(teamId),
   ]);
 
-  const contest = contestResponse.data;
-  const team = teamResponse.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestResponse.data as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const team = teamResponse.data as any;
   const members = membersResponse.data || [];
 
   if (!contest || !team) {

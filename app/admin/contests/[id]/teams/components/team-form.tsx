@@ -1,111 +1,105 @@
 "use client";
+
 import { useState } from "react";
-import { useRouter } from 'nextjs-toploader/app';
-import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { createTeam, updateTeam } from "../actions";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Loader2, Save, Trophy } from "lucide-react";
+import { createTeam, updateTeam } from "../actions";
+import { teamFormSchema, type TeamFormValues } from "../../../schemas/contest";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-
-const teamFormSchema = z.object({
-  name: z.string().min(1, "Team name is required"),
-  rank: z.string().optional(),
-  solveCount: z.string().optional(),
-});
-
-type TeamFormValues = z.infer<typeof teamFormSchema>;
-
-interface Team {
-  id: number;
-  name: string;
-  contestId: number;
-  rank?: number | null;
-  solveCount?: number | null;
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
-}
 
 interface TeamFormProps {
   contestId: number;
-  initialData?: Team | null;
-  isEditing?: boolean;
+  team?: {
+    id: number;
+    name: string;
+    rank?: number | null;
+    solveCount?: number | null;
+  };
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function TeamForm({
-  contestId,
-  initialData,
-  isEditing = false,
-}: TeamFormProps) {
-  const router = useRouter();
+export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const defaultValues: Partial<TeamFormValues> = {
-    name: initialData?.name || "",
-    rank: initialData?.rank?.toString() || "",
-    solveCount: initialData?.solveCount?.toString() || "",
-  };
+  const isEditing = !!team;
 
   const form = useForm<TeamFormValues>({
     resolver: zodResolver(teamFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: team?.name || "",
+      rank: team?.rank || undefined,
+      solveCount: team?.solveCount || undefined,
+    },
   });
 
-  const onSubmit = async (data: TeamFormValues) => {
+  const onSubmit = async (values: TeamFormValues) => {
     try {
       setIsSubmitting(true);
 
-      // Convert string values to numbers for API
-      const formattedData = {
-        name: data.name,
-        rank: data.rank && data.rank !== "" ? parseInt(data.rank) : undefined,
-        solveCount: data.solveCount && data.solveCount !== "" ? parseInt(data.solveCount) : undefined,
-      };
-
-      if (isEditing && initialData) {
-        const response = await updateTeam(
-          initialData.id,
-          contestId,
-          formattedData
-        );
-        if (response.success) {
-          toast.success("Team updated successfully");
-          router.push(`/admin/contests/${contestId}/teams`);
-        } else {
-          toast.error(response.error || "Failed to update team");
-        }
+      let response;
+      if (isEditing) {
+        response = await updateTeam(team.id, contestId, values);
       } else {
-        const response = await createTeam(contestId, formattedData);
-        if (response.success) {
-          toast.success("Team created successfully");
-          router.push(`/admin/contests/${contestId}/teams`);
-        } else {
-          toast.error(response.error || "Failed to create team");
-        }
+        response = await createTeam(contestId, values);
+      }
+
+      if (response.success) {
+        toast.success(response.message || `Team ${isEditing ? 'updated' : 'created'} successfully`);
+        form.reset();
+        onSuccess?.();
+      } else {
+        toast.error(response.error || "Something went wrong");
       }
     } catch (error) {
+      console.error("Form submission error:", error);
       toast.error("An unexpected error occurred");
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <div className="flex items-center space-x-2">
+          <div className="rounded-full bg-primary/10 p-2">
+            <Trophy className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle>
+              {isEditing ? `Edit Team: ${team.name}` : "Create New Team"}
+            </CardTitle>
+            <CardDescription>
+              {isEditing
+                ? "Update team information and statistics"
+                : "Add a new team to this contest"
+              }
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -113,32 +107,44 @@ export function TeamForm({
                 <FormItem>
                   <FormLabel>Team Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter team name" {...field} />
+                    <Input
+                      placeholder="Enter team name"
+                      {...field}
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    A unique name for this team within the contest
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="rank"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Rank</FormLabel>
+                    <FormLabel>Rank (Optional)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Team rank (optional)"
+                        placeholder="e.g., 1"
+                        min="1"
                         {...field}
                         value={field.value || ""}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === "" ? null : parseInt(value));
+                          field.onChange(value === "" ? undefined : parseInt(value, 10));
                         }}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Team&apos;s final rank in the contest
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -149,33 +155,59 @@ export function TeamForm({
                 name="solveCount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Solve Count</FormLabel>
+                    <FormLabel>Problems Solved (Optional)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Number of problems solved (optional)"
+                        placeholder="e.g., 5"
+                        min="0"
                         {...field}
                         value={field.value || ""}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === "" ? null : parseInt(value));
+                          field.onChange(value === "" ? undefined : parseInt(value, 10));
                         }}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Number of problems solved by this team
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Saving..."
-                  : isEditing
-                    ? "Update Team"
-                    : "Create Team"}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 sm:flex-none"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isEditing ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    {isEditing ? "Update Team" : "Create Team"}
+                  </>
+                )}
               </Button>
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                  className="flex-1 sm:flex-none"
+                >
+                  Cancel
+                </Button>
+              )}
             </div>
           </form>
         </Form>

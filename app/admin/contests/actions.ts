@@ -1,20 +1,84 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { contests, galleries, teams } from "@/db/schema";
+import { contests, galleries, teams, teamUser } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc } from "drizzle-orm";
+import { eq, or, like, count, desc, and, asc, sql } from "drizzle-orm";
 import { contestFormSchema, type ContestFormValues } from "./schemas/contest";
+import type { ContestType } from "@/db/schema";
 import { hasPermission } from "@/lib/authorization";
 
-export async function createContest(values: ContestFormValues) {
-  try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
+// Enhanced error handling type
+type ActionResult<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+};
+
+// Contest data interface for type safety
+interface ContestData {
+  id?: number;
+  name: string;
+  contestType: ContestType;
+  location?: string | null;
+  date?: Date | null;
+  description?: string | null;
+  standingsUrl?: string | null;
+  galleryId?: number | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+  gallery?: {
+    id: number;
+    title: string;
+    slug: string;
+    status: string;
+  } | null;
+}
+
+// Utility function to handle database errors
+function handleDbError(error: unknown): ActionResult {
+  console.error("Database error:", error);
+
+  if (error instanceof Error) {
+    // Handle specific database constraint errors
+    if (error.message.includes("Duplicate entry")) {
+      return { success: false, error: "A contest with this name already exists" };
     }
+    if (error.message.includes("foreign key constraint")) {
+      return { success: false, error: "Invalid gallery selected" };
+    }
+  }
+
+  return { success: false, error: "Something went wrong. Please try again." };
+}
+
+// Utility function to validate permissions
+async function validatePermission(): Promise<ActionResult | null> {
+  if (!(await hasPermission("CONTESTS:MANAGE"))) {
+    return { success: false, error: "You don't have permission to manage contests" };
+  }
+  return null;
+}
+
+export async function createContest(values: ContestFormValues): Promise<ActionResult> {
+  try {
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
+
     const validatedFields = contestFormSchema.parse(values);
+
+    // Check if contest name already exists
+    const existingContest = await db
+      .select({ id: contests.id })
+      .from(contests)
+      .where(eq(contests.name, validatedFields.name))
+      .limit(1);
+
+    if (existingContest.length > 0) {
+      return { success: false, error: "A contest with this name already exists" };
+    }
 
     // Convert form types to database types
     const dbValues = {
@@ -24,34 +88,75 @@ export async function createContest(values: ContestFormValues) {
       description: validatedFields.description || null,
       standingsUrl: validatedFields.standingsUrl || null,
       date: new Date(validatedFields.date),
-      galleryId: validatedFields.galleryId && validatedFields.galleryId !== "" ? parseInt(validatedFields.galleryId) : null,
+      galleryId: validatedFields.galleryId && validatedFields.galleryId !== ""
+        ? parseInt(validatedFields.galleryId)
+        : null,
     };
 
-    await db.insert(contests).values(dbValues);
+    // Validate gallery exists if provided
+    if (dbValues.galleryId) {
+      const gallery = await db
+        .select({ id: galleries.id })
+        .from(galleries)
+        .where(eq(galleries.id, dbValues.galleryId))
+        .limit(1);
+
+      if (gallery.length === 0) {
+        return { success: false, error: "Selected gallery does not exist" };
+      }
+    }
+
+    const result = await db.insert(contests).values(dbValues);
 
     revalidatePath("/admin/contests");
     revalidatePath("/contests");
-    return { success: true, data: dbValues };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: "Please check the form for errors." };
-    }
 
     return {
-      success: false,
-      error: "Something went wrong. Please try again.",
+      success: true,
+      data: { ...dbValues, id: result[0].insertId },
+      message: "Contest created successfully"
     };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const firstError = error.issues[0];
+      return { success: false, error: firstError?.message || "Please check the form for errors." };
+    }
+
+    return handleDbError(error);
   }
 }
 
-export async function updateContest(id: number, values: ContestFormValues) {
+export async function updateContest(id: number, values: ContestFormValues): Promise<ActionResult> {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
 
     const validatedFields = contestFormSchema.parse(values);
+
+    // Check if contest exists
+    const existingContest = await db
+      .select({ id: contests.id })
+      .from(contests)
+      .where(eq(contests.id, id))
+      .limit(1);
+
+    if (existingContest.length === 0) {
+      return { success: false, error: "Contest not found" };
+    }
+
+    // Check if another contest with same name exists (excluding current contest)
+    const duplicateContest = await db
+      .select({ id: contests.id })
+      .from(contests)
+      .where(and(
+        eq(contests.name, validatedFields.name),
+        sql`${contests.id} != ${id}`
+      ))
+      .limit(1);
+
+    if (duplicateContest.length > 0) {
+      return { success: false, error: "A contest with this name already exists" };
+    }
 
     // Convert form types to database types
     const dbValues = {
@@ -61,8 +166,23 @@ export async function updateContest(id: number, values: ContestFormValues) {
       description: validatedFields.description || null,
       standingsUrl: validatedFields.standingsUrl || null,
       date: new Date(validatedFields.date),
-      galleryId: validatedFields.galleryId && validatedFields.galleryId !== "" ? parseInt(validatedFields.galleryId) : null,
+      galleryId: validatedFields.galleryId && validatedFields.galleryId !== ""
+        ? parseInt(validatedFields.galleryId)
+        : null,
     };
+
+    // Validate gallery exists if provided
+    if (dbValues.galleryId) {
+      const gallery = await db
+        .select({ id: galleries.id })
+        .from(galleries)
+        .where(eq(galleries.id, dbValues.galleryId))
+        .limit(1);
+
+      if (gallery.length === 0) {
+        return { success: false, error: "Selected gallery does not exist" };
+      }
+    }
 
     await db
       .update(contests)
@@ -73,46 +193,72 @@ export async function updateContest(id: number, values: ContestFormValues) {
     revalidatePath(`/admin/contests/${id}/edit`);
     revalidatePath("/contests");
 
-    return { success: true, data: { ...dbValues, id } };
+    return {
+      success: true,
+      data: { ...dbValues, id },
+      message: "Contest updated successfully"
+    };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: "Please check the form for errors." };
+      const firstError = error.issues[0];
+      return { success: false, error: firstError?.message || "Please check the form for errors." };
     }
 
-    return {
-      success: false,
-      error: "Something went wrong. Please try again.",
-    };
+    return handleDbError(error);
   }
 }
 
-export async function deleteContest(id: number) {
+export async function deleteContest(id: number): Promise<ActionResult> {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
+
+    // Check if contest exists and get team count
+    const contestData = await db
+      .select({
+        id: contests.id,
+        name: contests.name,
+        teamCount: count(teams.id)
+      })
+      .from(contests)
+      .leftJoin(teams, eq(teams.contestId, contests.id))
+      .where(eq(contests.id, id))
+      .groupBy(contests.id)
+      .limit(1);
+
+    if (contestData.length === 0) {
+      return { success: false, error: "Contest not found" };
     }
+
+    const contest = contestData[0];
+
+    // Warn if contest has teams
+    if (contest.teamCount > 0) {
+      return {
+        success: false,
+        error: `Cannot delete contest with ${contest.teamCount} team(s). Please remove all teams first.`
+      };
+    }
+
     await db.delete(contests).where(eq(contests.id, id));
 
     revalidatePath("/admin/contests");
     revalidatePath("/contests");
 
-    return { success: true };
-  } catch (error) {
-    console.error(error);
     return {
-      success: false,
-      error: "Something went wrong. Please try again.",
+      success: true,
+      message: `Contest "${contest.name}" deleted successfully`
     };
+  } catch (error) {
+    return handleDbError(error);
   }
 }
 
-export async function getContest(id: number) {
+export async function getContest(id: number): Promise<ActionResult> {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
+
     const contest = await db
       .select({
         id: contests.id,
@@ -143,11 +289,7 @@ export async function getContest(id: number) {
 
     return { success: true, data: contest[0] };
   } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      error: "Something went wrong. Please try again.",
-    };
+    return handleDbError(error);
   }
 }
 
@@ -155,12 +297,10 @@ export async function getPaginatedContests(
   page: number = 1,
   pageSize: number = 10,
   search?: string
-) {
+): Promise<ActionResult> {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
 
     const skip = (page - 1) * pageSize;
 
@@ -172,6 +312,7 @@ export async function getPaginatedContests(
       )
       : undefined;
 
+    // Optimized query using subquery for team counts
     const [contestsData, totalCountResult] = await Promise.all([
       db
         .select({
@@ -191,11 +332,16 @@ export async function getPaginatedContests(
             slug: galleries.slug,
             status: galleries.status,
           },
+          teamCount: sql<number>`(
+            SELECT COUNT(${teams.id}) 
+            FROM ${teams} 
+            WHERE ${teams.contestId} = ${contests.id}
+          )`
         })
         .from(contests)
         .leftJoin(galleries, eq(contests.galleryId, galleries.id))
         .where(searchCondition)
-        .orderBy(desc(contests.date))
+        .orderBy(desc(contests.date), desc(contests.createdAt))
         .limit(pageSize)
         .offset(skip),
       db
@@ -205,23 +351,13 @@ export async function getPaginatedContests(
         .then((result) => result[0].count),
     ]);
 
-    // Get team counts for each contest
-    const contestsWithTeamCount = await Promise.all(
-      contestsData.map(async (contest) => {
-        const teamCount = await db
-          .select({ count: count() })
-          .from(teams)
-          .where(eq(teams.contestId, contest.id))
-          .then((result) => result[0].count);
-
-        return {
-          ...contest,
-          _count: {
-            teams: teamCount,
-          },
-        };
-      })
-    );
+    // Transform data to match expected format
+    const contestsWithTeamCount = contestsData.map(contest => ({
+      ...contest,
+      _count: {
+        teams: contest.teamCount,
+      },
+    }));
 
     const totalPages = Math.ceil(totalCountResult / pageSize);
 
@@ -238,20 +374,14 @@ export async function getPaginatedContests(
       },
     };
   } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      error: "Something went wrong. Please try again.",
-    };
+    return handleDbError(error);
   }
 }
 
-export async function getPublishedGalleries() {
+export async function getPublishedGalleries(): Promise<ActionResult> {
   try {
-    // Check if the user has permission to manage contests
-    if (!(await hasPermission("CONTESTS:MANAGE"))) {
-      return { success: false, error: "Unauthorized" };
-    }
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
 
     const galleriesData = await db
       .select({
@@ -260,14 +390,82 @@ export async function getPublishedGalleries() {
       })
       .from(galleries)
       .where(eq(galleries.status, "published"))
-      .orderBy(galleries.title);
+      .orderBy(asc(galleries.title));
 
     return { success: true, data: galleriesData };
   } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      error: "Something went wrong. Please try again.",
+    return handleDbError(error);
+  }
+}
+
+// New utility functions
+
+export async function getContestStats(contestId: number): Promise<ActionResult> {
+  try {
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
+
+    const stats = await db
+      .select({
+        totalTeams: count(teams.id),
+        totalMembers: sql<number>`COUNT(DISTINCT ${teamUser.userId})`,
+        teamsWithMembers: sql<number>`COUNT(DISTINCT CASE WHEN ${teamUser.teamId} IS NOT NULL THEN ${teams.id} END)`,
+        avgMembersPerTeam: sql<number>`AVG(team_member_counts.member_count)`,
+      })
+      .from(contests)
+      .leftJoin(teams, eq(teams.contestId, contests.id))
+      .leftJoin(teamUser, eq(teamUser.teamId, teams.id))
+      .leftJoin(
+        sql`(
+          SELECT ${teams.id} as team_id, COUNT(${teamUser.userId}) as member_count
+          FROM ${teams}
+          LEFT JOIN ${teamUser} ON ${teamUser.teamId} = ${teams.id}
+          WHERE ${teams.contestId} = ${contestId}
+          GROUP BY ${teams.id}
+        ) as team_member_counts`,
+        sql`team_member_counts.team_id = ${teams.id}`
+      )
+      .where(eq(contests.id, contestId))
+      .groupBy(contests.id);
+
+    return { success: true, data: stats[0] || {} };
+  } catch (error) {
+    return handleDbError(error);
+  }
+}
+
+export async function duplicateContest(
+  sourceId: number,
+  newName: string
+): Promise<ActionResult> {
+  try {
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError;
+
+    // Get source contest
+    const sourceContest = await getContest(sourceId);
+    if (!sourceContest.success || !sourceContest.data) {
+      return { success: false, error: "Source contest not found" };
+    }
+
+    // Create new contest with modified name
+    const contestData = { ...sourceContest.data } as ContestData;
+    delete contestData.id;
+    delete contestData.createdAt;
+    delete contestData.updatedAt;
+
+    const newContestValues: ContestFormValues = {
+      name: newName,
+      contestType: contestData.contestType,
+      location: contestData.location || "",
+      date: new Date().toISOString().split('T')[0], // Today's date
+      description: contestData.description || "",
+      standingsUrl: contestData.standingsUrl || "",
+      galleryId: contestData.galleryId?.toString() || "",
     };
+
+    return await createContest(newContestValues);
+  } catch (error) {
+    return handleDbError(error);
   }
 }

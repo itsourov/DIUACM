@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { type VariantProps } from "class-variance-authority";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,13 +19,27 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { deleteContest } from "../actions";
+import { cn } from "@/lib/utils";
 
 interface DeleteContestButtonProps {
   id: number;
   name: string;
+  variant?: VariantProps<typeof buttonVariants>["variant"];
+  size?: VariantProps<typeof buttonVariants>["size"];
+  className?: string;
+  showIcon?: boolean;
+  showText?: boolean;
 }
 
-export function DeleteContestButton({ id, name }: DeleteContestButtonProps) {
+export function DeleteContestButton({
+  id,
+  name,
+  variant = "ghost",
+  size = "sm",
+  className,
+  showIcon = true,
+  showText = false,
+}: DeleteContestButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -35,13 +50,13 @@ export function DeleteContestButton({ id, name }: DeleteContestButtonProps) {
       const response = await deleteContest(id);
 
       if (response.success) {
-        toast.success("Contest deleted successfully");
+        toast.success(response.message || "Contest deleted successfully");
         setOpen(false);
       } else {
         toast.error(response.error || "Something went wrong");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Delete contest error:", error);
       toast.error("Failed to delete contest. " + error);
     } finally {
       setIsLoading(false);
@@ -52,30 +67,37 @@ export function DeleteContestButton({ id, name }: DeleteContestButtonProps) {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-destructive"
+          variant={variant}
+          size={size}
+          className={cn(
+            "text-destructive hover:text-destructive",
+            !showText && "h-8 w-8 p-0",
+            className
+          )}
+          disabled={isLoading}
         >
-          <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Delete</span>
+          {showIcon && <Trash2 className={cn("h-4 w-4", showText && "mr-2")} />}
+          {showText && "Delete"}
+          {!showText && <span className="sr-only">Delete contest {name}</span>}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Contest</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the contest <strong>{name}</strong> and
-            all associated teams. This action cannot be undone.
+            Are you sure you want to permanently delete the contest{" "}
+            <strong>&quot;{name}&quot;</strong>? This will also delete all
+            associated teams and team members. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onDelete}
-            className="bg-destructive hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             disabled={isLoading}
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isLoading ? "Deleting..." : "Delete Contest"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -33,14 +33,17 @@ export async function generateMetadata({
     };
   }
 
-  const { data: contest } = await getContest(contestId);
+  const { data: contestData } = await getContest(contestId);
 
-  if (!contest) {
+  if (!contestData) {
     return {
       title: "Contest not found",
       description: "The requested contest could not be found",
     };
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestData as any;
 
   return {
     title: `Teams - ${contest.name} | DIU ACM Admin`,
@@ -61,8 +64,10 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
     getTeams(contestId),
   ]);
 
-  const contest = contestResponse.data;
-  const teams = teamsResponse.data || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestResponse.data as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const teams = (teamsResponse.data as any) || [];
 
   if (!contest) {
     notFound();

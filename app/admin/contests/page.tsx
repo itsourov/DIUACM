@@ -7,6 +7,8 @@ import {
   Pencil,
   ExternalLink,
   Images,
+  Users,
+  Settings,
 } from "lucide-react";
 import { Metadata } from "next";
 import { format } from "date-fns";
@@ -38,6 +40,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const metadata: Metadata = {
   title: "Contests Management | DIU ACM Admin",
@@ -51,6 +60,28 @@ interface ContestsPageProps {
   }>;
 }
 
+interface Contest {
+  id: number;
+  name: string;
+  contestType: string;
+  location: string | null;
+  date: Date | null;
+  description: string | null;
+  standingsUrl: string | null;
+  galleryId: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  gallery: {
+    id: number;
+    title: string;
+    slug: string;
+    status: string;
+  } | null;
+  _count: {
+    teams: number;
+  };
+}
+
 export default async function ContestsPage({
   searchParams,
 }: ContestsPageProps) {
@@ -60,8 +91,9 @@ export default async function ContestsPage({
 
   const { data } = await getPaginatedContests(page, 10, search);
 
-  const contests = data?.contests ?? [];
-  const pagination = data?.pagination ?? {
+  const contestsData = data as { contests: Contest[]; pagination: { currentPage: number; totalPages: number; totalCount: number; pageSize: number } } | undefined;
+  const contests = contestsData?.contests ?? [];
+  const pagination = contestsData?.pagination ?? {
     currentPage: 1,
     totalPages: 1,
     totalCount: 0,
@@ -166,7 +198,7 @@ export default async function ContestsPage({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {contests.map((contest) => (
+                    {contests.map((contest: Contest) => (
                       <TableRow key={contest.id}>
                         <TableCell>
                           <div className="space-y-1.5">
@@ -229,25 +261,47 @@ export default async function ContestsPage({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              asChild
-                            >
-                              <Link
-                                href={`/admin/contests/${contest.id}/edit`}
-                                className="flex items-center justify-center"
-                              >
-                                <Pencil className="h-4 w-4" />
-                                <span className="sr-only">Edit</span>
-                              </Link>
-                            </Button>
-                            <DeleteContestButton
-                              id={contest.id}
-                              name={contest.name}
-                            />
+                          <div className="flex items-center space-x-1">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Settings className="h-4 w-4" />
+                                  <span className="sr-only">Contest actions</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/admin/contests/${contest.id}/edit`}>
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    Edit Contest
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/admin/contests/${contest.id}/teams`}>
+                                    <Users className="h-4 w-4 mr-2" />
+                                    Manage Teams
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  asChild
+                                >
+                                  <DeleteContestButton
+                                    id={contest.id}
+                                    name={contest.name}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-auto p-0 text-destructive hover:bg-transparent justify-start w-full"
+                                    showText={true}
+                                  />
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>

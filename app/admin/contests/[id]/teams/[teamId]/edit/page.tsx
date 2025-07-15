@@ -41,8 +41,10 @@ export async function generateMetadata({
     getTeam(teamId),
   ]);
 
-  const contest = contestResponse.data;
-  const team = teamResponse.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestResponse.data as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const team = teamResponse.data as any;
 
   if (!contest || !team) {
     return {
@@ -71,8 +73,10 @@ export default async function EditTeamPage({ params }: EditTeamPageProps) {
     getTeam(teamId),
   ]);
 
-  const contest = contestResponse.data;
-  const team = teamResponse.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestResponse.data as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const team = teamResponse.data as any;
 
   if (!contest || !team) {
     notFound();
@@ -137,7 +141,7 @@ export default async function EditTeamPage({ params }: EditTeamPageProps) {
           </div>
         </div>
       </div>
-      <TeamForm contestId={contestId} initialData={team} isEditing />
+      <TeamForm contestId={contestId} team={team} />
     </div>
   );
 }

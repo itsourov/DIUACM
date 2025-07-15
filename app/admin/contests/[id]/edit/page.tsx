@@ -34,11 +34,14 @@ export default async function EditContestPage({
     notFound();
   }
 
-  const { data: contest, error } = await getContest(contestId);
+  const { data: contestData, error } = await getContest(contestId);
 
-  if (error || !contest) {
+  if (error || !contestData) {
     notFound();
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const contest = contestData as any;
 
   return (
     <div className="space-y-6">
