@@ -169,8 +169,10 @@ export default async function GalleriesPage({
                             {gallery.slug}
                           </div>
                           {gallery.description && (
-                            <div className="text-sm text-muted-foreground line-clamp-1">
-                              {gallery.description}
+                            <div className="text-sm text-muted-foreground">
+                              {gallery.description.length > 100
+                                ? gallery.description.substring(0, 40) + "..."
+                                : gallery.description}
                             </div>
                           )}
                         </div>
