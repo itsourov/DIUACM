@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { rankLists, trackers, eventRankList, rankListUser, events, users } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, and, asc, sql } from "drizzle-orm";
+import { eq, or, like, count, desc, and, asc, sql, notInArray } from "drizzle-orm";
 import { ranklistFormSchema, type RanklistFormValues } from "./schemas/ranklist";
 import { hasPermission } from "@/lib/authorization";
 
@@ -522,11 +522,7 @@ export async function getAvailableEvents(ranklistId: number): Promise<ActionResu
         const attachedIds = attachedEventIds.map(item => item.eventId);
 
         // Get events not already attached
-        const whereCondition = attachedIds.length > 0
-            ? sql`${events.id} NOT IN (${attachedIds.join(',')})`
-            : undefined;
-
-        const availableEventsQuery = db
+        const availableEvents = await db
             .select({
                 id: events.id,
                 title: events.title,
@@ -534,12 +530,8 @@ export async function getAvailableEvents(ranklistId: number): Promise<ActionResu
                 startingAt: events.startingAt,
                 type: events.type,
             })
-            .from(events);
-
-        const availableEvents = await (whereCondition
-            ? availableEventsQuery.where(whereCondition)
-            : availableEventsQuery
-        )
+            .from(events)
+            .where(attachedIds.length > 0 ? notInArray(events.id, attachedIds) : undefined)
             .orderBy(desc(events.startingAt))
             .limit(50);
 
@@ -610,19 +602,14 @@ export async function getAvailableUsers(ranklistId: number, search?: string): Pr
             )
             : undefined;
 
-        // Build filters
-        const filters = [];
-        if (attachedIds.length > 0) {
-            filters.push(sql`${users.id} NOT IN (${attachedIds.map(id => `'${id}'`).join(',')})`);
-        }
-        if (searchCondition) {
-            filters.push(searchCondition);
-        }
-
-        const whereCondition = filters.length > 0 ? and(...filters) : undefined;
+        // Build where condition
+        const whereCondition = and(
+            attachedIds.length > 0 ? notInArray(users.id, attachedIds) : undefined,
+            searchCondition
+        );
 
         // Get users not already attached
-        const availableUsersQuery = db
+        const availableUsers = await db
             .select({
                 id: users.id,
                 name: users.name,
@@ -632,12 +619,8 @@ export async function getAvailableUsers(ranklistId: number, search?: string): Pr
                 studentId: users.studentId,
                 department: users.department,
             })
-            .from(users);
-
-        const availableUsers = await (whereCondition
-            ? availableUsersQuery.where(whereCondition)
-            : availableUsersQuery
-        )
+            .from(users)
+            .where(whereCondition)
             .orderBy(asc(users.name))
             .limit(50);
 
