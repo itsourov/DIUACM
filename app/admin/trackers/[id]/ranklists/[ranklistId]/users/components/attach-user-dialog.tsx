@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { UserPlus, Search, X, Loader2, Plus } from "lucide-react";
+import { UserPlus, Search, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -133,12 +133,6 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
             .slice(0, 2);
     };
 
-    const clearSearch = () => {
-        setSearchQuery("");
-        setSearchResults([]);
-        setUserScores({});
-    };
-
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && searchQuery.trim().length >= 2) {
             e.preventDefault();
@@ -163,20 +157,20 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
                     Attach User
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                     <DialogTitle>Attach User to Ranklist</DialogTitle>
                     <DialogDescription>
                         Search for users to attach to this ranklist. You can search by name, email, username, or student ID.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-2">
+                <div className="flex-1 space-y-4 overflow-hidden">
                     <div className="relative">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="search"
                             placeholder="Search users (min. 2 characters)..."
-                            className="pl-10 pr-10"
+                            className="pl-10"
                             value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value);
@@ -186,50 +180,39 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
                             }}
                             onKeyDown={handleKeyDown}
                         />
-                        {searchQuery && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-1 top-1 h-8 w-8 p-0"
-                                onClick={clearSearch}
-                            >
-                                <X className="h-4 w-4" />
-                                <span className="sr-only">Clear search</span>
-                            </Button>
-                        )}
                     </div>
 
-                    <div className="border rounded-lg bg-muted/30">
+                    <div className="border rounded-lg bg-muted/30 flex-1 overflow-hidden">
                         {isSearching ? (
                             <div className="divide-y">
                                 {[...Array(3)].map((_, i) => (
                                     <div
                                         key={i}
-                                        className="p-4 flex items-center justify-between"
+                                        className="p-3 space-y-3"
                                     >
-                                        <div className="flex items-center space-x-3 flex-1">
-                                            <Skeleton className="h-10 w-10 rounded-full" />
-                                            <div className="space-y-2 flex-1">
-                                                <Skeleton className="h-4 w-40" />
-                                                <Skeleton className="h-3 w-32" />
+                                        <div className="flex items-start space-x-3">
+                                            <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                                            <div className="flex-1 space-y-2">
+                                                <Skeleton className="h-4 w-3/4" />
+                                                <Skeleton className="h-3 w-1/2" />
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            <Skeleton className="h-8 w-20" />
+                                        <div className="flex items-center gap-2">
                                             <Skeleton className="h-8 w-16" />
+                                            <Skeleton className="h-8 w-20" />
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : searchResults.length > 0 ? (
-                            <div className="max-h-[400px] overflow-auto divide-y">
+                            <div className="max-h-[300px] overflow-y-auto">
                                 {searchResults.map((user) => (
                                     <div
                                         key={user.id}
-                                        className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                                        className="p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors space-y-3"
                                     >
-                                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                                            <Avatar className="h-10 w-10">
+                                        <div className="flex items-start space-x-3">
+                                            <Avatar className="h-10 w-10 flex-shrink-0">
                                                 <AvatarImage
                                                     src={user.image || undefined}
                                                     alt={user.name}
@@ -243,7 +226,7 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
                                                 <div className="text-sm text-muted-foreground truncate">
                                                     {user.email}
                                                 </div>
-                                                <div className="flex items-center gap-2 mt-1">
+                                                <div className="flex items-center gap-1 mt-1 flex-wrap">
                                                     {user.studentId && (
                                                         <Badge variant="outline" className="text-xs">
                                                             {user.studentId}
@@ -262,30 +245,33 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="ml-3 space-y-2">
-                                            <Input
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="0"
-                                                value={userScores[user.id] || "0"}
-                                                onChange={(e) => updateUserScore(user.id, e.target.value)}
-                                                className="w-20 h-8 text-xs"
-                                            />
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xs text-muted-foreground">Score:</span>
+                                                <Input
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    placeholder="0"
+                                                    value={userScores[user.id] || "0"}
+                                                    onChange={(e) => updateUserScore(user.id, e.target.value)}
+                                                    className="w-16 h-7 text-xs"
+                                                />
+                                            </div>
                                             <Button
                                                 size="sm"
                                                 onClick={() => handleAttachUser(user.id)}
                                                 disabled={isAttaching === user.id}
-                                                className="w-20"
+                                                className="h-7"
                                             >
                                                 {isAttaching === user.id ? (
                                                     <>
-                                                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                                                         Adding...
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Plus className="h-3.5 w-3.5 mr-1" />
+                                                        <Plus className="h-3 w-3 mr-1" />
                                                         Attach
                                                     </>
                                                 )}
@@ -321,7 +307,7 @@ export function AttachUserDialog({ ranklistId, onSuccess }: AttachUserDialogProp
                         )}
                     </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="flex-shrink-0">
                     <Button variant="outline" onClick={() => setIsOpen(false)}>
                         Close
                     </Button>

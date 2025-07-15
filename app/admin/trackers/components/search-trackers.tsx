@@ -6,7 +6,6 @@ import { useRouter } from 'nextjs-toploader/app';
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export function SearchTrackers() {
@@ -48,10 +47,6 @@ export function SearchTrackers() {
         updateSearchParams(debouncedSearch);
     }, [debouncedSearch, updateSearchParams]);
 
-    const handleClear = () => {
-        setSearchQuery("");
-    };
-
     return (
         <div className="relative w-full max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -62,17 +57,6 @@ export function SearchTrackers() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
-            {searchQuery && (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-1 top-1 h-7 w-7 p-0"
-                    onClick={handleClear}
-                >
-                    <span className="sr-only">Clear</span>
-                    <span aria-hidden="true">&times;</span>
-                </Button>
-            )}
         </div>
     );
 } 

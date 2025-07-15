@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Plus, Search, UserPlus, X, Loader2 } from "lucide-react";
+import { Plus, Search, UserPlus, Loader2 } from "lucide-react";
 import { searchUsersForTeam, addTeamMember } from "../actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -123,11 +123,6 @@ export function AddMemberDialog({
       .slice(0, 2);
   };
 
-  const clearSearch = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim().length >= 2) {
       e.preventDefault();
@@ -151,20 +146,20 @@ export function AddMemberDialog({
           Add Member
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Team Member</DialogTitle>
           <DialogDescription>
             Search for users to add to this team. You can search by name, email, username, or student ID.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
+        <div className="flex-1 space-y-4 overflow-hidden">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search users (min. 2 characters)..."
-              className="pl-10 pr-10"
+              className="pl-10"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -174,32 +169,21 @@ export function AddMemberDialog({
               }}
               onKeyDown={handleKeyDown}
             />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1 h-8 w-8 p-0"
-                onClick={clearSearch}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Clear search</span>
-              </Button>
-            )}
           </div>
 
-          <div className="border rounded-lg bg-muted/30">
+          <div className="border rounded-lg bg-muted/30 flex-1 overflow-hidden">
             {isSearching ? (
               <div className="divide-y">
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="p-4 flex items-center justify-between"
+                    className="p-3 flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-3">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-40" />
-                        <Skeleton className="h-3 w-32" />
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
                       </div>
                     </div>
                     <Skeleton className="h-8 w-16" />
@@ -207,14 +191,14 @@ export function AddMemberDialog({
                 ))}
               </div>
             ) : searchResults.length > 0 ? (
-              <div className="max-h-[320px] overflow-auto divide-y">
+              <div className="max-h-[300px] overflow-y-auto">
                 {searchResults.map((user) => (
                   <div
                     key={user.id}
-                    className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                    className="p-3 border-b last:border-b-0 flex items-center justify-between hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10 flex-shrink-0">
                         <AvatarImage
                           src={user.image || undefined}
                           alt={user.name}
@@ -228,7 +212,7 @@ export function AddMemberDialog({
                         <div className="text-sm text-muted-foreground truncate">
                           {user.email}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1 mt-1 flex-wrap">
                           {user.studentId && (
                             <Badge variant="outline" className="text-xs">
                               {user.studentId}
@@ -246,16 +230,16 @@ export function AddMemberDialog({
                       size="sm"
                       onClick={() => handleAddMember(user.id)}
                       disabled={isAdding === user.id}
-                      className="ml-3"
+                      className="ml-3 h-7"
                     >
                       {isAdding === user.id ? (
                         <>
-                          <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                           Adding...
                         </>
                       ) : (
                         <>
-                          <Plus className="h-3.5 w-3.5 mr-1" />
+                          <Plus className="h-3 w-3 mr-1" />
                           Add
                         </>
                       )}
@@ -290,7 +274,7 @@ export function AddMemberDialog({
             )}
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button variant="outline" onClick={() => setOpen(false)}>
             Close
           </Button>
