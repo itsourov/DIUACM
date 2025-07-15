@@ -1,6 +1,3 @@
-// Load environment variables
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';

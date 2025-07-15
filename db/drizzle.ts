@@ -1,6 +1,3 @@
-// Load environment variables first
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2";
