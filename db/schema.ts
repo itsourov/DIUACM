@@ -348,3 +348,45 @@ export const contactFormSubmissions = mysqlTable("contactFormSubmission", {
   message: varchar("message", { length: 2000 }).notNull(),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
+
+// Roles table
+export const roles = mysqlTable("roles", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).unique().notNull(),
+  description: text("description"),
+});
+
+// Permissions table
+export const permissions = mysqlTable("permissions", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).unique().notNull(),
+  description: text("description"),
+});
+
+// Junction table for user-role many-to-many relationship
+export const userRoles = mysqlTable(
+  "user_roles",
+  {
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    roleId: int("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.userId, table.roleId)]
+);
+
+// Junction table for role-permission many-to-many relationship
+export const rolePermissions = mysqlTable(
+  "role_permissions",
+  {
+    roleId: int("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    permissionId: int("permission_id")
+      .notNull()
+      .references(() => permissions.id, { onDelete: "cascade" }),
+  },
+  (table) => [unique().on(table.roleId, table.permissionId)]
+);
