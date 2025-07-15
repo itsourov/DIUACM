@@ -40,11 +40,12 @@ export function RoleForm({ initialData, isEditing = false }: RoleFormProps) {
     // Use the appropriate schema based on whether we're editing or creating
     const formSchema = isEditing ? roleUpdateFormSchema : roleFormSchema;
 
-    const form = useForm<RoleFormValues>({
+    const form = useForm<RoleFormValues | RoleUpdateFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: initialData?.name || "",
             description: initialData?.description || "",
+            ...(isEditing && initialData?.id ? { id: initialData.id } : {}),
         },
     });
 

@@ -40,11 +40,12 @@ export function PermissionForm({ initialData, isEditing = false }: PermissionFor
     // Use the appropriate schema based on whether we're editing or creating
     const formSchema = isEditing ? permissionUpdateFormSchema : permissionFormSchema;
 
-    const form = useForm<PermissionFormValues>({
+    const form = useForm<PermissionFormValues | PermissionUpdateFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: initialData?.name || "",
             description: initialData?.description || "",
+            ...(isEditing && initialData?.id ? { id: initialData.id } : {}),
         },
     });
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield, Plus, Pencil } from "lucide-react";
+import { Shield, Plus, Pencil, Users } from "lucide-react";
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
@@ -133,7 +133,7 @@ export default async function RolesPage({ searchParams }: RolesPageProps) {
                                         <TableRow>
                                             <TableHead>Name</TableHead>
                                             <TableHead>Description</TableHead>
-                                            <TableHead className="w-[100px]">Actions</TableHead>
+                                            <TableHead className="w-[140px]">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -175,6 +175,20 @@ export default async function RolesPage({ searchParams }: RolesPageProps) {
                                                             >
                                                                 <Shield className="h-4 w-4" />
                                                                 <span className="sr-only">Permissions</span>
+                                                            </Link>
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0"
+                                                            asChild
+                                                        >
+                                                            <Link
+                                                                href={`/admin/roles/${role.id}/users`}
+                                                                className="flex items-center justify-center"
+                                                            >
+                                                                <Users className="h-4 w-4" />
+                                                                <span className="sr-only">Users</span>
                                                             </Link>
                                                         </Button>
                                                         <DeleteRoleButton id={role.id} name={role.name} />
