@@ -144,6 +144,26 @@ export const galleries = mysqlTable("galleries", {
     .onUpdateNow(),
 });
 
+// Media table
+export const media = mysqlTable("media", {
+  id: int("id").primaryKey().autoincrement(),
+  galleryId: int("gallery_id")
+    .notNull()
+    .references(() => galleries.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }),
+  url: varchar("url", { length: 500 }).notNull(),
+  key: varchar("key", { length: 255 }).notNull(),
+  mimeType: varchar("mime_type", { length: 100 }).notNull(),
+  fileSize: int("file_size").notNull(),
+  width: int("width").notNull(),
+  height: int("height").notNull(),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
+});
+
 // Contests table
 export const contests = mysqlTable("contests", {
   id: int("id").primaryKey().autoincrement(),
