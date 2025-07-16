@@ -506,3 +506,18 @@ export type UserWithCounts = Omit<User, "password" | "emailVerified"> & {
     rankListUsers: number;
   };
 };
+
+// Event-related composite types
+export type AttendanceWithUser = EventUserAttendance & {
+  user: Pick<
+    User,
+    "id" | "name" | "email" | "username" | "image" | "studentId" | "department"
+  >;
+};
+
+export type EventRankListWithRankList = EventRankList & {
+  rankList: Pick<RankList, "id" | "keyword" | "description" | "trackerId">;
+  tracker: {
+    title: string;
+  } | null;
+};

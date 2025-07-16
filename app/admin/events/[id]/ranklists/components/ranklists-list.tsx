@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AddRanklistDialog } from "./add-ranklist-dialog";
 import { WeightEditModal } from "./weight-edit-modal";
-import { type EventRankListWithRankList } from "../../../types";
+import { type EventRankListWithRankList } from "@/db/schema";
 
 interface RanklistsListProps {
   eventId: number;

@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { AddAttendeeDialog } from "./add-attendee-dialog";
-import { type AttendanceWithUser } from "../../../types";
+import { type AttendanceWithUser } from "@/db/schema";
 
 interface AttendeesListProps {
   eventId: number;

@@ -6,7 +6,7 @@ import {
   AddUserResponse,
 } from "@/components/user-search-dialog";
 import { searchUsersForEvent, addEventAttendee } from "../actions";
-import { type AttendanceWithUser } from "../../../types";
+import { type AttendanceWithUser } from "@/db/schema";
 
 interface AddAttendeeDialogProps {
   eventId: number;

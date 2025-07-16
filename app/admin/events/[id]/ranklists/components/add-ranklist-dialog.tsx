@@ -6,7 +6,7 @@ import {
   AddRanklistResponse,
 } from "./ranklist-search-dialog";
 import { searchRanklistsForEvent, addEventRanklist } from "../actions";
-import { type EventRankListWithRankList } from "../../../types";
+import { type EventRankListWithRankList } from "@/db/schema";
 
 interface AddRanklistDialogProps {
   eventId: number;
