@@ -428,6 +428,8 @@ export const rolePermissions = mysqlTable(
 export type Event = InferSelectModel<typeof events>;
 export type NewEvent = InferInsertModel<typeof events>;
 export type User = InferSelectModel<typeof users>;
+export type RankList = InferSelectModel<typeof rankLists>;
+export type NewRankList = InferInsertModel<typeof rankLists>;
 export type EventUserAttendance = InferSelectModel<typeof eventUserAttendance>;
 export type NewEventUserAttendance = InferInsertModel<
   typeof eventUserAttendance
