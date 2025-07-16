@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Users } from "lucide-react";
+import { Trash2, Users, Mail, IdCard, GraduationCap } from "lucide-react";
 import { removeEventAttendee } from "../actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -106,8 +106,8 @@ export function AttendeesList({
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Department</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Academic Info</TableHead>
                   <TableHead>Added</TableHead>
                   <TableHead className="w-[80px]">Actions</TableHead>
                 </TableRow>
@@ -117,25 +117,56 @@ export function AttendeesList({
                   <TableRow key={`${item.eventId}-${item.userId}`}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
+                        <Avatar className="h-10 w-10">
                           <AvatarImage
                             src={item.user.image || undefined}
                             alt={item.user.name}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-primary/10">
                             {getInitials(item.user.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">{item.user.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {item.user.email}
-                          </div>
+                          {item.user.username && (
+                            <div className="text-sm text-muted-foreground">
+                              @{item.user.username}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{item.user.studentId || "—"}</TableCell>
-                    <TableCell>{item.user.department || "—"}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1 text-sm">
+                        <Mail className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-muted-foreground">
+                          {item.user.email}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {item.user.studentId && (
+                          <div className="flex items-center space-x-1 text-sm">
+                            <IdCard className="h-3 w-3 text-muted-foreground" />
+                            <span>{item.user.studentId}</span>
+                          </div>
+                        )}
+                        {item.user.department && (
+                          <div className="flex items-center space-x-1 text-sm">
+                            <GraduationCap className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {item.user.department}
+                            </span>
+                          </div>
+                        )}
+                        {!item.user.studentId && !item.user.department && (
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {item.createdAt
                         ? formatDistanceToNow(new Date(item.createdAt), {
@@ -147,7 +178,7 @@ export function AttendeesList({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-destructive"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         disabled={isDeleting === item.userId}
                         onClick={() => handleRemoveAttendee(item.userId)}
                       >
