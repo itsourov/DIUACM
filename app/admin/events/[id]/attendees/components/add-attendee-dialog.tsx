@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Plus, Search, UserPlus, X } from "lucide-react";
+import { Plus, Search, UserPlus } from "lucide-react";
 import { searchUsersForEvent, addEventAttendee } from "../actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,11 +120,6 @@ export function AddAttendeeDialog({
       .slice(0, 2);
   };
 
-  const clearSearch = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-  };
-
   // Reset search when dialog is opened
   useEffect(() => {
     if (open) {
@@ -154,7 +149,7 @@ export function AddAttendeeDialog({
             <Input
               type="search"
               placeholder="Search users by name, email, or ID (min. 2 characters)"
-              className="pl-8 pr-10"
+              className="pl-8"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -168,17 +163,6 @@ export function AddAttendeeDialog({
                 }
               }}
             />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1 h-7 w-7 p-0"
-                onClick={clearSearch}
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Clear</span>
-              </Button>
-            )}
           </div>
           <div className="border rounded-md">
             {isSearching ? (
