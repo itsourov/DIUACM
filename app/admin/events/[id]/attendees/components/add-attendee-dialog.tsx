@@ -1,24 +1,12 @@
 "use client";
 
 import { useCallback } from "react";
-import { UserSearchDialog, AddUserResponse } from "@/components/user-search-dialog";
+import {
+  UserSearchDialog,
+  AddUserResponse,
+} from "@/components/user-search-dialog";
 import { searchUsersForEvent, addEventAttendee } from "../actions";
-
-type AttendanceWithUser = {
-  eventId: number;
-  userId: string;
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    username?: string | null;
-    image?: string | null;
-    studentId?: string | null;
-    department?: string | null;
-  };
-};
+import { type AttendanceWithUser } from "../../../types";
 
 interface AddAttendeeDialogProps {
   eventId: number;

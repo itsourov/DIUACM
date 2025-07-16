@@ -12,6 +12,7 @@ import {
   mysqlEnum,
   unique,
 } from "drizzle-orm/mysql-core";
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 export const VisibilityStatus = {
@@ -422,3 +423,20 @@ export const rolePermissions = mysqlTable(
   },
   (table) => [unique().on(table.roleId, table.permissionId)]
 );
+
+// Type exports for better type safety
+export type Event = InferSelectModel<typeof events>;
+export type NewEvent = InferInsertModel<typeof events>;
+export type User = InferSelectModel<typeof users>;
+export type EventUserAttendance = InferSelectModel<typeof eventUserAttendance>;
+export type NewEventUserAttendance = InferInsertModel<
+  typeof eventUserAttendance
+>;
+export type EventRankList = InferSelectModel<typeof eventRankList>;
+export type NewEventRankList = InferInsertModel<typeof eventRankList>;
+export type UserSolveStatOnEvents = InferSelectModel<
+  typeof userSolveStatOnEvents
+>;
+export type NewUserSolveStatOnEvents = InferInsertModel<
+  typeof userSolveStatOnEvents
+>;
