@@ -185,7 +185,9 @@ export default async function GalleriesPage({
                               : "secondary"
                           }
                         >
-                          {gallery.status === "published" ? "Published" : "Draft"}
+                          {gallery.status === "published"
+                            ? "Published"
+                            : "Draft"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -207,7 +209,9 @@ export default async function GalleriesPage({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button variant="ghost" size="sm" asChild>
-                                <Link href={`/admin/galleries/${gallery.id}/media`}>
+                                <Link
+                                  href={`/admin/galleries/${gallery.id}/media`}
+                                >
                                   <ImageIcon className="h-4 w-4" />
                                 </Link>
                               </Button>
@@ -220,7 +224,9 @@ export default async function GalleriesPage({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button variant="ghost" size="sm" asChild>
-                                <Link href={`/admin/galleries/${gallery.id}/edit`}>
+                                <Link
+                                  href={`/admin/galleries/${gallery.id}/edit`}
+                                >
                                   <Pencil className="h-4 w-4" />
                                 </Link>
                               </Button>
@@ -231,7 +237,7 @@ export default async function GalleriesPage({
                           </Tooltip>
 
                           <DeleteGalleryButton
-                            id={gallery.id.toString()}
+                            id={gallery.id}
                             title={gallery.title}
                           />
                         </div>

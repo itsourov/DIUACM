@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { galleries, media } from "@/db/schema";
+import { galleries, media, type Gallery, type Media } from "@/db/schema";
 // z import removed - validation handled by galleryFormSchema
 import { revalidatePath } from "next/cache";
 import { eq, or, like, count, desc, asc, sql } from "drizzle-orm";
@@ -23,35 +23,11 @@ type ActionResult<T = unknown> = {
   message?: string;
 };
 
-// Gallery data interface for type safety
-interface GalleryData {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string | null;
-  status: string;
-  order: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+// Gallery data interface for type safety - extends Gallery with count
+interface GalleryData extends Gallery {
   _count?: {
     media: number;
   };
-}
-
-// Media item interface for type safety
-interface MediaItem {
-  id: number;
-  galleryId: number;
-  title?: string | null;
-  url: string;
-  key: string;
-  mimeType: string;
-  fileSize: number;
-  width: number;
-  height: number;
-  order: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
 }
 
 // Utility function to handle database errors
@@ -61,7 +37,10 @@ function handleDbError(error: unknown): ActionResult {
   if (error instanceof Error) {
     // Handle specific database constraint errors
     if (error.message.includes("Duplicate entry")) {
-      return { success: false, error: "A gallery with this slug already exists" };
+      return {
+        success: false,
+        error: "A gallery with this slug already exists",
+      };
     }
     if (error.message.includes("foreign key constraint")) {
       return { success: false, error: "Invalid reference" };
@@ -114,20 +93,26 @@ export async function generatePresignedUrl(
       data: { presignedUrl, key },
     };
   } catch (error) {
-    return handleDbError(error) as ActionResult<{ presignedUrl: string; key: string }>;
+    return handleDbError(error) as ActionResult<{
+      presignedUrl: string;
+      key: string;
+    }>;
   }
 }
 
 // Save media data after successful upload
-export async function saveMediaData(galleryId: string, mediaData: {
-  title?: string;
-  key: string;
-  url: string;
-  mimeType: string;
-  fileSize: number;
-  width: number;
-  height: number;
-}): Promise<ActionResult> {
+export async function saveMediaData(
+  galleryId: string,
+  mediaData: {
+    title?: string;
+    key: string;
+    url: string;
+    mimeType: string;
+    fileSize: number;
+    width: number;
+    height: number;
+  }
+): Promise<ActionResult> {
   try {
     // Check if the user has permission to manage galleries
     if (!(await hasPermission("GALLERIES:MANAGE"))) {
@@ -205,15 +190,17 @@ export async function deleteMedia(mediaId: string): Promise<ActionResult> {
 export async function getPaginatedGalleries(
   page = 1,
   search?: string
-): Promise<ActionResult<{
-  galleries: GalleryData[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    totalCount: number;
-    totalPages: number;
-  };
-}>> {
+): Promise<
+  ActionResult<{
+    galleries: GalleryData[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      totalCount: number;
+      totalPages: number;
+    };
+  }>
+> {
   try {
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
@@ -221,10 +208,10 @@ export async function getPaginatedGalleries(
     // Build where conditions
     const whereConditions = search
       ? or(
-        like(galleries.title, `%${search}%`),
-        like(galleries.slug, `%${search}%`),
-        like(galleries.description, `%${search}%`)
-      )
+          like(galleries.title, `%${search}%`),
+          like(galleries.slug, `%${search}%`),
+          like(galleries.description, `%${search}%`)
+        )
       : undefined;
 
     // Get total count
@@ -257,7 +244,7 @@ export async function getPaginatedGalleries(
       .limit(pageSize)
       .offset(offset);
 
-    const galleriesData: GalleryData[] = galleriesResult.map(gallery => ({
+    const galleriesData: GalleryData[] = galleriesResult.map((gallery) => ({
       id: gallery.id,
       title: gallery.title,
       slug: gallery.slug,
@@ -297,7 +284,9 @@ export async function getPaginatedGalleries(
 }
 
 // Get gallery by ID
-export async function getGalleryById(id: string): Promise<ActionResult<GalleryData>> {
+export async function getGalleryById(
+  id: string
+): Promise<ActionResult<GalleryData>> {
   try {
     const gallery = await db
       .select()
@@ -319,7 +308,9 @@ export async function getGalleryById(id: string): Promise<ActionResult<GalleryDa
 }
 
 // Create gallery
-export async function createGallery(values: GalleryFormValues): Promise<ActionResult<{ id: number }>> {
+export async function createGallery(
+  values: GalleryFormValues
+): Promise<ActionResult<{ id: number }>> {
   try {
     // Check if the user has permission to manage galleries
     if (!(await hasPermission("GALLERIES:MANAGE"))) {
@@ -364,7 +355,10 @@ export async function createGallery(values: GalleryFormValues): Promise<ActionRe
 }
 
 // Update gallery
-export async function updateGallery(id: string, values: GalleryFormValues): Promise<ActionResult> {
+export async function updateGallery(
+  id: string,
+  values: GalleryFormValues
+): Promise<ActionResult> {
   try {
     // Check if the user has permission to manage galleries
     if (!(await hasPermission("GALLERIES:MANAGE"))) {
@@ -478,7 +472,9 @@ export async function deleteGallery(id: string): Promise<ActionResult> {
 }
 
 // Get gallery media
-export async function getGalleryMedia(galleryId: string): Promise<ActionResult<MediaItem[]>> {
+export async function getGalleryMedia(
+  galleryId: string
+): Promise<ActionResult<Media[]>> {
   try {
     const galleryMedia = await db
       .select()
@@ -491,7 +487,7 @@ export async function getGalleryMedia(galleryId: string): Promise<ActionResult<M
       data: galleryMedia,
     };
   } catch (error) {
-    return handleDbError(error) as ActionResult<MediaItem[]>;
+    return handleDbError(error) as ActionResult<Media[]>;
   }
 }
 

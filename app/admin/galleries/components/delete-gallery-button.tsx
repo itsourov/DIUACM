@@ -25,7 +25,7 @@ import {
 import { deleteGallery } from "../actions";
 
 interface DeleteGalleryButtonProps {
-  id: string;
+  id: number;
   title: string;
 }
 
@@ -37,7 +37,7 @@ export function DeleteGalleryButton({ id, title }: DeleteGalleryButtonProps) {
     setIsLoading(true);
 
     try {
-      const response = await deleteGallery(id);
+      const response = await deleteGallery(id.toString());
 
       if (response.success) {
         toast.success("Gallery deleted successfully");
@@ -73,7 +73,8 @@ export function DeleteGalleryButton({ id, title }: DeleteGalleryButtonProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            gallery <strong>&quot;{title}&quot;</strong> and all of its media files.
+            gallery <strong>&quot;{title}&quot;</strong> and all of its media
+            files.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

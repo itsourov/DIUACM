@@ -5,7 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { VisibilityStatus } from "@/db/schema";
+import { type Gallery, VisibilityStatus } from "@/db/schema";
 
 import { galleryFormSchema, type GalleryFormValues } from "../schemas/gallery";
 import { createGallery, updateGallery } from "../actions";
@@ -31,17 +31,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface Gallery {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string | null;
-  status: (typeof VisibilityStatus)[keyof typeof VisibilityStatus];
-  order: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-}
-
 interface GalleryFormProps {
   initialData?: Gallery | null;
   isEditing?: boolean;
@@ -58,16 +47,16 @@ export function GalleryForm({
     resolver: zodResolver(galleryFormSchema),
     defaultValues: initialData
       ? {
-        ...initialData,
-        description: initialData.description || "",
-      }
+          ...initialData,
+          description: initialData.description || "",
+        }
       : {
-        title: "",
-        slug: "",
-        description: "",
-        status: VisibilityStatus.DRAFT,
-        order: 0,
-      },
+          title: "",
+          slug: "",
+          description: "",
+          status: VisibilityStatus.DRAFT,
+          order: 0,
+        },
   });
 
   const onSubmit = async (values: GalleryFormValues) => {
@@ -80,7 +69,9 @@ export function GalleryForm({
 
       if (result.success) {
         toast.success(
-          isEditing ? "Gallery updated successfully!" : "Gallery created successfully!"
+          isEditing
+            ? "Gallery updated successfully!"
+            : "Gallery created successfully!"
         );
         router.push("/admin/galleries");
       } else {
@@ -128,7 +119,10 @@ export function GalleryForm({
                             field.onChange(e);
                             if (!isEditing) {
                               // Auto-generate slug only when creating new gallery
-                              form.setValue("slug", generateSlug(e.target.value));
+                              form.setValue(
+                                "slug",
+                                generateSlug(e.target.value)
+                              );
                             }
                           }}
                           disabled={isLoading}
@@ -153,7 +147,8 @@ export function GalleryForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        URL-friendly version of the title. Used in the gallery URL.
+                        URL-friendly version of the title. Used in the gallery
+                        URL.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -198,8 +193,12 @@ export function GalleryForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value={VisibilityStatus.DRAFT}>Draft</SelectItem>
-                          <SelectItem value={VisibilityStatus.PUBLISHED}>Published</SelectItem>
+                          <SelectItem value={VisibilityStatus.DRAFT}>
+                            Draft
+                          </SelectItem>
+                          <SelectItem value={VisibilityStatus.PUBLISHED}>
+                            Published
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
@@ -223,11 +222,14 @@ export function GalleryForm({
                           placeholder="0"
                           min="0"
                           disabled={isLoading}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value) || 0)
+                          }
                         />
                       </FormControl>
                       <FormDescription>
-                        Display order on the galleries page. Lower numbers appear first.
+                        Display order on the galleries page. Lower numbers
+                        appear first.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -250,8 +252,8 @@ export function GalleryForm({
                       ? "Updating..."
                       : "Creating..."
                     : isEditing
-                      ? "Update Gallery"
-                      : "Create Gallery"}
+                    ? "Update Gallery"
+                    : "Create Gallery"}
                 </Button>
               </div>
             </form>

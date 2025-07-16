@@ -81,13 +81,7 @@ export default async function EditGalleryPage({
         </div>
       </div>
 
-      <GalleryForm
-        initialData={{
-          ...gallery,
-          status: gallery.status as "published" | "draft",
-        }}
-        isEditing={true}
-      />
+      <GalleryForm initialData={gallery} isEditing={true} />
     </div>
   );
 }

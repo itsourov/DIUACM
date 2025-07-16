@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { MediaUploader } from "./components/media-uploader";
 import { MediaGrid } from "./components/media-grid";
+import { VisibilityStatus } from "@/db/schema";
 
 interface MediaPageProps {
   params: Promise<{
@@ -143,7 +144,7 @@ export default async function MediaPage({ params }: MediaPageProps) {
                 : "No images yet"}
             </CardDescription>
           </div>
-          {gallery.status === "PUBLISHED" && (
+          {gallery.status === VisibilityStatus.PUBLISHED && (
             <div className="flex items-center text-sm text-muted-foreground">
               <Check className="h-4 w-4 mr-1.5 text-green-600" />
               <span>Published gallery</span>

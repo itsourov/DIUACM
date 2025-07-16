@@ -3,13 +3,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-// Types are now defined locally
-import {
-  Pencil,
-  Trash2,
-  MoreVertical,
-  Maximize,
-} from "lucide-react";
+import { type Media, type Gallery } from "@/db/schema";
+import { Pencil, Trash2, MoreVertical, Maximize } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,34 +35,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deleteMedia, updateMediaTitle } from "../../../actions";
 
-interface MediaItem {
-  id: number;
-  title?: string | null;
-  url: string;
-  key: string;
-  mimeType: string;
-  fileSize: number;
-  width: number;
-  height: number;
-  order: number;
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
-}
-
 interface MediaGridProps {
-  gallery: {
-    id: number;
-    title: string;
-    slug: string;
-    media: MediaItem[];
+  gallery: Gallery & {
+    media: Media[];
   };
 }
 
 interface MediaCardProps {
-  media: MediaItem;
-  onEdit: (media: MediaItem) => void;
-  onDelete: (media: MediaItem) => void;
-  onPreview: (media: MediaItem) => void;
+  media: Media;
+  onEdit: (media: Media) => void;
+  onDelete: (media: Media) => void;
+  onPreview: (media: Media) => void;
 }
 
 function MediaCard({ media, onEdit, onDelete, onPreview }: MediaCardProps) {
@@ -140,12 +118,12 @@ function MediaCard({ media, onEdit, onDelete, onPreview }: MediaCardProps) {
 }
 
 export function MediaGrid({ gallery }: MediaGridProps) {
-  const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
+  const [editingMedia, setEditingMedia] = useState<Media | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<MediaItem | null>(null);
-  const [selectedImage, setSelectedImage] = useState<MediaItem | null>(null);
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>(
+  const [deleteTarget, setDeleteTarget] = useState<Media | null>(null);
+  const [selectedImage, setSelectedImage] = useState<Media | null>(null);
+  const [mediaItems, setMediaItems] = useState<Media[]>(
     gallery.media.sort((a, b) => a.order - b.order)
   );
 
@@ -163,11 +141,9 @@ export function MediaGrid({ gallery }: MediaGridProps) {
         toast.success("Media title updated successfully");
         setEditingMedia(null);
         // Update local state
-        setMediaItems(prev =>
-          prev.map(item =>
-            item.id === editingMedia.id
-              ? { ...item, title: newTitle }
-              : item
+        setMediaItems((prev) =>
+          prev.map((item) =>
+            item.id === editingMedia.id ? { ...item, title: newTitle } : item
           )
         );
       } else {
@@ -181,7 +157,7 @@ export function MediaGrid({ gallery }: MediaGridProps) {
     }
   };
 
-  const handleDelete = async (mediaItem: MediaItem) => {
+  const handleDelete = async (mediaItem: Media) => {
     setIsLoading(true);
     try {
       const response = await deleteMedia(mediaItem.id.toString());
@@ -190,7 +166,9 @@ export function MediaGrid({ gallery }: MediaGridProps) {
         toast.success("Image deleted successfully");
         setDeleteTarget(null);
         // Remove from local state
-        setMediaItems(prev => prev.filter(item => item.id !== mediaItem.id));
+        setMediaItems((prev) =>
+          prev.filter((item) => item.id !== mediaItem.id)
+        );
       } else {
         toast.error(response.error || "Failed to delete image");
       }
@@ -202,12 +180,12 @@ export function MediaGrid({ gallery }: MediaGridProps) {
     }
   };
 
-  const handleEdit = (media: MediaItem) => {
+  const handleEdit = (media: Media) => {
     setEditingMedia(media);
     setNewTitle(media.title || "");
   };
 
-  const handlePreview = (media: MediaItem) => {
+  const handlePreview = (media: Media) => {
     setSelectedImage(media);
   };
 
@@ -295,9 +273,7 @@ export function MediaGrid({ gallery }: MediaGridProps) {
       >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>
-              {selectedImage?.title || "Image Preview"}
-            </DialogTitle>
+            <DialogTitle>{selectedImage?.title || "Image Preview"}</DialogTitle>
           </DialogHeader>
           {selectedImage && (
             <div className="relative">
