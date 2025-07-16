@@ -37,12 +37,12 @@ export function AttachUserDialog({ ranklistId, onUserAdded }: AttachUserDialogPr
 
     return (
         <UserSearchDialog
-            triggerLabel="Attach User"
-            dialogTitle="Attach User to Ranklist"
-            dialogDescription="Search for users to attach to this ranklist"
+            triggerLabel="Add User"
+            dialogTitle="Add User to Ranklist"
+            dialogDescription="Search for users to add to this ranklist"
             buttonLabel="Attach"
             loadingLabel="Adding..."
-            successMessage="User attached successfully"
+            successMessage="User added successfully"
             searchUsers={handleSearchUsers}
             addUser={handleAddUser}
             onUserAdded={handleUserAdded}

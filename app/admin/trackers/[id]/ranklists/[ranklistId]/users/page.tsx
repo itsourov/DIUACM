@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getTracker } from "../../../../actions";
 import { getRanklist, getAttachedUsers, detachUserFromRanklist, updateUserScore } from "../../actions";
-import { AttachUserDialog } from "./components/attach-user-dialog";
+import { AttachUserDialog } from "./components/add-user-dialog";
 import {
     Breadcrumb,
     BreadcrumbItem,
