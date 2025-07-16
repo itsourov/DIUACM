@@ -17,6 +17,8 @@ export async function getRoleUsers(roleId: number) {
             .select({
                 roleId: userRoles.roleId,
                 userId: userRoles.userId,
+                createdAt: userRoles.createdAt,
+                updatedAt: userRoles.updatedAt,
                 user: {
                     id: users.id,
                     name: users.name,
@@ -148,6 +150,8 @@ export async function assignUserToRole(roleId: number, userId: string) {
             .select({
                 roleId: userRoles.roleId,
                 userId: userRoles.userId,
+                createdAt: userRoles.createdAt,
+                updatedAt: userRoles.updatedAt,
                 user: {
                     id: users.id,
                     name: users.name,

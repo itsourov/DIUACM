@@ -305,6 +305,10 @@ export const teamUser = mysqlTable(
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
   },
   (table) => [unique().on(table.teamId, table.userId)]
 );
@@ -319,6 +323,10 @@ export const rankListUser = mysqlTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     score: float("score").default(0).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
   },
   (table) => [unique().on(table.rankListId, table.userId)]
 );
@@ -393,6 +401,10 @@ export const userRoles = mysqlTable(
     roleId: int("role_id")
       .notNull()
       .references(() => roles.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
   },
   (table) => [unique().on(table.userId, table.roleId)]
 );

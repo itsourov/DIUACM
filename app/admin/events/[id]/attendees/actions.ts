@@ -17,6 +17,7 @@ export async function getEventAttendees(eventId: number) {
         eventId: eventUserAttendance.eventId,
         userId: eventUserAttendance.userId,
         createdAt: eventUserAttendance.createdAt,
+        updatedAt: eventUserAttendance.updatedAt,
         user: {
           id: users.id,
           name: users.name,
@@ -149,6 +150,7 @@ export async function addEventAttendee(eventId: number, userId: string) {
         eventId: eventUserAttendance.eventId,
         userId: eventUserAttendance.userId,
         createdAt: eventUserAttendance.createdAt,
+        updatedAt: eventUserAttendance.updatedAt,
         user: {
           id: users.id,
           name: users.name,

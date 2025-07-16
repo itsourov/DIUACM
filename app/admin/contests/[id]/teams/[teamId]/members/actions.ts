@@ -16,6 +16,8 @@ export async function getTeamMembers(teamId: number) {
       .select({
         teamId: teamUser.teamId,
         userId: teamUser.userId,
+        createdAt: teamUser.createdAt,
+        updatedAt: teamUser.updatedAt,
         user: {
           id: users.id,
           name: users.name,
@@ -147,6 +149,8 @@ export async function addTeamMember(teamId: number, userId: string) {
       .select({
         teamId: teamUser.teamId,
         userId: teamUser.userId,
+        createdAt: teamUser.createdAt,
+        updatedAt: teamUser.updatedAt,
         user: {
           id: users.id,
           name: users.name,

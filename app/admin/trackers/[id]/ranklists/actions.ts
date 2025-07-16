@@ -554,6 +554,8 @@ export async function getAttachedUsers(ranklistId: number): Promise<ActionResult
             .select({
                 userId: rankListUser.userId,
                 score: rankListUser.score,
+                createdAt: rankListUser.createdAt,
+                updatedAt: rankListUser.updatedAt,
                 user: {
                     id: users.id,
                     name: users.name,
