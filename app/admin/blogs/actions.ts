@@ -1,16 +1,11 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { blogPosts } from "@/db/schema";
+import { blogPosts, type BlogPost, type NewBlogPost } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, like, count, desc, and, sql } from "drizzle-orm";
-import {
-  blogFormSchema,
-  type BlogFormValues,
-  type BlogPost,
-  type BlogPostInsert,
-} from "./schemas/blog";
+import { blogFormSchema, type BlogFormValues } from "./schemas/blog";
 import { hasPermission } from "@/lib/authorization";
 
 // Enhanced error handling type
@@ -23,7 +18,7 @@ type ActionResult<T = unknown> = {
 
 // Type for blog data
 type BlogData = BlogPost;
-type BlogInsertData = BlogPostInsert;
+type BlogInsertData = NewBlogPost;
 
 // Utility function to handle database errors
 function handleDbError<T = unknown>(error: unknown): ActionResult<T> {

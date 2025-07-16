@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { BlogForm } from "../../components/blog-form";
 import { getBlog } from "../../actions";
 import { Metadata } from "next";
-import { type BlogPost } from "../../schemas/blog";
+import { type BlogPost } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,

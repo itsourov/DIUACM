@@ -1,9 +1,5 @@
-import { VisibilityStatus, blogPosts } from "@/db/schema";
+import { VisibilityStatus } from "@/db/schema";
 import { z } from "zod";
-
-// Export the inferred types from schema
-export type BlogPost = typeof blogPosts.$inferSelect;
-export type BlogPostInsert = typeof blogPosts.$inferInsert;
 
 // Zod schema for blog validation
 export const blogFormSchema = z.object({

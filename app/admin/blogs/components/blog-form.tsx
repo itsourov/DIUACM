@@ -5,12 +5,8 @@ import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { VisibilityStatus } from "@/db/schema";
-import {
-  blogFormSchema,
-  type BlogFormValues,
-  type BlogPost,
-} from "../schemas/blog";
+import { VisibilityStatus, type BlogPost } from "@/db/schema";
+import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
 import { createBlog, updateBlog } from "../actions";
 
 import { Button } from "@/components/ui/button";

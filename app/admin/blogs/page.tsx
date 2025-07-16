@@ -32,7 +32,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { getPaginatedBlogs } from "./actions";
 import { DeleteBlogButton } from "./components/delete-blog-button";
 import { SearchBlogs } from "./components/search-blogs";
-import { type BlogPost } from "./schemas/blog";
+import { type BlogPost } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,
