@@ -24,22 +24,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AddMemberDialog } from "./add-member-dialog";
+import { UserSearchResult } from "@/components/user-search-dialog";
 
 type TeamMemberWithUser = {
   teamId: number;
   userId: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    username?: string | null;
-    image?: string | null;
-    studentId?: string | null;
-    department?: string | null;
-  };
+  user: UserSearchResult;
 };
 
 interface MembersListProps {
@@ -102,7 +95,8 @@ export function MembersList({ teamId, initialMembers }: MembersListProps) {
             </div>
             <h3 className="mt-4 text-lg font-semibold">No team members yet</h3>
             <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-xs">
-              Start building your team by adding members using the &quot;Add Member&quot; button above.
+              Start building your team by adding members using the &quot;Add
+              Member&quot; button above.
             </p>
           </div>
         ) : (
@@ -143,7 +137,9 @@ export function MembersList({ teamId, initialMembers }: MembersListProps) {
                     <TableCell>
                       <div className="flex items-center space-x-1 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-muted-foreground">{item.user.email}</span>
+                        <span className="text-muted-foreground">
+                          {item.user.email}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -157,11 +153,15 @@ export function MembersList({ teamId, initialMembers }: MembersListProps) {
                         {item.user.department && (
                           <div className="flex items-center space-x-1 text-sm">
                             <GraduationCap className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-muted-foreground">{item.user.department}</span>
+                            <span className="text-muted-foreground">
+                              {item.user.department}
+                            </span>
                           </div>
                         )}
                         {!item.user.studentId && !item.user.department && (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
                         )}
                       </div>
                     </TableCell>
@@ -180,9 +180,12 @@ export function MembersList({ teamId, initialMembers }: MembersListProps) {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              Remove Team Member
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to remove <strong>{item.user.name}</strong> from this team?
+                              Are you sure you want to remove{" "}
+                              <strong>{item.user.name}</strong> from this team?
                               This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>

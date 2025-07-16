@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback } from "react";
-import { UserSearchDialog, AddUserResponse } from "@/components/user-search-dialog";
+import {
+  UserSearchDialog,
+  AddUserResponse,
+  UserSearchResult,
+} from "@/components/user-search-dialog";
 import { searchUsersForTeam, addTeamMember } from "../actions";
 
 type TeamMemberWithUser = {
@@ -9,15 +13,7 @@ type TeamMemberWithUser = {
   userId: string;
   createdAt?: Date | null;
   updatedAt?: Date | null;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    username?: string | null;
-    image?: string | null;
-    studentId?: string | null;
-    department?: string | null;
-  };
+  user: UserSearchResult;
 };
 
 interface AddMemberDialogProps {

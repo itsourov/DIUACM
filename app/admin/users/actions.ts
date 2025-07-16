@@ -1,7 +1,14 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { users, eventUserAttendance, rankListUser } from "@/db/schema";
+import {
+  users,
+  eventUserAttendance,
+  rankListUser,
+  type User,
+  type NewUser,
+  type UserWithCounts,
+} from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, like, count, desc } from "drizzle-orm";
@@ -53,7 +60,7 @@ export async function createUser(values: UserFormValues) {
     }
 
     // Hash password if provided
-    const userData = { ...validatedFields };
+    const userData: NewUser = { ...validatedFields };
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 12);
     }
@@ -111,7 +118,10 @@ export async function updateUser(id: string, values: UserUpdateFormValues) {
         .where(eq(users.username, validatedFields.username))
         .limit(1);
 
-      if (existingUserByUsername.length > 0 && existingUserByUsername[0].id !== id) {
+      if (
+        existingUserByUsername.length > 0 &&
+        existingUserByUsername[0].id !== id
+      ) {
         return {
           success: false,
           error: { username: ["This username is already in use."] },
@@ -120,20 +130,20 @@ export async function updateUser(id: string, values: UserUpdateFormValues) {
     }
 
     // Prepare update data
-    const updateData: Partial<typeof users.$inferInsert> = { ...validatedFields };
+    const updateData: Partial<User> = { ...validatedFields };
 
     // If password is empty string or null, remove it from update
     if (!updateData.password) {
       delete updateData.password;
     } else {
       // Hash password if it was provided
-      updateData.password = await bcrypt.hash(updateData.password as string, 12);
+      updateData.password = await bcrypt.hash(
+        updateData.password as string,
+        12
+      );
     }
 
-    await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id));
+    await db.update(users).set(updateData).where(eq(users.id, id));
 
     // Get the updated user
     const [user] = await db
@@ -224,11 +234,11 @@ export async function getPaginatedUsers(
     // Build search condition
     const searchCondition = search
       ? or(
-        like(users.name, `%${search}%`),
-        like(users.email, `%${search}%`),
-        like(users.username, `%${search}%`),
-        like(users.studentId, `%${search}%`)
-      )
+          like(users.name, `%${search}%`),
+          like(users.email, `%${search}%`),
+          like(users.username, `%${search}%`),
+          like(users.studentId, `%${search}%`)
+        )
       : undefined;
 
     // Get users with counts
@@ -249,6 +259,7 @@ export async function getPaginatedUsers(
         maxCfRating: users.maxCfRating,
         startingSemester: users.startingSemester,
         createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
       })
       .from(users);
 
@@ -262,9 +273,7 @@ export async function getPaginatedUsers(
       .offset(offset);
 
     // Get total count
-    const totalCountQuery = db
-      .select({ count: count() })
-      .from(users);
+    const totalCountQuery = db.select({ count: count() }).from(users);
 
     if (searchCondition) {
       totalCountQuery.where(searchCondition);
@@ -273,7 +282,7 @@ export async function getPaginatedUsers(
     const [{ count: totalCount }] = await totalCountQuery;
 
     // Get counts for each user
-    const usersWithCounts = await Promise.all(
+    const usersWithCounts: UserWithCounts[] = await Promise.all(
       usersList.map(async (user) => {
         const [eventAttendancesCount] = await db
           .select({ count: count() })

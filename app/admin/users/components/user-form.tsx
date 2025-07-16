@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'nextjs-toploader/app';
+import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { GenderType, type users } from "@/db/schema";
+import { GenderType, type User } from "@/db/schema";
 
 import {
   userFormSchema,
@@ -36,7 +36,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface UserFormProps {
-  initialData?: Partial<typeof users.$inferSelect> | null;
+  initialData?: Partial<User> | null;
   isEditing?: boolean;
 }
 
@@ -92,13 +92,21 @@ export function UserForm({ initialData, isEditing = false }: UserFormProps) {
           toast.error(response.error);
         } else {
           // Show specific field errors in form
-          if (response.error && typeof response.error === "object" && "email" in response.error) {
+          if (
+            response.error &&
+            typeof response.error === "object" &&
+            "email" in response.error
+          ) {
             form.setError("email", {
               type: "manual",
               message: (response.error as Record<string, string[]>).email[0],
             });
           }
-          if (response.error && typeof response.error === "object" && "username" in response.error) {
+          if (
+            response.error &&
+            typeof response.error === "object" &&
+            "username" in response.error
+          ) {
             form.setError("username", {
               type: "manual",
               message: (response.error as Record<string, string[]>).username[0],
@@ -380,8 +388,8 @@ export function UserForm({ initialData, isEditing = false }: UserFormProps) {
                 {isLoading
                   ? "Saving..."
                   : isEditing
-                    ? "Update User"
-                    : "Create User"}
+                  ? "Update User"
+                  : "Create User"}
               </Button>
             </div>
           </form>

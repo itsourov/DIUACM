@@ -428,8 +428,37 @@ export const rolePermissions = mysqlTable(
 export type Event = InferSelectModel<typeof events>;
 export type NewEvent = InferInsertModel<typeof events>;
 export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+export type Account = InferSelectModel<typeof accounts>;
+export type NewAccount = InferInsertModel<typeof accounts>;
+export type Session = InferSelectModel<typeof sessions>;
+export type NewSession = InferInsertModel<typeof sessions>;
+export type Role = InferSelectModel<typeof roles>;
+export type NewRole = InferInsertModel<typeof roles>;
+export type Permission = InferSelectModel<typeof permissions>;
+export type NewPermission = InferInsertModel<typeof permissions>;
+export type UserRole = InferSelectModel<typeof userRoles>;
+export type NewUserRole = InferInsertModel<typeof userRoles>;
+export type RolePermission = InferSelectModel<typeof rolePermissions>;
+export type NewRolePermission = InferInsertModel<typeof rolePermissions>;
+export type Gallery = InferSelectModel<typeof galleries>;
+export type NewGallery = InferInsertModel<typeof galleries>;
+export type Media = InferSelectModel<typeof media>;
+export type NewMedia = InferInsertModel<typeof media>;
+export type Contest = InferSelectModel<typeof contests>;
+export type NewContest = InferInsertModel<typeof contests>;
+export type Team = InferSelectModel<typeof teams>;
+export type NewTeam = InferInsertModel<typeof teams>;
+export type TeamUser = InferSelectModel<typeof teamUser>;
+export type NewTeamUser = InferInsertModel<typeof teamUser>;
+export type Tracker = InferSelectModel<typeof trackers>;
+export type NewTracker = InferInsertModel<typeof trackers>;
 export type RankList = InferSelectModel<typeof rankLists>;
 export type NewRankList = InferInsertModel<typeof rankLists>;
+export type RankListUser = InferSelectModel<typeof rankListUser>;
+export type NewRankListUser = InferInsertModel<typeof rankListUser>;
+export type BlogPost = InferSelectModel<typeof blogPosts>;
+export type NewBlogPost = InferInsertModel<typeof blogPosts>;
 export type EventUserAttendance = InferSelectModel<typeof eventUserAttendance>;
 export type NewEventUserAttendance = InferInsertModel<
   typeof eventUserAttendance
@@ -442,3 +471,38 @@ export type UserSolveStatOnEvents = InferSelectModel<
 export type NewUserSolveStatOnEvents = InferInsertModel<
   typeof userSolveStatOnEvents
 >;
+export type ContactFormSubmission = InferSelectModel<
+  typeof contactFormSubmissions
+>;
+export type NewContactFormSubmission = InferInsertModel<
+  typeof contactFormSubmissions
+>;
+
+// Commonly used composite and utility types
+export type UserSearchResult = Pick<
+  User,
+  "id" | "name" | "email" | "username" | "image" | "studentId" | "department"
+>;
+export type UserProfile = Pick<
+  User,
+  | "id"
+  | "name"
+  | "email"
+  | "username"
+  | "image"
+  | "gender"
+  | "phone"
+  | "codeforcesHandle"
+  | "atcoderHandle"
+  | "vjudgeHandle"
+  | "startingSemester"
+  | "department"
+  | "studentId"
+  | "maxCfRating"
+>;
+export type UserWithCounts = Omit<User, "password" | "emailVerified"> & {
+  _count: {
+    eventAttendances: number;
+    rankListUsers: number;
+  };
+};
