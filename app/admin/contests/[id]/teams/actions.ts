@@ -2,6 +2,7 @@
 import { hasPermission } from "@/lib/authorization";
 import { db } from "@/db/drizzle";
 import { teams, teamUser, contests } from "@/db/schema";
+import type { Team } from "@/db/schema";
 import { eq, and, count, sql, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { teamFormSchema, type TeamFormValues } from "../../schemas/contest";
@@ -15,13 +16,24 @@ type ActionResult<T = unknown> = {
   message?: string;
 };
 
+// Extended Team type for list view with member count
+export type TeamWithMemberCount = Team & {
+  _count: {
+    members: number;
+  };
+  memberCount: number; // For the SQL result
+};
+
 // Utility function to handle database errors
 function handleDbError(error: unknown): ActionResult {
   console.error("Database error:", error);
 
   if (error instanceof Error) {
     if (error.message.includes("Duplicate entry")) {
-      return { success: false, error: "A team with this name already exists in this contest" };
+      return {
+        success: false,
+        error: "A team with this name already exists in this contest",
+      };
     }
     if (error.message.includes("foreign key constraint")) {
       return { success: false, error: "Invalid contest or user reference" };
@@ -34,15 +46,21 @@ function handleDbError(error: unknown): ActionResult {
 // Utility function to validate permissions
 async function validatePermission(): Promise<ActionResult | null> {
   if (!(await hasPermission("CONTESTS:MANAGE"))) {
-    return { success: false, error: "You don't have permission to manage contests" };
+    return {
+      success: false,
+      error: "You don't have permission to manage contests",
+    };
   }
   return null;
 }
 
-export async function getTeams(contestId: number): Promise<ActionResult> {
+export async function getTeams(
+  contestId: number
+): Promise<ActionResult<TeamWithMemberCount[]>> {
   try {
     const permissionError = await validatePermission();
-    if (permissionError) return permissionError;
+    if (permissionError)
+      return permissionError as ActionResult<TeamWithMemberCount[]>;
 
     // Optimized query with member count subquery
     const teamsData = await db
@@ -58,26 +76,28 @@ export async function getTeams(contestId: number): Promise<ActionResult> {
           SELECT COUNT(${teamUser.userId}) 
           FROM ${teamUser} 
           WHERE ${teamUser.teamId} = ${teams.id}
-        )`
+        )`,
       })
       .from(teams)
       .where(eq(teams.contestId, contestId))
       .orderBy(asc(teams.rank), asc(teams.name));
 
     // Transform data to match expected format
-    const teamsWithMemberCount = teamsData.map(team => ({
-      ...team,
-      _count: {
-        members: team.memberCount,
-      },
-    }));
+    const teamsWithMemberCount: TeamWithMemberCount[] = teamsData.map(
+      (team) => ({
+        ...team,
+        _count: {
+          members: team.memberCount,
+        },
+      })
+    );
 
     return {
       success: true,
       data: teamsWithMemberCount,
     };
   } catch (error) {
-    return handleDbError(error);
+    return handleDbError(error) as ActionResult<TeamWithMemberCount[]>;
   }
 }
 
@@ -106,14 +126,19 @@ export async function createTeam(
     const existingTeam = await db
       .select({ id: teams.id })
       .from(teams)
-      .where(and(
-        eq(teams.contestId, contestId),
-        eq(teams.name, validatedFields.name)
-      ))
+      .where(
+        and(
+          eq(teams.contestId, contestId),
+          eq(teams.name, validatedFields.name)
+        )
+      )
       .limit(1);
 
     if (existingTeam.length > 0) {
-      return { success: false, error: "A team with this name already exists in this contest" };
+      return {
+        success: false,
+        error: "A team with this name already exists in this contest",
+      };
     }
 
     // Check rank uniqueness if provided
@@ -121,14 +146,19 @@ export async function createTeam(
       const existingRank = await db
         .select({ id: teams.id })
         .from(teams)
-        .where(and(
-          eq(teams.contestId, contestId),
-          eq(teams.rank, validatedFields.rank)
-        ))
+        .where(
+          and(
+            eq(teams.contestId, contestId),
+            eq(teams.rank, validatedFields.rank)
+          )
+        )
         .limit(1);
 
       if (existingRank.length > 0) {
-        return { success: false, error: `Rank ${validatedFields.rank} is already taken by another team` };
+        return {
+          success: false,
+          error: `Rank ${validatedFields.rank} is already taken by another team`,
+        };
       }
     }
 
@@ -146,14 +176,17 @@ export async function createTeam(
       data: {
         id: result[0].insertId,
         ...validatedFields,
-        contestId
+        contestId,
       },
       message: `Team "${validatedFields.name}" created successfully`,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
       const firstError = error.issues[0];
-      return { success: false, error: firstError?.message || "Please check the form for errors." };
+      return {
+        success: false,
+        error: firstError?.message || "Please check the form for errors.",
+      };
     }
 
     return handleDbError(error);
@@ -176,7 +209,7 @@ export async function updateTeam(
       .select({
         id: teams.id,
         name: teams.name,
-        contestId: teams.contestId
+        contestId: teams.contestId,
       })
       .from(teams)
       .where(eq(teams.id, teamId))
@@ -194,15 +227,20 @@ export async function updateTeam(
     const duplicateTeam = await db
       .select({ id: teams.id })
       .from(teams)
-      .where(and(
-        eq(teams.contestId, contestId),
-        eq(teams.name, validatedFields.name),
-        sql`${teams.id} != ${teamId}`
-      ))
+      .where(
+        and(
+          eq(teams.contestId, contestId),
+          eq(teams.name, validatedFields.name),
+          sql`${teams.id} != ${teamId}`
+        )
+      )
       .limit(1);
 
     if (duplicateTeam.length > 0) {
-      return { success: false, error: "A team with this name already exists in this contest" };
+      return {
+        success: false,
+        error: "A team with this name already exists in this contest",
+      };
     }
 
     // Check rank uniqueness if provided and different from current
@@ -210,15 +248,20 @@ export async function updateTeam(
       const existingRank = await db
         .select({ id: teams.id })
         .from(teams)
-        .where(and(
-          eq(teams.contestId, contestId),
-          eq(teams.rank, validatedFields.rank),
-          sql`${teams.id} != ${teamId}`
-        ))
+        .where(
+          and(
+            eq(teams.contestId, contestId),
+            eq(teams.rank, validatedFields.rank),
+            sql`${teams.id} != ${teamId}`
+          )
+        )
         .limit(1);
 
       if (existingRank.length > 0) {
-        return { success: false, error: `Rank ${validatedFields.rank} is already taken by another team` };
+        return {
+          success: false,
+          error: `Rank ${validatedFields.rank} is already taken by another team`,
+        };
       }
     }
 
@@ -235,13 +278,15 @@ export async function updateTeam(
 
     return {
       success: true,
-      data: { id: teamId, ...validatedFields, contestId },
       message: `Team "${validatedFields.name}" updated successfully`,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
       const firstError = error.issues[0];
-      return { success: false, error: firstError?.message || "Please check the form for errors." };
+      return {
+        success: false,
+        error: firstError?.message || "Please check the form for errors.",
+      };
     }
 
     return handleDbError(error);
@@ -266,7 +311,7 @@ export async function getTeam(teamId: number): Promise<ActionResult> {
           SELECT COUNT(${teamUser.userId}) 
           FROM ${teamUser} 
           WHERE ${teamUser.teamId} = ${teams.id}
-        )`
+        )`,
       })
       .from(teams)
       .where(eq(teams.id, teamId))
@@ -289,7 +334,10 @@ export async function getTeam(teamId: number): Promise<ActionResult> {
   }
 }
 
-export async function deleteTeam(teamId: number, contestId: number): Promise<ActionResult> {
+export async function deleteTeam(
+  teamId: number,
+  contestId: number
+): Promise<ActionResult> {
   try {
     const permissionError = await validatePermission();
     if (permissionError) return permissionError;
@@ -303,7 +351,7 @@ export async function deleteTeam(teamId: number, contestId: number): Promise<Act
           SELECT COUNT(${teamUser.userId}) 
           FROM ${teamUser} 
           WHERE ${teamUser.teamId} = ${teams.id}
-        )`
+        )`,
       })
       .from(teams)
       .where(eq(teams.id, teamId))
@@ -319,7 +367,7 @@ export async function deleteTeam(teamId: number, contestId: number): Promise<Act
     if (teamData.memberCount > 0) {
       return {
         success: false,
-        error: `Cannot delete team with ${teamData.memberCount} member(s). Please remove all members first.`
+        error: `Cannot delete team with ${teamData.memberCount} member(s). Please remove all members first.`,
       };
     }
 
@@ -382,21 +430,26 @@ export async function bulkUpdateTeamRanks(
     if (permissionError) return permissionError;
 
     // Validate all teams belong to the contest
-    const teamIds = teamRanks.map(tr => tr.teamId);
+    const teamIds = teamRanks.map((tr) => tr.teamId);
     const existingTeams = await db
       .select({ id: teams.id })
       .from(teams)
-      .where(and(
-        eq(teams.contestId, contestId),
-        sql`${teams.id} IN (${teamIds.join(',')})`
-      ));
+      .where(
+        and(
+          eq(teams.contestId, contestId),
+          sql`${teams.id} IN (${teamIds.join(",")})`
+        )
+      );
 
     if (existingTeams.length !== teamIds.length) {
-      return { success: false, error: "Some teams do not belong to this contest" };
+      return {
+        success: false,
+        error: "Some teams do not belong to this contest",
+      };
     }
 
     // Check for duplicate ranks
-    const ranks = teamRanks.map(tr => tr.rank);
+    const ranks = teamRanks.map((tr) => tr.rank);
     const uniqueRanks = [...new Set(ranks)];
     if (ranks.length !== uniqueRanks.length) {
       return { success: false, error: "Duplicate ranks found" };
@@ -404,10 +457,7 @@ export async function bulkUpdateTeamRanks(
 
     // Update teams in a transaction-like manner
     for (const { teamId, rank } of teamRanks) {
-      await db
-        .update(teams)
-        .set({ rank })
-        .where(eq(teams.id, teamId));
+      await db.update(teams).set({ rank }).where(eq(teams.id, teamId));
     }
 
     revalidatePath(`/admin/contests/${contestId}/teams`);

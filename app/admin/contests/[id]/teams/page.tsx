@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
+import type { Contest } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,8 +43,7 @@ export async function generateMetadata({
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const contest = contestData as any;
+  const contest = contestData as Contest;
 
   return {
     title: `Teams - ${contest.name} | DIU ACM Admin`,
@@ -64,10 +64,8 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
     getTeams(contestId),
   ]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const contest = contestResponse.data as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const teams = (teamsResponse.data as any) || [];
+  const contest = contestResponse.data as Contest;
+  const teams = teamsResponse.data || [];
 
   if (!contest) {
     notFound();

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import type { Team } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,17 +29,17 @@ import {
 
 interface TeamFormProps {
   contestId: number;
-  team?: {
-    id: number;
-    name: string;
-    rank?: number | null;
-    solveCount?: number | null;
-  };
+  team?: Pick<Team, "id" | "name" | "rank" | "solveCount">;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps) {
+export function TeamForm({
+  contestId,
+  team,
+  onSuccess,
+  onCancel,
+}: TeamFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!team;
 
@@ -63,7 +64,10 @@ export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps
       }
 
       if (response.success) {
-        toast.success(response.message || `Team ${isEditing ? 'updated' : 'created'} successfully`);
+        toast.success(
+          response.message ||
+            `Team ${isEditing ? "updated" : "created"} successfully`
+        );
         form.reset();
         onSuccess?.();
       } else {
@@ -91,8 +95,7 @@ export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps
             <CardDescription>
               {isEditing
                 ? "Update team information and statistics"
-                : "Add a new team to this contest"
-              }
+                : "Add a new team to this contest"}
             </CardDescription>
           </div>
         </div>
@@ -137,7 +140,9 @@ export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps
                         value={field.value || ""}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === "" ? undefined : parseInt(value, 10));
+                          field.onChange(
+                            value === "" ? undefined : parseInt(value, 10)
+                          );
                         }}
                         disabled={isSubmitting}
                       />
@@ -165,7 +170,9 @@ export function TeamForm({ contestId, team, onSuccess, onCancel }: TeamFormProps
                         value={field.value || ""}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === "" ? undefined : parseInt(value, 10));
+                          field.onChange(
+                            value === "" ? undefined : parseInt(value, 10)
+                          );
                         }}
                         disabled={isSubmitting}
                       />

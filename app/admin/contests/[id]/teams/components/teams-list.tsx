@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Edit, Trash2, Users, Trophy, Target } from "lucide-react";
+import type { Team } from "@/db/schema";
 import { deleteTeam } from "../actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,20 +25,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-type TeamWithMemberCount = {
-  id: number;
-  name: string;
-  contestId: number;
-  rank?: number | null;
-  solveCount?: number | null;
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
+type TeamWithMemberCount = Team & {
   _count: {
     members: number;
   };
+  memberCount: number; // For the SQL result
 };
 
 interface TeamsListProps {
@@ -126,18 +121,27 @@ export function TeamsList({ contestId, initialTeams }: TeamsListProps) {
                         {team.rank && (
                           <div className="flex items-center space-x-1">
                             <Trophy className="h-4 w-4 text-yellow-500" />
-                            <span className="text-sm font-medium">#{team.rank}</span>
+                            <span className="text-sm font-medium">
+                              #{team.rank}
+                            </span>
                           </div>
                         )}
-                        {team.solveCount !== null && team.solveCount !== undefined && (
-                          <div className="flex items-center space-x-1">
-                            <Target className="h-4 w-4 text-green-500" />
-                            <span className="text-sm">{team.solveCount} solved</span>
-                          </div>
-                        )}
-                        {(!team.rank && (team.solveCount === null || team.solveCount === undefined)) && (
-                          <span className="text-sm text-muted-foreground">—</span>
-                        )}
+                        {team.solveCount !== null &&
+                          team.solveCount !== undefined && (
+                            <div className="flex items-center space-x-1">
+                              <Target className="h-4 w-4 text-green-500" />
+                              <span className="text-sm">
+                                {team.solveCount} solved
+                              </span>
+                            </div>
+                          )}
+                        {!team.rank &&
+                          (team.solveCount === null ||
+                            team.solveCount === undefined) && (
+                            <span className="text-sm text-muted-foreground">
+                              —
+                            </span>
+                          )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -148,7 +152,9 @@ export function TeamsList({ contestId, initialTeams }: TeamsListProps) {
                           className="h-8 w-8 p-0"
                           asChild
                         >
-                          <Link href={`/admin/contests/${contestId}/teams/${team.id}/edit`}>
+                          <Link
+                            href={`/admin/contests/${contestId}/teams/${team.id}/edit`}
+                          >
                             <Edit className="h-4 w-4" />
                             <span className="sr-only">Edit team</span>
                           </Link>
@@ -169,8 +175,9 @@ export function TeamsList({ contestId, initialTeams }: TeamsListProps) {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Team</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete team <strong>{team.name}</strong>?
-                                This will also remove all team members and cannot be undone.
+                                Are you sure you want to delete team{" "}
+                                <strong>{team.name}</strong>? This will also
+                                remove all team members and cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

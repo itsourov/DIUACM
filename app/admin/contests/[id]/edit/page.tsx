@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getContest } from "../../actions";
+import type { Contest } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -40,8 +41,14 @@ export default async function EditContestPage({
     notFound();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const contest = contestData as any;
+  const contest = contestData as Contest & {
+    gallery?: {
+      id: number;
+      title: string;
+      slug: string;
+      status: string;
+    } | null;
+  };
 
   return (
     <div className="space-y-6">

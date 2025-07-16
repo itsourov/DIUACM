@@ -5,7 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ContestType } from "@/db/schema";
+import { ContestType, type Contest } from "@/db/schema";
 
 import { contestFormSchema, type ContestFormValues } from "../schemas/contest";
 import {
@@ -36,17 +36,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Images } from "lucide-react";
 
-interface Contest {
-  id: number;
-  name: string;
-  contestType: (typeof ContestType)[keyof typeof ContestType];
-  location?: string | null;
-  date: Date | null;
-  description?: string | null;
-  standingsUrl?: string | null;
-  galleryId?: number | null;
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
+interface ContestWithGallery extends Contest {
   gallery?: {
     id: number;
     title: string;
@@ -56,7 +46,7 @@ interface Contest {
 }
 
 interface ContestFormProps {
-  initialData?: Contest | null;
+  initialData?: ContestWithGallery | null;
   isEditing?: boolean;
 }
 
@@ -108,23 +98,25 @@ export function ContestForm({
     resolver: zodResolver(contestFormSchema),
     defaultValues: initialData
       ? {
-        name: initialData.name,
-        contestType: initialData.contestType,
-        location: initialData.location || "",
-        description: initialData.description || "",
-        standingsUrl: initialData.standingsUrl || "",
-        galleryId: initialData.galleryId?.toString() || "",
-        date: initialData.date ? formatDateForInput(initialData.date) : formatDateForInput(new Date()),
-      }
+          name: initialData.name,
+          contestType: initialData.contestType,
+          location: initialData.location || "",
+          description: initialData.description || "",
+          standingsUrl: initialData.standingsUrl || "",
+          galleryId: initialData.galleryId?.toString() || "",
+          date: initialData.date
+            ? formatDateForInput(initialData.date)
+            : formatDateForInput(new Date()),
+        }
       : {
-        name: "",
-        contestType: ContestType.OTHER,
-        location: "",
-        date: formatDateForInput(new Date()),
-        description: "",
-        standingsUrl: "",
-        galleryId: "",
-      },
+          name: "",
+          contestType: ContestType.OTHER,
+          location: "",
+          date: formatDateForInput(new Date()),
+          description: "",
+          standingsUrl: "",
+          galleryId: "",
+        },
   });
 
   const onSubmit = async (values: ContestFormValues) => {
@@ -139,7 +131,9 @@ export function ContestForm({
 
       if (result.success) {
         toast.success(
-          isEditing ? "Contest updated successfully!" : "Contest created successfully!"
+          isEditing
+            ? "Contest updated successfully!"
+            : "Contest created successfully!"
         );
         router.push("/admin/contests");
       } else {
@@ -253,7 +247,6 @@ export function ContestForm({
                   </FormItem>
                 )}
               />
-
             </div>
 
             <FormField
@@ -303,7 +296,9 @@ export function ContestForm({
                     <Select
                       disabled={isLoading || isLoadingGalleries}
                       onValueChange={(value) => {
-                        field.onChange(value === "none" ? null : parseInt(value));
+                        field.onChange(
+                          value === "none" ? null : parseInt(value)
+                        );
                       }}
                       value={field.value?.toString() || "none"}
                     >
@@ -315,7 +310,10 @@ export function ContestForm({
                       <SelectContent>
                         <SelectItem value="none">No Gallery</SelectItem>
                         {galleries.map((gallery) => (
-                          <SelectItem key={gallery.id} value={gallery.id.toString()}>
+                          <SelectItem
+                            key={gallery.id}
+                            value={gallery.id.toString()}
+                          >
                             <div className="flex items-center">
                               <Images className="mr-2 h-4 w-4" />
                               <span>{gallery.title}</span>
@@ -346,8 +344,8 @@ export function ContestForm({
                 {isLoading
                   ? "Saving..."
                   : isEditing
-                    ? "Update Contest"
-                    : "Create Contest"}
+                  ? "Update Contest"
+                  : "Create Contest"}
               </Button>
             </div>
           </form>

@@ -33,6 +33,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { getPaginatedContests } from "./actions";
 import { DeleteContestButton } from "./components/delete-contest-button";
 import { SearchContests } from "./components/search-contests";
+import type { Contest as SchemaContest } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -60,17 +61,7 @@ interface ContestsPageProps {
   }>;
 }
 
-interface Contest {
-  id: number;
-  name: string;
-  contestType: string;
-  location: string | null;
-  date: Date | null;
-  description: string | null;
-  standingsUrl: string | null;
-  galleryId: number | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+interface Contest extends SchemaContest {
   gallery: {
     id: number;
     title: string;
@@ -91,7 +82,17 @@ export default async function ContestsPage({
 
   const { data } = await getPaginatedContests(page, 10, search);
 
-  const contestsData = data as { contests: Contest[]; pagination: { currentPage: number; totalPages: number; totalCount: number; pageSize: number } } | undefined;
+  const contestsData = data as
+    | {
+        contests: Contest[];
+        pagination: {
+          currentPage: number;
+          totalPages: number;
+          totalCount: number;
+          pageSize: number;
+        };
+      }
+    | undefined;
   const contests = contestsData?.contests ?? [];
   const pagination = contestsData?.pagination ?? {
     currentPage: 1,
@@ -247,7 +248,9 @@ export default async function ContestsPage({
                           <div className="flex items-center text-sm">
                             <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                             <span>
-                              {contest.date ? format(new Date(contest.date), "PP") : "No date set"}
+                              {contest.date
+                                ? format(new Date(contest.date), "PP")
+                                : "No date set"}
                             </span>
                           </div>
                         </TableCell>
@@ -270,18 +273,24 @@ export default async function ContestsPage({
                                   className="h-8 w-8 p-0"
                                 >
                                   <Settings className="h-4 w-4" />
-                                  <span className="sr-only">Contest actions</span>
+                                  <span className="sr-only">
+                                    Contest actions
+                                  </span>
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                  <Link href={`/admin/contests/${contest.id}/edit`}>
+                                  <Link
+                                    href={`/admin/contests/${contest.id}/edit`}
+                                  >
                                     <Pencil className="h-4 w-4 mr-2" />
                                     Edit Contest
                                   </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
-                                  <Link href={`/admin/contests/${contest.id}/teams`}>
+                                  <Link
+                                    href={`/admin/contests/${contest.id}/teams`}
+                                  >
                                     <Users className="h-4 w-4 mr-2" />
                                     Manage Teams
                                   </Link>
