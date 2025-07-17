@@ -166,7 +166,7 @@ export async function updateRanklist(id: number, trackerId: number, values: Rank
     }
 }
 
-export async function deleteRanklist(id: number, trackerId: number): Promise<ActionResult> {
+export async function deleteRanklist(id: number): Promise<ActionResult> {
     try {
         const permissionError = await validatePermission();
         if (permissionError) return permissionError;
@@ -193,9 +193,6 @@ export async function deleteRanklist(id: number, trackerId: number): Promise<Act
 
         const ranklist = ranklistData[0];
 
-        if (ranklist.trackerId !== trackerId) {
-            return { success: false, error: "Ranklist does not belong to this tracker" };
-        }
 
         const totalAttachments = ranklist.eventCount + ranklist.userCount;
         if (totalAttachments > 0) {
@@ -207,7 +204,7 @@ export async function deleteRanklist(id: number, trackerId: number): Promise<Act
 
         await db.delete(rankLists).where(eq(rankLists.id, id));
 
-        revalidatePath(`/admin/trackers/${trackerId}/ranklists`);
+        revalidatePath(`/admin/trackers/${ranklist.trackerId}/ranklists`);
 
         return {
             success: true,

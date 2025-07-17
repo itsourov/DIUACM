@@ -19,7 +19,9 @@ import {
 
 interface DeleteButtonProps<T = string | number> {
   id: T;
-  onDelete: (id: T) => Promise<{ success: boolean; error?: string }>;
+  onDelete: (
+    id: T
+  ) => Promise<{ success: boolean; error?: string; message?: string }>;
 }
 
 export function DeleteButton<T = string | number>({
@@ -36,7 +38,7 @@ export function DeleteButton<T = string | number>({
       const response = await onDelete(id);
 
       if (response.success) {
-        toast.success("Item deleted successfully");
+        toast.success(response.message || "Item deleted successfully");
         setOpen(false);
       } else {
         toast.error(response.error || "Something went wrong");

@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { getTracker } from "../../actions";
-import { getPaginatedRanklists } from "./actions";
-import { DeleteRanklistButton } from "./components/delete-ranklist-button";
+import { deleteRanklist, getPaginatedRanklists } from "./actions";
 import { formatDistanceToNow } from "date-fns";
 import {
   Card,
@@ -34,6 +33,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DeleteButton } from "@/app/admin/components/delete-button";
 
 interface RanklistsPageProps {
   params: Promise<{
@@ -312,21 +312,9 @@ export default async function RanklistsPage({ params }: RanklistsPageProps) {
                             </TooltipTrigger>
                             <TooltipContent>Manage Users</TooltipContent>
                           </Tooltip>
-
-                          <DeleteRanklistButton
+                          <DeleteButton
                             id={ranklist.id}
-                            trackerId={parseInt(trackerId)}
-                            keyword={ranklist.keyword}
-                            hasAttachments={
-                              ranklist._count.events > 0 ||
-                              ranklist._count.users > 0
-                            }
-                            eventCount={ranklist._count.events}
-                            userCount={ranklist._count.users}
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            showText={false}
+                            onDelete={deleteRanklist}
                           />
                         </div>
                       </TableCell>
