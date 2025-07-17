@@ -37,7 +37,7 @@ export function DeleteGalleryButton({ id, title }: DeleteGalleryButtonProps) {
     setIsLoading(true);
 
     try {
-      const response = await deleteGallery(id.toString());
+      const response = await deleteGallery(id);
 
       if (response.success) {
         toast.success("Gallery deleted successfully");
@@ -47,7 +47,7 @@ export function DeleteGalleryButton({ id, title }: DeleteGalleryButtonProps) {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete gallery");
+      toast.error("Failed to delete gallery. " + error);
     } finally {
       setIsLoading(false);
     }
@@ -58,33 +58,34 @@ export function DeleteGalleryButton({ id, title }: DeleteGalleryButtonProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-destructive"
+            >
               <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Delete</span>
             </Button>
           </AlertDialogTrigger>
         </TooltipTrigger>
-        <TooltipContent>
-          <p>Delete Gallery</p>
-        </TooltipContent>
+        <TooltipContent>Delete Gallery</TooltipContent>
       </Tooltip>
-
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            gallery <strong>&quot;{title}&quot;</strong> and all of its media
-            files.
+            This will permanently delete the gallery <strong>{title}</strong>{" "}
+            and all associated media. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onDelete}
+            className="bg-destructive hover:bg-destructive/90"
             disabled={isLoading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isLoading ? "Deleting..." : "Delete Gallery"}
+            {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

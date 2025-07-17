@@ -419,7 +419,7 @@ export async function updateGallery(
 }
 
 // Delete gallery
-export async function deleteGallery(id: string): Promise<ActionResult> {
+export async function deleteGallery(id: number): Promise<ActionResult> {
   try {
     // Check if the user has permission to manage galleries
     if (!(await hasPermission("GALLERIES:MANAGE"))) {
@@ -430,7 +430,7 @@ export async function deleteGallery(id: string): Promise<ActionResult> {
     const existingGallery = await db
       .select()
       .from(galleries)
-      .where(eq(galleries.id, parseInt(id)))
+      .where(eq(galleries.id, id))
       .limit(1);
 
     if (existingGallery.length === 0) {
@@ -441,7 +441,7 @@ export async function deleteGallery(id: string): Promise<ActionResult> {
     const galleryMedia = await db
       .select()
       .from(media)
-      .where(eq(media.galleryId, parseInt(id)));
+      .where(eq(media.galleryId, id));
 
     // Delete all media files from S3
     for (const mediaItem of galleryMedia) {
@@ -458,7 +458,7 @@ export async function deleteGallery(id: string): Promise<ActionResult> {
     }
 
     // Delete gallery (media will be deleted due to cascade)
-    await db.delete(galleries).where(eq(galleries.id, parseInt(id)));
+    await db.delete(galleries).where(eq(galleries.id, id));
 
     revalidatePath("/admin/galleries");
 
