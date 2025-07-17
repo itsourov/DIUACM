@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Images } from "lucide-react";
+import { Images } from "lucide-react";
 import { getGalleryBySlug } from "../actions";
 import { GalleryGrid } from "./components/gallery-grid";
 import { db } from "@/db/drizzle";
@@ -86,29 +84,22 @@ export default async function GalleryDetailPage({
   const hasImages = gallery.media.length > 0;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Back button */}
-      <div className="mb-6">
-        <Button asChild variant="outline" className="rounded-full px-6">
-          <Link href="/galleries">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Galleries
-          </Link>
-        </Button>
-      </div>
-
-      {/* Gallery header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4 text-slate-900 dark:text-white">
-          {gallery.title}
+    <div className="container mx-auto px-4 py-16">
+      {/* Header section */}
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">
+            {gallery.title}
+          </span>
         </h1>
+        <div className="mx-auto w-20 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
         {gallery.description && (
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl">
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-4">
             {gallery.description}
           </p>
         )}
-        <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-          <p className="flex items-center">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="flex items-center justify-center">
             <Images className="h-4 w-4 mr-1" />
             {gallery.media.length}{" "}
             {gallery.media.length === 1 ? "photo" : "photos"} in this gallery
@@ -120,7 +111,7 @@ export default async function GalleryDetailPage({
       {hasImages ? (
         <GalleryGrid media={gallery.media} galleryTitle={gallery.title} />
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm p-8 md:p-16 text-center transition-all duration-300">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 mb-4">
             <Images className="h-8 w-8 text-slate-500 dark:text-slate-400" />
           </div>
