@@ -1,364 +1,343 @@
-import Link from "next/link";
-import {
-    List,
-    Plus,
-    Pencil,
-    Calendar,
-    Users,
-    CheckCircle,
-    XCircle,
-    Target,
-} from "lucide-react";
-import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
+import Link from "next/link";
+import { Metadata } from "next";
+import { Plus, TrendingUp, Edit, Users, Calendar } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { CustomPagination } from "@/components/custom-pagination";
 import { getTracker } from "../../actions";
 import { getPaginatedRanklists } from "./actions";
 import { DeleteRanklistButton } from "./components/delete-ranklist-button";
+import { formatDistanceToNow } from "date-fns";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface RanklistsPageProps {
-    params: Promise<{ id: string }>;
-    searchParams: Promise<{
-        page?: string;
-        search?: string;
-    }>;
+  params: Promise<{
+    id: string;
+  }>;
 }
 
 interface Ranklist {
-    id: number;
-    trackerId: number;
-    keyword: string;
-    description: string | null;
-    weightOfUpsolve: number;
-    order: number;
-    isActive: boolean;
-    considerStrictAttendance: boolean;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    _count: {
-        events: number;
-        users: number;
-    };
+  id: number;
+  trackerId: number;
+  keyword: string;
+  description: string | null;
+  weightOfUpsolve: number;
+  order: number;
+  isActive: boolean;
+  considerStrictAttendance: boolean;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  _count: {
+    events: number;
+    users: number;
+  };
 }
 
-export async function generateMetadata({ params }: RanklistsPageProps): Promise<Metadata> {
-    const resolvedParams = await params;
-    const trackerId = parseInt(resolvedParams.id);
+export async function generateMetadata({
+  params,
+}: RanklistsPageProps): Promise<Metadata> {
+  const trackerId = (await params).id;
+  const { data: tracker } = await getTracker(parseInt(trackerId));
 
-    if (isNaN(trackerId)) {
-        return { title: "Ranklists | DIU ACM Admin" };
-    }
-
-    const { data: tracker } = await getTracker(trackerId);
-
+  if (!tracker) {
     return {
-        title: `${(tracker as { title?: string })?.title || 'Tracker'} - Ranklists | DIU ACM Admin`,
-        description: `Manage ranklists for ${(tracker as { title?: string })?.title || 'tracker'}`,
+      title: "Tracker not found",
+      description: "The requested tracker could not be found",
     };
+  }
+
+  return {
+    title: `Ranklists - ${
+      (tracker as { title?: string })?.title
+    } | DIU ACM Admin`,
+    description: `Manage ranklists for ${
+      (tracker as { title?: string })?.title
+    }`,
+  };
 }
 
-export default async function RanklistsPage({
-    params,
-    searchParams,
-}: RanklistsPageProps) {
-    const resolvedParams = await params;
-    const awaitedSearchParams = await searchParams;
-    const trackerId = parseInt(resolvedParams.id);
-    const page = parseInt(awaitedSearchParams.page ?? "1", 10);
-    const search = awaitedSearchParams.search || undefined;
+export default async function RanklistsPage({ params }: RanklistsPageProps) {
+  const trackerId = (await params).id;
 
-    if (isNaN(trackerId)) {
-        notFound();
-    }
+  const [trackerResponse, ranklistsResponse] = await Promise.all([
+    getTracker(parseInt(trackerId)),
+    getPaginatedRanklists(parseInt(trackerId), 1, 1000), // Get all ranklists
+  ]);
 
-    const [trackerResponse, ranklistsResponse] = await Promise.all([
-        getTracker(trackerId),
-        getPaginatedRanklists(trackerId, page, 10, search),
-    ]);
+  const tracker = trackerResponse.data;
+  const ranklistsData = ranklistsResponse.data as
+    | {
+        ranklists: Ranklist[];
+        pagination: {
+          currentPage: number;
+          totalPages: number;
+          totalCount: number;
+          pageSize: number;
+        };
+      }
+    | undefined;
+  const ranklists = ranklistsData?.ranklists || [];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tracker = trackerResponse.data as any;
-    const { data } = ranklistsResponse;
+  if (!tracker) {
+    notFound();
+  }
 
-    if (!tracker) {
-        notFound();
-    }
-
-    const ranklistsData = data as { ranklists: Ranklist[]; pagination: { currentPage: number; totalPages: number; totalCount: number; pageSize: number } } | undefined;
-    const ranklists = ranklistsData?.ranklists ?? [];
-    const pagination = ranklistsData?.pagination ?? {
-        currentPage: 1,
-        totalPages: 1,
-        totalCount: 0,
-        pageSize: 10,
-    };
-
-    const getStatusBadge = (isActive: boolean) => {
-        return isActive ? (
-            <Badge variant="default" className="bg-green-500 hover:bg-green-600">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Active
-            </Badge>
-        ) : (
-            <Badge variant="secondary">
-                <XCircle className="w-3 h-3 mr-1" />
-                Inactive
-            </Badge>
-        );
-    };
-
-    return (
-        <div className="space-y-6">
-            <div className="space-y-2">
-                <Breadcrumb>
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link href="/admin">Dashboard</Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link href="/admin/trackers">Trackers</Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link href={`/admin/trackers/${trackerId}/edit`}>
-                                    {tracker.title}
-                                </Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink className="text-foreground font-medium">
-                                Ranklists
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Ranklists</h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Manage ranklists for tracker &quot;{tracker.title}&quot;
-                        </p>
-                    </div>
-                    <Button asChild className="w-full sm:w-auto">
-                        <Link href={`/admin/trackers/${trackerId}/ranklists/create`}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Ranklist
-                        </Link>
-                    </Button>
-                </div>
-            </div>
-
-            <Card>
-                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div>
-                        <CardTitle className="text-xl">Ranklists</CardTitle>
-                        <CardDescription>
-                            Total: {pagination.totalCount} ranklist
-                            {pagination.totalCount !== 1 ? "s" : ""}
-                        </CardDescription>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {ranklists.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="rounded-full bg-muted/50 w-20 h-20 mx-auto flex items-center justify-center mb-4">
-                                <List className="h-10 w-10 text-muted-foreground" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-foreground mb-2">
-                                {search ? "No ranklists found" : "No ranklists yet"}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-                                {search
-                                    ? "We couldn't find any ranklists matching your search. Try adjusting your search terms."
-                                    : "Create your first ranklist to start tracking user progress and scores."}
-                            </p>
-                            {!search && (
-                                <Button asChild size="lg">
-                                    <Link href={`/admin/trackers/${trackerId}/ranklists/create`}>
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Create Your First Ranklist
-                                    </Link>
-                                </Button>
-                            )}
-                        </div>
-                    ) : (
-                        <>
-                            <div className="rounded-md border overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="min-w-[240px]">
-                                                Ranklist Details
-                                            </TableHead>
-                                            <TableHead>Weight</TableHead>
-                                            <TableHead>Order</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Events</TableHead>
-                                            <TableHead>Users</TableHead>
-                                            <TableHead>Created</TableHead>
-                                            <TableHead className="w-[100px]">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {ranklists.map((ranklist) => (
-                                            <TableRow key={ranklist.id}>
-                                                <TableCell>
-                                                    <div className="space-y-1.5">
-                                                        <div className="font-medium text-base">
-                                                            {ranklist.keyword}
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            {ranklist.considerStrictAttendance && (
-                                                                <Badge variant="outline" className="text-xs">
-                                                                    <Target className="w-3 h-3 mr-1" />
-                                                                    Strict
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                        {ranklist.description && (
-                                                            <div className="text-sm text-muted-foreground max-w-[220px] truncate">
-                                                                {ranklist.description}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary">
-                                                        {ranklist.weightOfUpsolve}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">{ranklist.order}</Badge>
-                                                </TableCell>
-                                                <TableCell>{getStatusBadge(ranklist.isActive)}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        <Calendar className="w-3 h-3 mr-1" />
-                                                        {ranklist._count.events}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        <Users className="w-3 h-3 mr-1" />
-                                                        {ranklist._count.users}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {ranklist.createdAt && (
-                                                        <span className="text-sm text-muted-foreground">
-                                                            {format(ranklist.createdAt, "MMM dd, yyyy")}
-                                                        </span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center space-x-1">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 w-8 p-0"
-                                                                >
-                                                                    <Settings className="h-4 w-4" />
-                                                                    <span className="sr-only">Ranklist actions</span>
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
-                                                                <DropdownMenuItem asChild>
-                                                                    <Link href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/edit`}>
-                                                                        <Pencil className="h-4 w-4 mr-2" />
-                                                                        Edit Ranklist
-                                                                    </Link>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem asChild>
-                                                                    <Link href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/events`}>
-                                                                        <Calendar className="h-4 w-4 mr-2" />
-                                                                        Manage Events ({ranklist._count.events})
-                                                                    </Link>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem asChild>
-                                                                    <Link href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/users`}>
-                                                                        <Users className="h-4 w-4 mr-2" />
-                                                                        Manage Users ({ranklist._count.users})
-                                                                    </Link>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem
-                                                                    className="text-destructive focus:text-destructive"
-                                                                    asChild
-                                                                >
-                                                                    <DeleteRanklistButton
-                                                                        id={ranklist.id}
-                                                                        trackerId={trackerId}
-                                                                        keyword={ranklist.keyword}
-                                                                        hasAttachments={ranklist._count.events > 0 || ranklist._count.users > 0}
-                                                                        eventCount={ranklist._count.events}
-                                                                        userCount={ranklist._count.users}
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="h-auto p-0 text-destructive hover:bg-transparent justify-start w-full"
-                                                                        showText={true}
-                                                                    />
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <div className="mt-6 flex justify-center">
-                                <CustomPagination
-                                    currentPage={pagination.currentPage}
-                                    totalPages={pagination.totalPages}
-                                />
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card>
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin">Dashboard</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/trackers">Trackers</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/admin/trackers/${trackerId}/edit`}>
+                  {(tracker as { title?: string })?.title}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink className="text-foreground font-medium">
+                Ranklists
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Tracker Ranklists
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage ranklists for {(tracker as { title?: string })?.title}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link href={`/admin/trackers/${trackerId}/ranklists/create`}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Ranklist
+              </Link>
+            </Button>
+          </div>
         </div>
-    );
-} 
+      </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-xl flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Ranklists List
+            </CardTitle>
+            <CardDescription>
+              Total: {ranklists.length} ranklist
+              {ranklists.length !== 1 ? "s" : ""}
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {ranklists.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-12">
+              <div className="rounded-full bg-muted p-3">
+                <TrendingUp className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-lg font-semibold">No ranklists yet</h3>
+              <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-xs">
+                Start adding ranklists to this tracker using the &quot;Add
+                Ranklist&quot; button.
+              </p>
+              <Button asChild variant="outline" className="mt-2">
+                <Link href={`/admin/trackers/${trackerId}/ranklists/create`}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Ranklist
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[220px]">
+                      Ranklist Details
+                    </TableHead>
+                    <TableHead>Upsolve Weight</TableHead>
+                    <TableHead>Order</TableHead>
+                    <TableHead>Events</TableHead>
+                    <TableHead>Users</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="w-[140px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ranklists.map((ranklist) => (
+                    <TableRow key={ranklist.id}>
+                      <TableCell>
+                        <div className="space-y-1.5">
+                          <div className="font-medium text-base">
+                            {ranklist.keyword}
+                          </div>
+                          {ranklist.description && (
+                            <div className="text-sm text-muted-foreground truncate max-w-[250px]">
+                              {ranklist.description}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">
+                          {ranklist.weightOfUpsolve.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{ranklist.order}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <span className="text-sm">
+                            {ranklist._count.events} event
+                            {ranklist._count.events !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <span className="text-sm">
+                            {ranklist._count.users} user
+                            {ranklist._count.users !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {ranklist.createdAt &&
+                          formatDistanceToNow(new Date(ranklist.createdAt), {
+                            addSuffix: true,
+                          })}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                asChild
+                              >
+                                <Link
+                                  href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/edit`}
+                                  className="flex items-center justify-center"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  <span className="sr-only">Edit</span>
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit Ranklist</TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                asChild
+                              >
+                                <Link
+                                  href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/events`}
+                                  className="flex items-center justify-center"
+                                >
+                                  <Calendar className="h-4 w-4" />
+                                  <span className="sr-only">Manage Events</span>
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Manage Events</TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                asChild
+                              >
+                                <Link
+                                  href={`/admin/trackers/${trackerId}/ranklists/${ranklist.id}/users`}
+                                  className="flex items-center justify-center"
+                                >
+                                  <Users className="h-4 w-4" />
+                                  <span className="sr-only">Manage Users</span>
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Manage Users</TooltipContent>
+                          </Tooltip>
+
+                          <DeleteRanklistButton
+                            id={ranklist.id}
+                            trackerId={parseInt(trackerId)}
+                            keyword={ranklist.keyword}
+                            hasAttachments={
+                              ranklist._count.events > 0 ||
+                              ranklist._count.users > 0
+                            }
+                            eventCount={ranklist._count.events}
+                            userCount={ranklist._count.users}
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            showText={false}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
