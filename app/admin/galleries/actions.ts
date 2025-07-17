@@ -23,12 +23,12 @@ type ActionResult<T = unknown> = {
   message?: string;
 };
 
-// Gallery data interface for type safety - extends Gallery with count
-interface GalleryData extends Gallery {
+// Gallery data type with count using DB schema types
+type GalleryData = Gallery & {
   _count?: {
     media: number;
   };
-}
+};
 
 // Utility function to handle database errors
 function handleDbError(error: unknown): ActionResult {

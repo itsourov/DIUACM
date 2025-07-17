@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { formatFileSize } from "../helpers";
 import Masonry from "react-masonry-css";
+import type { Media } from "@/db/schema";
 
 // Import the lightbox library
 import Lightbox from "yet-another-react-lightbox";
@@ -19,18 +20,11 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
-interface MediaItem {
-  id: number;
-  url: string;
-  title?: string | null;
-  width: number;
-  height: number;
-  fileSize?: number;
-  mimeType?: string;
-}
-
 interface GalleryGridProps {
-  media: MediaItem[];
+  media: Pick<
+    Media,
+    "id" | "url" | "title" | "width" | "height" | "mimeType" | "fileSize"
+  >[];
   galleryTitle: string;
 }
 

@@ -1,29 +1,21 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { galleries, media, VisibilityStatus } from "@/db/schema";
+import {
+  galleries,
+  media,
+  VisibilityStatus,
+  type Gallery,
+  type Media,
+} from "@/db/schema";
 import { eq, and, sql, asc, desc } from "drizzle-orm";
 
-// Define gallery type with media
-export type GalleryWithMedia = {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string | null;
-  status: typeof VisibilityStatus.PUBLISHED | typeof VisibilityStatus.DRAFT;
-  order: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+// Define gallery type with media using DB schema types
+export type GalleryWithMedia = Gallery & {
   _count: {
     media: number;
   };
-  media: Array<{
-    id: number;
-    url: string;
-    title?: string | null;
-    width: number;
-    height: number;
-  }>;
+  media: Pick<Media, "id" | "url" | "title" | "width" | "height">[];
 };
 
 // Function to get all public galleries without pagination
@@ -90,7 +82,16 @@ export async function getPublicGalleries(): Promise<GalleryWithMedia[]> {
 }
 
 // Function to get a single gallery by slug with all its media
-export async function getGalleryBySlug(slug: string) {
+export async function getGalleryBySlug(slug: string): Promise<{
+  success: boolean;
+  data?: Gallery & {
+    media: Pick<
+      Media,
+      "id" | "url" | "title" | "width" | "height" | "mimeType" | "fileSize"
+    >[];
+  };
+  error?: string;
+}> {
   try {
     const galleryData = await db
       .select({
