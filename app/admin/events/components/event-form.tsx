@@ -96,11 +96,7 @@ export function EventForm({
       }
 
       if (response.success) {
-        toast.success(
-          isEditing
-            ? "Event updated successfully!"
-            : "Event created successfully!"
-        );
+        toast.success(response.message || "Success");
         router.push("/admin/events");
       } else {
         if (typeof response.error === "string") {
