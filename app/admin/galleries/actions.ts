@@ -53,7 +53,7 @@ function handleDbError(error: unknown): ActionResult {
 
 // Generate pre-signed URL for image upload
 export async function generatePresignedUrl(
-  galleryId: string,
+  galleryId: number,
   fileType: string,
   fileSize: number
 ): Promise<ActionResult<{ presignedUrl: string; key: string }>> {
@@ -102,7 +102,7 @@ export async function generatePresignedUrl(
 
 // Save media data after successful upload
 export async function saveMediaData(
-  galleryId: string,
+  galleryId: number,
   mediaData: {
     title?: string;
     key: string;
@@ -123,13 +123,13 @@ export async function saveMediaData(
     const maxOrderResult = await db
       .select({ maxOrder: sql<number>`COALESCE(MAX(${media.order}), -1)` })
       .from(media)
-      .where(eq(media.galleryId, parseInt(galleryId)));
+      .where(eq(media.galleryId, galleryId));
 
     const nextOrder = (maxOrderResult[0]?.maxOrder ?? -1) + 1;
 
     // Insert media record
     await db.insert(media).values({
-      galleryId: parseInt(galleryId),
+      galleryId: galleryId,
       title: mediaData.title || null,
       url: mediaData.url,
       key: mediaData.key,
@@ -148,7 +148,7 @@ export async function saveMediaData(
 }
 
 // Delete media
-export async function deleteMedia(mediaId: string): Promise<ActionResult> {
+export async function deleteMedia(mediaId: number): Promise<ActionResult> {
   try {
     // Check if the user has permission to manage galleries
     if (!(await hasPermission("GALLERIES:MANAGE"))) {
@@ -159,7 +159,7 @@ export async function deleteMedia(mediaId: string): Promise<ActionResult> {
     const mediaItem = await db
       .select()
       .from(media)
-      .where(eq(media.id, parseInt(mediaId)))
+      .where(eq(media.id, mediaId))
       .limit(1);
 
     if (mediaItem.length === 0) {
@@ -177,7 +177,7 @@ export async function deleteMedia(mediaId: string): Promise<ActionResult> {
     await s3.send(deleteObjectCommand);
 
     // Delete from database
-    await db.delete(media).where(eq(media.id, parseInt(mediaId)));
+    await db.delete(media).where(eq(media.id, mediaId));
 
     revalidatePath(`/admin/galleries/${mediaData.galleryId}/media`);
     return { success: true, message: "Media deleted successfully" };
@@ -285,13 +285,13 @@ export async function getPaginatedGalleries(
 
 // Get gallery by ID
 export async function getGalleryById(
-  id: string
+  id: number
 ): Promise<ActionResult<GalleryData>> {
   try {
     const gallery = await db
       .select()
       .from(galleries)
-      .where(eq(galleries.id, parseInt(id)))
+      .where(eq(galleries.id, id))
       .limit(1);
 
     if (gallery.length === 0) {
@@ -356,7 +356,7 @@ export async function createGallery(
 
 // Update gallery
 export async function updateGallery(
-  id: string,
+  id: number,
   values: GalleryFormValues
 ): Promise<ActionResult> {
   try {
@@ -371,7 +371,7 @@ export async function updateGallery(
     const existingGallery = await db
       .select()
       .from(galleries)
-      .where(eq(galleries.id, parseInt(id)))
+      .where(eq(galleries.id, id))
       .limit(1);
 
     if (existingGallery.length === 0) {
@@ -404,7 +404,7 @@ export async function updateGallery(
         status: validatedFields.status,
         order: validatedFields.order,
       })
-      .where(eq(galleries.id, parseInt(id)));
+      .where(eq(galleries.id, id));
 
     revalidatePath("/admin/galleries");
     revalidatePath(`/admin/galleries/${id}`);
@@ -473,13 +473,13 @@ export async function deleteGallery(id: number): Promise<ActionResult> {
 
 // Get gallery media
 export async function getGalleryMedia(
-  galleryId: string
+  galleryId: number
 ): Promise<ActionResult<Media[]>> {
   try {
     const galleryMedia = await db
       .select()
       .from(media)
-      .where(eq(media.galleryId, parseInt(galleryId)))
+      .where(eq(media.galleryId, galleryId))
       .orderBy(asc(media.order));
 
     return {
@@ -493,7 +493,7 @@ export async function getGalleryMedia(
 
 // Update media order
 export async function updateMediaOrder(
-  mediaId: string,
+  mediaId: number,
   newOrder: number
 ): Promise<ActionResult> {
   try {
@@ -505,13 +505,13 @@ export async function updateMediaOrder(
     await db
       .update(media)
       .set({ order: newOrder })
-      .where(eq(media.id, parseInt(mediaId)));
+      .where(eq(media.id, mediaId));
 
     // Get gallery ID to revalidate
     const mediaItem = await db
       .select({ galleryId: media.galleryId })
       .from(media)
-      .where(eq(media.id, parseInt(mediaId)))
+      .where(eq(media.id, mediaId))
       .limit(1);
 
     if (mediaItem.length > 0) {
@@ -526,7 +526,7 @@ export async function updateMediaOrder(
 
 // Update media title
 export async function updateMediaTitle(
-  mediaId: string,
+  mediaId: number,
   title: string
 ): Promise<ActionResult> {
   try {
@@ -538,13 +538,13 @@ export async function updateMediaTitle(
     await db
       .update(media)
       .set({ title: title || null })
-      .where(eq(media.id, parseInt(mediaId)));
+      .where(eq(media.id, mediaId));
 
     // Get gallery ID to revalidate
     const mediaItem = await db
       .select({ galleryId: media.galleryId })
       .from(media)
-      .where(eq(media.id, parseInt(mediaId)))
+      .where(eq(media.id, mediaId))
       .limit(1);
 
     if (mediaItem.length > 0) {

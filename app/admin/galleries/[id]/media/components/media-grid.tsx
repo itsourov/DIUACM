@@ -132,10 +132,7 @@ export function MediaGrid({ gallery }: MediaGridProps) {
 
     setIsLoading(true);
     try {
-      const response = await updateMediaTitle(
-        editingMedia.id.toString(),
-        newTitle
-      );
+      const response = await updateMediaTitle(editingMedia.id, newTitle);
 
       if (response.success) {
         toast.success("Media title updated successfully");
@@ -160,7 +157,7 @@ export function MediaGrid({ gallery }: MediaGridProps) {
   const handleDelete = async (mediaItem: Media) => {
     setIsLoading(true);
     try {
-      const response = await deleteMedia(mediaItem.id.toString());
+      const response = await deleteMedia(mediaItem.id);
 
       if (response.success) {
         toast.success("Image deleted successfully");

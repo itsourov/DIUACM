@@ -35,7 +35,11 @@ export const metadata: Metadata = {
 
 export default async function MediaPage({ params }: MediaPageProps) {
   const resolvedParams = await params;
-  const galleryId = resolvedParams.id;
+  const galleryId = parseInt(resolvedParams.id);
+
+  if (isNaN(galleryId)) {
+    notFound();
+  }
 
   // Get gallery info and media in parallel
   const [galleryResult, mediaResult] = await Promise.all([
@@ -139,8 +143,9 @@ export default async function MediaPage({ params }: MediaPageProps) {
             <CardTitle>Gallery Images</CardTitle>
             <CardDescription>
               {hasImages
-                ? `${media.length} image${media.length !== 1 ? "s" : ""
-                } in this gallery`
+                ? `${media.length} image${
+                    media.length !== 1 ? "s" : ""
+                  } in this gallery`
                 : "No images yet"}
             </CardDescription>
           </div>

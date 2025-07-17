@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { generatePresignedUrl, saveMediaData } from "../../../actions";
 
 interface MediaUploaderProps {
-  galleryId: string;
+  galleryId: number;
 }
 
 interface UploadingFile {
@@ -181,11 +181,11 @@ export function MediaUploader({ galleryId }: MediaUploaderProps) {
             prev.map((f) =>
               f.id === fileObj.id
                 ? {
-                  ...f,
-                  uploading: false,
-                  error:
-                    error instanceof Error ? error.message : "Upload failed",
-                }
+                    ...f,
+                    uploading: false,
+                    error:
+                      error instanceof Error ? error.message : "Upload failed",
+                  }
                 : f
             )
           );
@@ -202,7 +202,8 @@ export function MediaUploader({ galleryId }: MediaUploaderProps) {
 
       if (successfulUploads > 0) {
         toast.success(
-          `Successfully uploaded ${successfulUploads} image${successfulUploads !== 1 ? "s" : ""
+          `Successfully uploaded ${successfulUploads} image${
+            successfulUploads !== 1 ? "s" : ""
           }`
         );
       } else if (filesWithErrors.size > 0 && successfulUploads === 0) {
@@ -252,10 +253,11 @@ export function MediaUploader({ galleryId }: MediaUploaderProps) {
   return (
     <div className="space-y-4">
       <div
-        className={`border-2 border-dashed rounded-lg p-8 ${dragOver
-          ? "bg-primary/10 border-primary"
-          : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          } transition-all duration-150 cursor-pointer`}
+        className={`border-2 border-dashed rounded-lg p-8 ${
+          dragOver
+            ? "bg-primary/10 border-primary"
+            : "border-muted-foreground/25 hover:border-muted-foreground/50"
+        } transition-all duration-150 cursor-pointer`}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
@@ -263,8 +265,9 @@ export function MediaUploader({ galleryId }: MediaUploaderProps) {
       >
         <div className="flex flex-col items-center justify-center gap-2 text-center">
           <Upload
-            className={`h-10 w-10 ${dragOver ? "text-primary" : "text-muted-foreground/80"
-              }`}
+            className={`h-10 w-10 ${
+              dragOver ? "text-primary" : "text-muted-foreground/80"
+            }`}
           />
           <h3 className="text-lg font-semibold">Drag & drop images here</h3>
           <p className="text-sm text-muted-foreground max-w-md">

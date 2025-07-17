@@ -28,7 +28,11 @@ export default async function EditGalleryPage({
   params,
 }: EditGalleryPageProps) {
   const resolvedParams = await params;
-  const galleryId = resolvedParams.id;
+  const galleryId = parseInt(resolvedParams.id);
+
+  if (isNaN(galleryId)) {
+    notFound();
+  }
 
   const result = await getGalleryById(galleryId);
 

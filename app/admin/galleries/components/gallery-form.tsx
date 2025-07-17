@@ -64,7 +64,7 @@ export function GalleryForm({
 
     try {
       const result = isEditing
-        ? await updateGallery(initialData?.id?.toString() || "", values)
+        ? await updateGallery(initialData?.id || 0, values)
         : await createGallery(values);
 
       if (result.success) {
