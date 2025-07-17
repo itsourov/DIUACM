@@ -2,8 +2,8 @@ import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db/drizzle";
 import Google from "next-auth/providers/google";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { users, accounts } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: {
@@ -39,4 +39,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   providers: [Google],
+  callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        // Only allow DIU email addresses
+        const email = user.email || "";
+        const allowedDomains = ["@diu.edu.bd", "@s.diu.edu.bd"];
+        const isAllowedDomain = allowedDomains.some((domain) =>
+          email.endsWith(domain)
+        );
+
+        if (!isAllowedDomain) {
+          return false; // Reject sign-in for non-DIU emails
+        }
+
+        // Check if a user with this email already exists
+        const [existingUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, user.email!))
+          .limit(1);
+
+        if (existingUser) {
+          // Check if this OAuth account is already linked to the user
+          const [existingAccount] = await db
+            .select()
+            .from(accounts)
+            .where(
+              and(
+                eq(accounts.userId, existingUser.id),
+                eq(accounts.provider, account.provider)
+              )
+            )
+            .limit(1);
+
+          if (!existingAccount) {
+            // Link the OAuth account to the existing user
+            await db.insert(accounts).values({
+              userId: existingUser.id,
+              type: account.type as "oauth",
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              refresh_token: account.refresh_token,
+              access_token: account.access_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+            });
+          }
+        }
+      }
+      return true;
+    },
+  },
 });
