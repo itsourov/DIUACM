@@ -18,7 +18,7 @@ export async function createEvent(values: EventFormValues) {
     }
     const validatedFields = eventFormSchema.parse(values);
 
-    const [event] = await db.insert(events).values({
+    await db.insert(events).values({
       ...validatedFields,
       // Handle nullable fields
       description: validatedFields.description || null,
@@ -27,7 +27,7 @@ export async function createEvent(values: EventFormValues) {
     });
 
     revalidatePath("/admin/events");
-    return { success: true, data: event };
+    return { success: true, data: { message: "Event created successfully" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
@@ -64,7 +64,7 @@ export async function updateEvent(id: number, values: EventFormValues) {
       };
     }
 
-    const [event] = await db
+    await db
       .update(events)
       .set({
         ...validatedFields,
@@ -77,7 +77,7 @@ export async function updateEvent(id: number, values: EventFormValues) {
     revalidatePath("/admin/events");
     revalidatePath(`/admin/events/${id}/edit`);
     revalidatePath(`/events/${id}`);
-    return { success: true, data: event };
+    return { success: true, data: { message: "Event updated successfully" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
