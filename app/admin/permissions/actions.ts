@@ -1,212 +1,315 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { permissions } from "@/db/schema";
+import { permissions, type Permission } from "@/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc } from "drizzle-orm";
+import { eq, or, like, count, desc, asc } from "drizzle-orm";
 import {
-    permissionFormSchema,
-    permissionUpdateFormSchema,
-    type PermissionFormValues,
-    type PermissionUpdateFormValues,
+  permissionFormSchema,
+  type PermissionFormValues,
 } from "./schemas/permission";
 import { hasPermission } from "@/lib/authorization";
 
-export async function createPermission(values: PermissionFormValues) {
-    try {
-        // Check if the user has permission to manage permissions
-        if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
-            return { success: false, error: "Unauthorized" };
-        }
+// Enhanced error handling type
+type ActionResult<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+};
 
-        const validatedFields = permissionFormSchema.parse(values);
+// Utility function to handle database errors
+function handleDbError(error: unknown): ActionResult {
+  console.error("Database error:", error);
 
-        // Check if permission name is already taken
-        const existingPermission = await db
-            .select()
-            .from(permissions)
-            .where(eq(permissions.name, validatedFields.name))
-            .limit(1);
-
-        if (existingPermission.length > 0) {
-            return {
-                success: false,
-                error: { name: ["This permission name is already in use."] },
-            };
-        }
-
-        const [newPermission] = await db
-            .insert(permissions)
-            .values({
-                name: validatedFields.name,
-                description: validatedFields.description,
-            })
-            .$returningId();
-
-        revalidatePath("/admin/permissions");
-        return { success: true, data: newPermission };
-    } catch (error) {
-        console.error("Error creating permission:", error);
-        return { success: false, error: "Failed to create permission" };
+  if (error instanceof Error) {
+    // Handle specific database constraint errors
+    if (error.message.includes("Duplicate entry")) {
+      return {
+        success: false,
+        error: "A permission with this name already exists",
+      };
     }
+    if (error.message.includes("foreign key constraint")) {
+      return { success: false, error: "Invalid reference" };
+    }
+    return { success: false, error: error.message };
+  }
+
+  return { success: false, error: "An unknown error occurred" };
 }
 
-export async function updatePermission(values: PermissionUpdateFormValues) {
-    try {
-        // Check if the user has permission to manage permissions
-        if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const validatedFields = permissionUpdateFormSchema.parse(values);
-
-        // Check if permission name is already taken by another permission
-        const existingPermission = await db
-            .select()
-            .from(permissions)
-            .where(eq(permissions.name, validatedFields.name))
-            .limit(1);
-
-        if (existingPermission.length > 0 && existingPermission[0].id !== validatedFields.id) {
-            return {
-                success: false,
-                error: { name: ["This permission name is already in use."] },
-            };
-        }
-
-        await db
-            .update(permissions)
-            .set({
-                name: validatedFields.name,
-                description: validatedFields.description,
-            })
-            .where(eq(permissions.id, validatedFields.id));
-
-        revalidatePath("/admin/permissions");
-        revalidatePath(`/admin/permissions/${validatedFields.id}/edit`);
-        return { success: true };
-    } catch (error) {
-        console.error("Error updating permission:", error);
-        return { success: false, error: "Failed to update permission" };
+export async function createPermission(
+  values: PermissionFormValues
+): Promise<ActionResult<{ id: number }>> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
     }
+
+    // Validate input
+    const validatedFields = permissionFormSchema.parse(values);
+
+    // Check for duplicate name
+    const existing = await db
+      .select({ id: permissions.id })
+      .from(permissions)
+      .where(eq(permissions.name, validatedFields.name))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return {
+        success: false,
+        error: "A permission with this name already exists",
+      };
+    }
+
+    // Create permission
+    const [result] = await db
+      .insert(permissions)
+      .values({
+        name: validatedFields.name,
+        description: validatedFields.description,
+      })
+      .$returningId();
+
+    revalidatePath("/admin/permissions");
+    return {
+      success: true,
+      data: result,
+      message: "Permission created successfully",
+    };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<{ id: number }>;
+  }
 }
 
-export async function deletePermission(id: number) {
-    try {
-        // Check if the user has permission to manage permissions
-        if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        await db.delete(permissions).where(eq(permissions.id, id));
-
-        revalidatePath("/admin/permissions");
-        return { success: true };
-    } catch (error) {
-        console.error("Error deleting permission:", error);
-        return { success: false, error: "Failed to delete permission" };
+export async function updatePermission(
+  id: number,
+  values: PermissionFormValues
+): Promise<ActionResult<Permission>> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
     }
+
+    // Validate input
+    const validatedFields = permissionFormSchema.parse(values);
+
+    // Check if permission exists
+    const existing = await db
+      .select()
+      .from(permissions)
+      .where(eq(permissions.id, id))
+      .limit(1);
+
+    if (existing.length === 0) {
+      return { success: false, error: "Permission not found" };
+    }
+
+    // Check for duplicate name (excluding current permission)
+    const duplicate = await db
+      .select({ id: permissions.id })
+      .from(permissions)
+      .where(eq(permissions.name, validatedFields.name))
+      .limit(1);
+
+    if (duplicate.length > 0 && duplicate[0].id !== id) {
+      return {
+        success: false,
+        error: "A permission with this name already exists",
+      };
+    }
+
+    // Update permission
+    await db
+      .update(permissions)
+      .set({
+        name: validatedFields.name,
+        description: validatedFields.description,
+      })
+      .where(eq(permissions.id, id));
+
+    // Get the updated permission
+    const [updated] = await db
+      .select()
+      .from(permissions)
+      .where(eq(permissions.id, id))
+      .limit(1);
+
+    revalidatePath("/admin/permissions");
+    revalidatePath(`/admin/permissions/${id}`);
+    return {
+      success: true,
+      data: updated,
+      message: "Permission updated successfully",
+    };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<Permission>;
+  }
 }
 
-export async function getPermissionById(id: number) {
-    try {
-        // Check if the user has permission to view permissions
-        if (!(await hasPermission("PERMISSIONS:VIEW"))) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const permission = await db
-            .select()
-            .from(permissions)
-            .where(eq(permissions.id, id))
-            .limit(1);
-
-        if (permission.length === 0) {
-            return { success: false, error: "Permission not found" };
-        }
-
-        return { success: true, data: permission[0] };
-    } catch (error) {
-        console.error("Error fetching permission:", error);
-        return { success: false, error: "Failed to fetch permission" };
+export async function deletePermission(id: number): Promise<ActionResult> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
     }
+
+    // Check if permission exists
+    const existing = await db
+      .select({ id: permissions.id })
+      .from(permissions)
+      .where(eq(permissions.id, id))
+      .limit(1);
+
+    if (existing.length === 0) {
+      return { success: false, error: "Permission not found" };
+    }
+
+    // Delete permission
+    await db.delete(permissions).where(eq(permissions.id, id));
+
+    revalidatePath("/admin/permissions");
+    return {
+      success: true,
+      message: "Permission deleted successfully",
+    };
+  } catch (error) {
+    return handleDbError(error);
+  }
+}
+
+export async function getPermissionById(
+  id: number
+): Promise<ActionResult<Permission>> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:VIEW"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const [permission] = await db
+      .select()
+      .from(permissions)
+      .where(eq(permissions.id, id))
+      .limit(1);
+
+    if (!permission) {
+      return { success: false, error: "Permission not found" };
+    }
+
+    return { success: true, data: permission };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<Permission>;
+  }
 }
 
 export async function getPaginatedPermissions(
-    page: number = 1,
-    limit: number = 10,
-    search?: string
-) {
-    try {
-        // Check if the user has permission to view permissions
-        if (!(await hasPermission("PERMISSIONS:VIEW"))) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const offset = (page - 1) * limit;
-
-        // Build the where clause for search
-        const whereClause = search
-            ? or(
-                like(permissions.name, `%${search}%`),
-                like(permissions.description, `%${search}%`)
-            )
-            : undefined;
-
-        // Get total count
-        const [totalResult] = await db
-            .select({ count: count() })
-            .from(permissions)
-            .where(whereClause);
-
-        const totalCount = totalResult.count;
-        const totalPages = Math.ceil(totalCount / limit);
-
-        // Get paginated permissions
-        const permissionsData = await db
-            .select()
-            .from(permissions)
-            .where(whereClause)
-            .orderBy(desc(permissions.id))
-            .limit(limit)
-            .offset(offset);
-
-        return {
-            success: true,
-            data: {
-                permissions: permissionsData,
-                pagination: {
-                    currentPage: page,
-                    totalPages,
-                    totalCount,
-                    pageSize: limit,
-                },
-            },
-        };
-    } catch (error) {
-        console.error("Error fetching permissions:", error);
-        return { success: false, error: "Failed to fetch permissions" };
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  sortBy: "id" | "name" = "id",
+  sortOrder: "asc" | "desc" = "desc"
+): Promise<
+  ActionResult<{
+    permissions: Permission[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+      pageSize: number;
+    };
+  }>
+> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:VIEW"))) {
+      return { success: false, error: "Unauthorized" };
     }
+
+    const offset = (page - 1) * limit;
+
+    // Build the where clause for search
+    const whereClause = search
+      ? or(
+          like(permissions.name, `%${search}%`),
+          like(permissions.description, `%${search}%`)
+        )
+      : undefined;
+
+    // Build order by clause
+    const orderByClause =
+      sortBy === "name"
+        ? sortOrder === "asc"
+          ? asc(permissions.name)
+          : desc(permissions.name)
+        : sortOrder === "asc"
+        ? asc(permissions.id)
+        : desc(permissions.id);
+
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(permissions)
+      .where(whereClause);
+
+    const totalCount = totalResult.count;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated permissions
+    const permissionsData = await db
+      .select()
+      .from(permissions)
+      .where(whereClause)
+      .orderBy(orderByClause)
+      .limit(limit)
+      .offset(offset);
+
+    return {
+      success: true,
+      data: {
+        permissions: permissionsData,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalCount,
+          pageSize: limit,
+        },
+      },
+    };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<{
+      permissions: Permission[];
+      pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalCount: number;
+        pageSize: number;
+      };
+    }>;
+  }
 }
 
-export async function getAllPermissions() {
-    try {
-        // Check if the user has permission to view permissions
-        if (!(await hasPermission("PERMISSIONS:VIEW"))) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const permissionsData = await db
-            .select()
-            .from(permissions)
-            .orderBy(permissions.name);
-
-        return {
-            success: true,
-            data: permissionsData,
-        };
-    } catch (error) {
-        console.error("Error fetching all permissions:", error);
-        return { success: false, error: "Failed to fetch permissions" };
+export async function getAllPermissions(): Promise<ActionResult<Permission[]>> {
+  try {
+    // Check permissions
+    if (!(await hasPermission("PERMISSIONS:VIEW"))) {
+      return { success: false, error: "Unauthorized" };
     }
-} 
+
+    const permissionsData = await db
+      .select()
+      .from(permissions)
+      .orderBy(asc(permissions.name));
+
+    return {
+      success: true,
+      data: permissionsData,
+    };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<Permission[]>;
+  }
+}
