@@ -27,7 +27,7 @@ export async function createEvent(values: EventFormValues) {
     });
 
     revalidatePath("/admin/events");
-    return { success: true, data: { message: "Event created successfully" } };
+    return { success: true, message: "Event created successfully" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
@@ -77,7 +77,7 @@ export async function updateEvent(id: number, values: EventFormValues) {
     revalidatePath("/admin/events");
     revalidatePath(`/admin/events/${id}/edit`);
     revalidatePath(`/events/${id}`);
-    return { success: true, data: { message: "Event updated successfully" } };
+    return { success: true, message: "Event updated successfully" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.flatten().fieldErrors };
@@ -115,7 +115,7 @@ export async function deleteEvent(id: number) {
     await db.delete(events).where(eq(events.id, id));
 
     revalidatePath("/admin/events");
-    return { success: true };
+    return { success: true, message: "Event deleted successfully" };
   } catch (error) {
     console.error("Error deleting event:", error);
     return {
