@@ -1,14 +1,5 @@
 import Link from "next/link";
-import {
-  FileText,
-  Plus,
-  Calendar,
-  Pencil,
-  User,
-  Settings,
-  Eye,
-  Star,
-} from "lucide-react";
+import { BookOpen, Plus, Calendar, MessageSquare, Pencil } from "lucide-react";
 import { Metadata } from "next";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -32,7 +23,6 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { getPaginatedBlogs } from "./actions";
 import { DeleteBlogButton } from "./components/delete-blog-button";
 import { SearchBlogs } from "./components/search-blogs";
-import { type BlogPost } from "@/db/schema";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -40,13 +30,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export const metadata: Metadata = {
   title: "Blog Management | DIU ACM Admin",
@@ -60,7 +43,8 @@ interface BlogsPageProps {
   }>;
 }
 
-type Blog = BlogPost;
+// Define badge variant types
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 export default async function BlogsPage({ searchParams }: BlogsPageProps) {
   const awaitedSearchParams = await searchParams;
@@ -69,39 +53,40 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
 
   const { data } = await getPaginatedBlogs(page, 10, search);
 
-  const blogsData = data as
-    | {
-        blogs: Blog[];
-        pagination: {
-          currentPage: number;
-          totalPages: number;
-          totalCount: number;
-          pageSize: number;
-        };
-      }
-    | undefined;
-  const blogs = blogsData?.blogs ?? [];
-  const pagination = blogsData?.pagination ?? {
+  const blogs = data?.blogs ?? [];
+  const pagination = data?.pagination ?? {
     currentPage: 1,
     totalPages: 1,
     totalCount: 0,
     pageSize: 10,
   };
 
-  const getStatusBadge = (status: string) => {
+  // Helper function to determine badge variant based on blog status
+  const getStatusVariant = (status: string): BadgeVariant => {
     switch (status) {
       case "published":
-        return <Badge variant="default">Published</Badge>;
+        return "default"; // Use default (blue) for published
       case "draft":
-        return <Badge variant="secondary">Draft</Badge>;
+        return "secondary"; // Use secondary (gray) for drafts
+      case "private":
+        return "outline"; // Use outline for private
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return "default";
     }
   };
 
-  const truncateContent = (content: string, maxLength: number = 100) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + "...";
+  // Format date for display
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date) return "Not published";
+    return format(new Date(date), "MMM d, yyyy");
+  };
+
+  // Truncate content for preview
+  const truncateContent = (content: string | null, maxLength: number = 100) => {
+    if (!content) return "No content";
+    return content.length > maxLength
+      ? `${content.substring(0, maxLength)}...`
+      : content;
   };
 
   return (
@@ -117,7 +102,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink className="text-foreground font-medium">
-                Blogs
+                Blog Posts
               </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -126,7 +111,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Blog Posts</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage all your blog posts and articles
+              Manage your website content and articles
             </p>
           </div>
           <Button asChild className="w-full sm:w-auto">
@@ -141,9 +126,9 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
       <Card>
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
           <div>
-            <CardTitle className="text-xl">Blog Posts List</CardTitle>
+            <CardTitle className="text-xl">Blog Posts</CardTitle>
             <CardDescription>
-              Total: {pagination.totalCount} blog post
+              Total: {pagination.totalCount} post
               {pagination.totalCount !== 1 ? "s" : ""}
             </CardDescription>
           </div>
@@ -153,15 +138,15 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
           {blogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
               <div className="rounded-full bg-muted p-3">
-                <FileText className="h-6 w-6" />
+                <BookOpen className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-semibold">
                 No blog posts found
               </h3>
               {search ? (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
-                  No blog posts match &quot;{search}&quot;. Try a different
-                  search term or create a new blog post.
+                  No blog posts match your search criteria. Try different
+                  filters or create a new post.
                 </p>
               ) : (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
@@ -181,95 +166,75 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[300px]">
-                        Blog Details
+                      <TableHead className="w-[250px]">Title</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status
                       </TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Published</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Published Date
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Author
+                      </TableHead>
                       <TableHead className="w-[100px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {blogs.map((blog: Blog) => (
+                    {blogs.map((blog) => (
                       <TableRow key={blog.id}>
                         <TableCell>
-                          <div className="space-y-1.5">
-                            <div className="flex items-center gap-2">
-                              <div className="font-medium text-base">
-                                {blog.title}
-                              </div>
-                              {blog.isFeatured && (
-                                <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                              )}
+                          <div className="space-y-1">
+                            <div className="font-medium text-base">
+                              {blog.title}
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-muted-foreground line-clamp-1">
                               {truncateContent(blog.content)}
                             </div>
-                            <div className="flex items-center text-xs text-muted-foreground">
-                              <span className="font-mono">/{blog.slug}</span>
-                            </div>
+                            {blog.isFeatured && (
+                              <Badge variant="outline" className="text-xs">
+                                Featured
+                              </Badge>
+                            )}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm">
-                            <User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                            <span>{blog.author}</span>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge variant={getStatusVariant(blog.status)}>
+                            {blog.status.toLowerCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="flex items-center">
+                            <Calendar className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                            <span className="text-sm">
+                              {formatDate(blog.publishedAt)}
+                            </span>
                           </div>
                         </TableCell>
-                        <TableCell>{getStatusBadge(blog.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm">
-                            <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                            <span>
-                              {blog.publishedAt
-                                ? format(new Date(blog.publishedAt), "PP")
-                                : "Not published"}
+                        <TableCell className="hidden md:table-cell">
+                          <div className="flex items-center">
+                            <MessageSquare className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                            <span className="text-sm">
+                              {blog.author || "Anonymous"}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <Settings className="h-4 w-4" />
-                                  <span className="sr-only">Blog actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/admin/blogs/${blog.id}/edit`}>
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    Edit Blog Post
-                                  </Link>
-                                </DropdownMenuItem>
-                                {blog.status === "published" && (
-                                  <DropdownMenuItem asChild>
-                                    <Link
-                                      href={`/blogs/${blog.slug}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      View Post
-                                    </Link>
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DeleteBlogButton
-                                  id={blog.id}
-                                  title={blog.title}
-                                  className="text-destructive focus:text-destructive"
-                                  showText={true}
-                                  asDropdownItem={true}
-                                />
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              asChild
+                            >
+                              <Link
+                                href={`/admin/blogs/${blog.id}/edit`}
+                                className="flex items-center justify-center"
+                              >
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                              </Link>
+                            </Button>
+                            <DeleteBlogButton id={blog.id} title={blog.title} />
                           </div>
                         </TableCell>
                       </TableRow>
