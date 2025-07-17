@@ -248,6 +248,8 @@ export default async function ContestsPage({
                             </Button>
                             <DeleteButton
                               id={contest.id}
+                              itemName={contest.name}
+                              itemType="Contest"
                               onDelete={deleteContest}
                             />
                           </div>

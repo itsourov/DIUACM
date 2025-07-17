@@ -270,7 +270,12 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteButton id={user.id} onDelete={deleteUser} />
+                            <DeleteButton
+                              id={user.id}
+                              itemName={user.name}
+                              itemType="User"
+                              onDelete={deleteUser}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

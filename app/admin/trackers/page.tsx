@@ -271,6 +271,8 @@ export default async function TrackersPage({
 
                             <DeleteButton
                               id={tracker.id}
+                              itemName={tracker.title}
+                              itemType="Tracker"
                               onDelete={deleteTracker}
                             />
                           </div>

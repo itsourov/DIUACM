@@ -259,6 +259,8 @@ export default async function GalleriesPage({
 
                             <DeleteButton
                               id={gallery.id}
+                              itemName={gallery.title}
+                              itemType="Gallery"
                               onDelete={deleteGallery}
                             />
                           </div>

@@ -169,6 +169,8 @@ export default async function PermissionsPage({
                             </Button>
                             <DeleteButton
                               id={permission.id}
+                              itemName={permission.name}
+                              itemType="Permission"
                               onDelete={deletePermission}
                             />
                           </div>

@@ -19,6 +19,8 @@ import {
 
 interface DeleteButtonProps<T = string | number> {
   id: T;
+  itemName: string;
+  itemType: string;
   onDelete: (
     id: T
   ) => Promise<{ success: boolean; error?: string; message?: string }>;
@@ -26,6 +28,8 @@ interface DeleteButtonProps<T = string | number> {
 
 export function DeleteButton<T = string | number>({
   id,
+  itemName,
+  itemType,
   onDelete,
 }: DeleteButtonProps<T>) {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +42,9 @@ export function DeleteButton<T = string | number>({
       const response = await onDelete(id);
 
       if (response.success) {
-        toast.success(response.message || "Item deleted successfully");
+        toast.success(
+          response.message || `${itemType} "${itemName}" deleted successfully`
+        );
         setOpen(false);
       } else {
         toast.error(response.error || "Something went wrong");
@@ -67,8 +73,8 @@ export function DeleteButton<T = string | number>({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this item. This action cannot be
-            undone.
+            This will permanently delete the {itemType.toLowerCase()} &ldquo;
+            {itemName}&rdquo;. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

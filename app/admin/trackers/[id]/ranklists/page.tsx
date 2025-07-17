@@ -314,6 +314,8 @@ export default async function RanklistsPage({ params }: RanklistsPageProps) {
                           </Tooltip>
                           <DeleteButton
                             id={ranklist.id}
+                            itemName={ranklist.keyword}
+                            itemType="Ranklist"
                             onDelete={deleteRanklist}
                           />
                         </div>

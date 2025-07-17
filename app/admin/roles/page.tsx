@@ -191,7 +191,12 @@ export default async function RolesPage({ searchParams }: RolesPageProps) {
                                 <span className="sr-only">Users</span>
                               </Link>
                             </Button>
-                            <DeleteButton id={role.id} onDelete={deleteRole} />
+                            <DeleteButton
+                              id={role.id}
+                              itemName={role.name}
+                              itemType="Role"
+                              onDelete={deleteRole}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

@@ -234,7 +234,12 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteButton id={blog.id} onDelete={deleteBlog} />
+                            <DeleteButton
+                              id={blog.id}
+                              itemName={blog.title}
+                              itemType="Blog"
+                              onDelete={deleteBlog}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

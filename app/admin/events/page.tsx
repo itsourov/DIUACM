@@ -257,6 +257,8 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                             </Button>
                             <DeleteButton
                               id={event.id}
+                              itemName={event.title}
+                              itemType="Event"
                               onDelete={deleteEvent}
                             />
                           </div>
