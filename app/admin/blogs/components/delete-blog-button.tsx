@@ -1,117 +1,104 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "nextjs-toploader/app";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 import { deleteBlog } from "../actions";
 
 interface DeleteBlogButtonProps {
-    id: number;
-    title: string;
-    showText?: boolean;
-    className?: string;
-    variant?: "ghost" | "default" | "destructive" | "outline" | "secondary" | "link";
-    size?: "default" | "sm" | "lg" | "icon";
-    asDropdownItem?: boolean;
+  id: number;
+  title: string;
 }
 
-export function DeleteBlogButton({
-    id,
-    title,
-    showText = false,
-    className,
-    variant = "ghost",
-    size = "sm",
-    asDropdownItem = false,
-}: DeleteBlogButtonProps) {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
+export function DeleteBlogButton({ id, title }: DeleteBlogButtonProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-    const handleDelete = async () => {
-        setIsLoading(true);
-        try {
-            const result = await deleteBlog(id);
+  const onDelete = async () => {
+    setIsLoading(true);
 
-            if (result.success) {
-                toast.success(result.message || "Blog post deleted successfully");
-                setIsOpen(false);
-                router.refresh();
-            } else {
-                toast.error(result.error || "Failed to delete blog post");
-            }
-        } catch (error) {
-            console.error("Delete error:", error);
-            toast.error("Something went wrong. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    try {
+      const response = await deleteBlog(id);
 
-    const TriggerComponent = asDropdownItem ? (
-        <DropdownMenuItem
-            className={className}
-            onSelect={(e) => {
-                e.preventDefault();
-                setIsOpen(true);
-            }}
-        >
-            <Trash2 className="h-4 w-4" />
-            {showText && <span className="ml-2">Delete</span>}
-        </DropdownMenuItem>
-    ) : (
+      if (response.success) {
+        toast.success("Blog post deleted successfully");
+        setOpen(false);
+      } else {
+        toast.error(response.error || "Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete blog post.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         <Button
-            variant={variant}
-            size={size}
-            className={className}
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-destructive"
         >
-            <Trash2 className="h-4 w-4" />
-            {showText && <span className="ml-2">Delete</span>}
-            <span className="sr-only">Delete blog post</span>
+          <Trash2 className="h-4 w-4" />
+          <span className="sr-only">Delete</span>
         </Button>
-    );
-
-    return (
-        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-            <AlertDialogTrigger asChild>
-                {TriggerComponent}
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Blog Post</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Are you sure you want to delete &quot;{title}&quot;? This action
-                        cannot be undone and will permanently remove the blog post from the
-                        system.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={handleDelete}
-                        disabled={isLoading}
-                        className="bg-destructive hover:bg-destructive/90"
-                    >
-                        {isLoading ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    );
-} 
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete the blog post <strong>{title}</strong>.
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onDelete}
+            className="bg-destructive hover:bg-destructive/90"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <svg
+                  className="mr-2 h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
