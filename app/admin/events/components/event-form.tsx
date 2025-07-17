@@ -55,7 +55,7 @@ export function EventForm({ event, isEditing = false }: EventFormProps) {
           description: event.description || "",
           status: event.status,
           startingAt: event.startingAt.toISOString().slice(0, 16),
-          endingAt: event.endingAt,
+          endingAt: event.endingAt.toISOString().slice(0, 16),
           eventLink: event.eventLink || "",
           eventPassword: event.eventPassword || "",
           openForAttendance: event.openForAttendance,

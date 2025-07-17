@@ -209,7 +209,7 @@ export const events = mysqlTable("events", {
     .default(VisibilityStatus.DRAFT)
     .notNull(),
   startingAt: datetime("starting_at").notNull(),
-  endingAt: varchar("ending_at", { length: 255 }).notNull(),
+  endingAt: datetime("ending_at").notNull(),
   eventLink: varchar("event_link", { length: 255 }).unique(),
   eventPassword: varchar("event_password", { length: 255 }),
   openForAttendance: boolean("open_for_attendance").notNull(),

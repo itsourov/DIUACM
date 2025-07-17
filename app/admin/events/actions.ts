@@ -58,15 +58,16 @@ export async function createEvent(
 
     const { data } = validatedFields;
 
-    // Convert startingAt string to Date
+    // Convert startingAt and endingAt strings to Date
     const startingAt = new Date(data.startingAt);
+    const endingAt = new Date(data.endingAt);
 
     const [result] = await db.insert(events).values({
       title: data.title,
       description: data.description || null,
       status: data.status,
       startingAt: startingAt,
-      endingAt: data.endingAt,
+      endingAt: endingAt,
       eventLink: data.eventLink || null,
       eventPassword: data.eventPassword || null,
       openForAttendance: data.openForAttendance,
@@ -79,7 +80,17 @@ export async function createEvent(
     return {
       success: true,
       message: "Event created successfully",
-      data: { id: result.insertId as number, ...data, startingAt } as Event,
+      data: {
+        id: result.insertId as number,
+        ...data,
+        startingAt,
+        endingAt,
+        description: data.description || null,
+        eventLink: data.eventLink || null,
+        eventPassword: data.eventPassword || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Event,
     };
   } catch (error) {
     return handleDbError<Event>(error);
@@ -105,8 +116,9 @@ export async function updateEvent(
 
     const { data } = validatedFields;
 
-    // Convert startingAt string to Date
+    // Convert startingAt and endingAt strings to Date
     const startingAt = new Date(data.startingAt);
+    const endingAt = new Date(data.endingAt);
 
     await db
       .update(events)
@@ -115,7 +127,7 @@ export async function updateEvent(
         description: data.description || null,
         status: data.status,
         startingAt: startingAt,
-        endingAt: data.endingAt,
+        endingAt: endingAt,
         eventLink: data.eventLink || null,
         eventPassword: data.eventPassword || null,
         openForAttendance: data.openForAttendance,
@@ -131,7 +143,17 @@ export async function updateEvent(
     return {
       success: true,
       message: "Event updated successfully",
-      data: { id, ...data, startingAt } as Event,
+      data: {
+        id,
+        ...data,
+        startingAt,
+        endingAt,
+        description: data.description || null,
+        eventLink: data.eventLink || null,
+        eventPassword: data.eventPassword || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Event,
     };
   } catch (error) {
     return handleDbError<Event>(error);
