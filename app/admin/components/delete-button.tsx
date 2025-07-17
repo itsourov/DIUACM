@@ -17,32 +17,33 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { deleteBlog } from "../actions";
-
-interface DeleteBlogButtonProps {
-  id: number;
-  title: string;
+interface DeleteButtonProps<T = string | number> {
+  id: T;
+  onDelete: (id: T) => Promise<{ success: boolean; error?: string }>;
 }
 
-export function DeleteBlogButton({ id, title }: DeleteBlogButtonProps) {
+export function DeleteButton<T = string | number>({
+  id,
+  onDelete,
+}: DeleteButtonProps<T>) {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const onDelete = async () => {
+  const handleDelete = async () => {
     setIsLoading(true);
 
     try {
-      const response = await deleteBlog(id);
+      const response = await onDelete(id);
 
       if (response.success) {
-        toast.success("Blog post deleted successfully");
+        toast.success("Item deleted successfully");
         setOpen(false);
       } else {
         toast.error(response.error || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete blog post.");
+      toast.error("Failed to delete item.");
     } finally {
       setIsLoading(false);
     }
@@ -64,14 +65,14 @@ export function DeleteBlogButton({ id, title }: DeleteBlogButtonProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the blog post <strong>{title}</strong>.
-            This action cannot be undone.
+            This will permanently delete this item. This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onDelete}
+            onClick={handleDelete}
             className="bg-destructive hover:bg-destructive/90"
             disabled={isLoading}
           >

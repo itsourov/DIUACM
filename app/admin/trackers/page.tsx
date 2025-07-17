@@ -31,8 +31,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedTrackers } from "./actions";
-import { DeleteTrackerButton } from "./components/delete-tracker-button";
+import { getPaginatedTrackers, deleteTracker } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchTrackers } from "./components/search-trackers";
 import {
   Breadcrumb,
@@ -269,9 +269,9 @@ export default async function TrackersPage({
                               <TooltipContent>Manage Ranklists</TooltipContent>
                             </Tooltip>
 
-                            <DeleteTrackerButton
+                            <DeleteButton
                               id={tracker.id}
-                              title={tracker.title}
+                              onDelete={deleteTracker}
                             />
                           </div>
                         </TableCell>

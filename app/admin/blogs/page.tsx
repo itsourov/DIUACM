@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedBlogs } from "./actions";
-import { DeleteBlogButton } from "./components/delete-blog-button";
+import { getPaginatedBlogs, deleteBlog } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchBlogs } from "./components/search-blogs";
 import {
   Breadcrumb,
@@ -234,7 +234,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteBlogButton id={blog.id} title={blog.title} />
+                            <DeleteButton id={blog.id} onDelete={deleteBlog} />
                           </div>
                         </TableCell>
                       </TableRow>

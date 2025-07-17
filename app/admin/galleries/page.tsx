@@ -24,8 +24,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedGalleries } from "./actions";
-import { DeleteGalleryButton } from "./components/delete-gallery-button";
+import { getPaginatedGalleries, deleteGallery } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchGalleries } from "./components/search-galleries";
 import {
   Breadcrumb,
@@ -257,9 +257,9 @@ export default async function GalleriesPage({
                               <TooltipContent>Manage Media</TooltipContent>
                             </Tooltip>
 
-                            <DeleteGalleryButton
+                            <DeleteButton
                               id={gallery.id}
-                              title={gallery.title}
+                              onDelete={deleteGallery}
                             />
                           </div>
                         </TableCell>

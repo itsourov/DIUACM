@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedUsers } from "./actions";
-import { DeleteUserButton } from "./components/delete-user-button";
+import { getPaginatedUsers, deleteUser } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchUsers } from "./components/search-users";
 import {
   Breadcrumb,
@@ -270,7 +270,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteUserButton id={user.id} name={user.name} />
+                            <DeleteButton id={user.id} onDelete={deleteUser} />
                           </div>
                         </TableCell>
                       </TableRow>

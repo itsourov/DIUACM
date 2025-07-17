@@ -28,8 +28,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedContests } from "./actions";
-import { DeleteContestButton } from "./components/delete-contest-button";
+import { getPaginatedContests, deleteContest } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchContests } from "./components/search-contests";
 import {
   Breadcrumb,
@@ -246,9 +246,9 @@ export default async function ContestsPage({
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteContestButton
+                            <DeleteButton
                               id={contest.id}
-                              name={contest.name}
+                              onDelete={deleteContest}
                             />
                           </div>
                         </TableCell>

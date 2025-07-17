@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CustomPagination } from "@/components/custom-pagination";
-import { getPaginatedEvents } from "./actions";
-import { DeleteEventButton } from "./components/delete-event-button";
+import { getPaginatedEvents, deleteEvent } from "./actions";
+import { DeleteButton } from "../components/delete-button";
 import { SearchEvents } from "./components/search-events";
 import {
   Breadcrumb,
@@ -255,9 +255,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            <DeleteEventButton
+                            <DeleteButton
                               id={event.id}
-                              title={event.title}
+                              onDelete={deleteEvent}
                             />
                           </div>
                         </TableCell>
