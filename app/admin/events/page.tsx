@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
-  Calendar,
+  CalendarRange,
   Plus,
-  Clock,
-  Pencil,
-  ExternalLink,
+  CalendarClock,
   Users,
-  List,
+  Pencil,
 } from "lucide-react";
 import { Metadata } from "next";
 import { format } from "date-fns";
@@ -38,15 +36,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
-import { type Event } from "@/db/schema";
 
 export const metadata: Metadata = {
   title: "Events Management | DIU ACM Admin",
@@ -57,86 +46,46 @@ interface EventsPageProps {
   searchParams: Promise<{
     page?: string;
     search?: string;
+    type?: string;
   }>;
 }
+
+// Define badge variant types
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const awaitedSearchParams = await searchParams;
   const page = parseInt(awaitedSearchParams.page ?? "1", 10);
   const search = awaitedSearchParams.search || undefined;
+  const type = awaitedSearchParams.type || undefined;
 
-  const { data } = await getPaginatedEvents(page, 10, search);
+  const { data } = await getPaginatedEvents(page, 10, search, type);
 
-  const eventsData = data as
-    | {
-        events: Event[];
-        pagination: {
-          currentPage: number;
-          totalPages: number;
-          totalCount: number;
-          pageSize: number;
-        };
-      }
-    | undefined;
-  const events = eventsData?.events ?? [];
-  const pagination = eventsData?.pagination ?? {
+  const events = data?.events ?? [];
+  const pagination = data?.pagination ?? {
     currentPage: 1,
     totalPages: 1,
     totalCount: 0,
     pageSize: 10,
   };
 
-  const getEventTypeBadge = (type: string) => {
-    switch (type) {
-      case "contest":
-        return <Badge variant="default">Contest</Badge>;
-      case "class":
-        return <Badge variant="secondary">Class</Badge>;
-      case "other":
-        return <Badge variant="outline">Other</Badge>;
-      default:
-        return <Badge variant="outline">{type}</Badge>;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
+  // Helper function to determine badge variant based on event status
+  const getStatusVariant = (status: string): BadgeVariant => {
     switch (status) {
-      case "published":
-        return (
-          <Badge className="bg-green-500 hover:bg-green-600">Published</Badge>
-        );
-      case "draft":
-        return <Badge variant="secondary">Draft</Badge>;
+      case "PUBLISHED":
+        return "default"; // Use default (blue) for published
+      case "DRAFT":
+        return "secondary"; // Use secondary (gray) for drafts
+      case "PRIVATE":
+        return "outline"; // Use outline for private
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return "default";
     }
   };
 
-  const getParticipationScopeBadge = (scope: string) => {
-    switch (scope) {
-      case "open_for_all":
-        return (
-          <Badge className="bg-blue-500 hover:bg-blue-600">Open for All</Badge>
-        );
-      case "only_girls":
-        return (
-          <Badge className="bg-pink-500 hover:bg-pink-600">Only Girls</Badge>
-        );
-      case "junior_programmers":
-        return (
-          <Badge className="bg-purple-500 hover:bg-purple-600">
-            Junior Programmers
-          </Badge>
-        );
-      case "selected_persons":
-        return (
-          <Badge className="bg-orange-500 hover:bg-orange-600">
-            Selected Persons
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{scope}</Badge>;
-    }
+  // Helper function to format event type
+  const formatEventType = (type: string) => {
+    return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
   };
 
   return (
@@ -188,13 +137,13 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
               <div className="rounded-full bg-muted p-3">
-                <Calendar className="h-6 w-6" />
+                <CalendarRange className="h-6 w-6" />
               </div>
               <h3 className="mt-4 text-lg font-semibold">No events found</h3>
-              {search ? (
+              {search || type ? (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
-                  No events match &quot;{search}&quot;. Try a different search
-                  term or create a new event.
+                  No events match your search criteria. Try different filters or
+                  create a new event.
                 </p>
               ) : (
                 <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
@@ -214,121 +163,102 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[240px]">
+                      <TableHead className="min-w-[250px]">
                         Event Details
                       </TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Starting Time</TableHead>
-                      <TableHead>Participation</TableHead>
-                      <TableHead>Attendance</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Schedule
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Attendance
+                      </TableHead>
+                      <TableHead className="w-[80px]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {events.map((event) => (
                       <TableRow key={event.id}>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{event.title}</div>
-                            {event.description && (
-                              <div className="text-sm text-muted-foreground line-clamp-1">
-                                {event.description}
-                              </div>
-                            )}
-                            {event.eventLink && (
-                              <div className="flex items-center gap-1 mt-1">
-                                <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                                <a
-                                  href={event.eventLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-blue-600 hover:underline"
-                                >
-                                  Event Link
-                                </a>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{getEventTypeBadge(event.type)}</TableCell>
-                        <TableCell>{getStatusBadge(event.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">
-                              {format(
-                                new Date(event.startingAt),
-                                "MMM dd, yyyy HH:mm"
-                              )}
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Duration: {event.endingAt}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {getParticipationScopeBadge(event.participationScope)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            <Badge
-                              variant={
-                                event.openForAttendance
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {event.openForAttendance ? "Open" : "Closed"}
-                            </Badge>
-                            {event.strictAttendance && (
+                          <div className="space-y-1">
+                            <div className="font-medium text-base">
+                              {event.title}
+                            </div>
+                            <div className="flex items-center space-x-1">
                               <Badge variant="outline" className="text-xs">
-                                Strict
+                                {formatEventType(event.type)}
                               </Badge>
-                            )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="space-y-1">
+                            <div className="flex items-center">
+                              <CalendarClock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                              <span className="text-sm">
+                                {format(
+                                  new Date(event.startingAt),
+                                  "MMM d, yyyy"
+                                )}
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(event.startingAt), "h:mm a")} -{" "}
+                              {format(new Date(event.endingAt), "h:mm a")}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge variant={getStatusVariant(event.status)}>
+                            {event.status.toLowerCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="space-y-1">
+                            <div className="flex items-center">
+                              <Users className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                              <span className="text-sm">
+                                {event._count?.attendances || 0} attendee
+                                {(event._count?.attendances || 0) !== 1
+                                  ? "s"
+                                  : ""}
+                              </span>
+                            </div>
+                            <div className="text-xs">
+                              {event.openForAttendance ? (
+                                <Badge variant="outline" className="text-xs">
+                                  Open for attendance
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  Attendance disabled
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button asChild variant="outline" size="sm">
-                              <Link href={`/admin/events/${event.id}/edit`}>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              asChild
+                            >
+                              <Link
+                                href={`/admin/events/${event.id}/edit`}
+                                className="flex items-center justify-center"
+                              >
                                 <Pencil className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Settings className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                  <Link
-                                    href={`/admin/events/${event.id}/attendees`}
-                                  >
-                                    <Users className="h-4 w-4 mr-2" />
-                                    Manage Attendees
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <Link
-                                    href={`/admin/events/${event.id}/ranklists`}
-                                  >
-                                    <List className="h-4 w-4 mr-2" />
-                                    Manage Ranklists
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                  <DeleteEventButton
-                                    eventId={event.id}
-                                    eventTitle={event.title}
-                                  />
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <DeleteEventButton
+                              eventId={event.id}
+                              eventTitle={event.title}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>
@@ -336,7 +266,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                   </TableBody>
                 </Table>
               </div>
-
               <div className="mt-6 flex justify-center">
                 <CustomPagination
                   currentPage={pagination.currentPage}

@@ -179,7 +179,8 @@ export async function getEvent(id: number): Promise<ActionResult<Event>> {
 export async function getPaginatedEvents(
   page: number = 1,
   pageSize: number = 10,
-  search?: string
+  search?: string,
+  type?: string
 ) {
   try {
     // Check if the user has permission to manage events
@@ -190,12 +191,29 @@ export async function getPaginatedEvents(
     const offset = (page - 1) * pageSize;
 
     // Build the where condition
-    const whereCondition = search
-      ? or(
+    const whereConditions = [];
+
+    if (search) {
+      whereConditions.push(
+        or(
           like(events.title, `%${search}%`),
           like(events.description, `%${search}%`)
         )
-      : undefined;
+      );
+    }
+
+    if (type && (type === "contest" || type === "class" || type === "other")) {
+      whereConditions.push(
+        eq(events.type, type as "contest" | "class" | "other")
+      );
+    }
+
+    const whereCondition =
+      whereConditions.length > 0
+        ? whereConditions.length === 1
+          ? whereConditions[0]
+          : or(...whereConditions)
+        : undefined;
 
     // Get total count
     const [totalResult] = await db
@@ -205,11 +223,31 @@ export async function getPaginatedEvents(
 
     const totalCount = totalResult.count;
 
-    // Get events
+    // Get events with attendance count
     const eventsList = await db
-      .select()
+      .select({
+        id: events.id,
+        title: events.title,
+        description: events.description,
+        status: events.status,
+        type: events.type,
+        startingAt: events.startingAt,
+        endingAt: events.endingAt,
+        eventLink: events.eventLink,
+        eventPassword: events.eventPassword,
+        participationScope: events.participationScope,
+        openForAttendance: events.openForAttendance,
+        strictAttendance: events.strictAttendance,
+        createdAt: events.createdAt,
+        updatedAt: events.updatedAt,
+        _count: {
+          attendances: count(eventUserAttendance.eventId),
+        },
+      })
       .from(events)
+      .leftJoin(eventUserAttendance, eq(events.id, eventUserAttendance.eventId))
       .where(whereCondition)
+      .groupBy(events.id)
       .orderBy(desc(events.createdAt))
       .limit(pageSize)
       .offset(offset);
