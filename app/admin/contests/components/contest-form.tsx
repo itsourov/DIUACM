@@ -103,7 +103,7 @@ export function ContestForm({
           location: initialData.location || "",
           description: initialData.description || "",
           standingsUrl: initialData.standingsUrl || "",
-          galleryId: initialData.galleryId?.toString() || "",
+          galleryId: initialData.galleryId || null,
           date: initialData.date
             ? formatDateForInput(initialData.date)
             : formatDateForInput(new Date()),
@@ -115,7 +115,7 @@ export function ContestForm({
           date: formatDateForInput(new Date()),
           description: "",
           standingsUrl: "",
-          galleryId: "",
+          galleryId: null,
         },
   });
 

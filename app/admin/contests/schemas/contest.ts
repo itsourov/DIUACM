@@ -49,17 +49,7 @@ export const contestFormSchema = z.object({
     )
     .optional()
     .or(z.literal("")),
-  galleryId: z
-    .string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val || val === "") return true;
-        const num = parseInt(val);
-        return !isNaN(num) && num > 0;
-      },
-      { message: "Gallery ID must be a valid positive number" }
-    ),
+  galleryId: z.number().int().positive().optional().nullable(),
 });
 
 export type ContestFormValues = z.infer<typeof contestFormSchema>;

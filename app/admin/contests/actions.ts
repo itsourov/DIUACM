@@ -93,10 +93,7 @@ export async function createContest(
       description: validatedFields.description || null,
       standingsUrl: validatedFields.standingsUrl || null,
       date: new Date(validatedFields.date),
-      galleryId:
-        validatedFields.galleryId && validatedFields.galleryId !== ""
-          ? parseInt(validatedFields.galleryId)
-          : null,
+      galleryId: validatedFields.galleryId || null,
     };
 
     // Validate gallery exists if provided
@@ -183,10 +180,7 @@ export async function updateContest(
       description: validatedFields.description || null,
       standingsUrl: validatedFields.standingsUrl || null,
       date: new Date(validatedFields.date),
-      galleryId:
-        validatedFields.galleryId && validatedFields.galleryId !== ""
-          ? parseInt(validatedFields.galleryId)
-          : null,
+      galleryId: validatedFields.galleryId || null,
     };
 
     // Validate gallery exists if provided
@@ -515,7 +509,7 @@ export async function duplicateContest(
       date: new Date().toISOString().split("T")[0], // Today's date
       description: contestData.description || "",
       standingsUrl: contestData.standingsUrl || "",
-      galleryId: contestData.galleryId?.toString() || "",
+      galleryId: contestData.galleryId || null,
     };
 
     return await createContest(newContestValues);
