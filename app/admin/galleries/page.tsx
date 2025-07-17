@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, ImageIcon, Tag, Pencil, Images } from "lucide-react";
+import { BadgeInfo, Plus, ImageIcon, Tag, Pencil, Images } from "lucide-react";
 import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,9 +50,9 @@ interface GalleriesPageProps {
 export default async function GalleriesPage({
   searchParams,
 }: GalleriesPageProps) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
-  const search = params.search;
+  const awaitedSearchParams = await searchParams;
+  const page = parseInt(awaitedSearchParams.page ?? "1", 10);
+  const search = awaitedSearchParams.search || undefined;
 
   const result = await getPaginatedGalleries(page, search);
 
@@ -73,7 +73,26 @@ export default async function GalleriesPage({
     );
   }
 
-  const { galleries, pagination } = result.data!;
+  const galleries = result.data?.galleries ?? [];
+  const pagination = result.data?.pagination ?? {
+    page: 1,
+    totalPages: 1,
+    totalCount: 0,
+    pageSize: 10,
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "published":
+        return <Badge variant="default">Published</Badge>;
+      case "draft":
+        return <Badge variant="outline">Draft</Badge>;
+      case "private":
+        return <Badge variant="secondary">Private</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -93,17 +112,16 @@ export default async function GalleriesPage({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Galleries</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage your photo galleries and media collections
+              Manage photo galleries for your organization
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/admin/galleries/create">
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
               Create Gallery
             </Link>
           </Button>
@@ -111,150 +129,151 @@ export default async function GalleriesPage({
       </div>
 
       <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2">
-                <Images className="h-5 w-5" />
-                All Galleries
-              </CardTitle>
-              <CardDescription>
-                {pagination.totalCount} galleries found
-                {search && ` for "${search}"`}
-              </CardDescription>
-            </div>
-            <SearchGalleries />
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+          <div>
+            <CardTitle className="text-xl">Galleries List</CardTitle>
+            <CardDescription>
+              Total: {pagination.totalCount} gallery
+              {pagination.totalCount !== 1 ? "ies" : ""}
+            </CardDescription>
           </div>
+          <SearchGalleries />
         </CardHeader>
         <CardContent>
           {galleries.length === 0 ? (
-            <div className="text-center py-8">
-              <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
+            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+              <div className="rounded-full bg-muted p-3">
+                <ImageIcon className="h-6 w-6" />
+              </div>
               <h3 className="mt-4 text-lg font-semibold">No galleries found</h3>
-              <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto">
-                {search
-                  ? `No galleries match your search for "${search}"`
-                  : "You haven't created any galleries yet. Create your first gallery to get started."}
-              </p>
-              {!search && (
-                <Button asChild className="mt-4">
-                  <Link href="/admin/galleries/create">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Your First Gallery
-                  </Link>
-                </Button>
+              {search ? (
+                <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
+                  No galleries match &quot;{search}&quot;. Try a different
+                  search term or create a new gallery.
+                </p>
+              ) : (
+                <p className="mb-4 mt-2 text-center text-sm text-muted-foreground max-w-xs">
+                  Get started by creating your first gallery.
+                </p>
               )}
+              <Button asChild variant="outline" className="mt-2">
+                <Link href="/admin/galleries/create">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Gallery
+                </Link>
+              </Button>
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Gallery</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Media Count</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {galleries.map((gallery) => (
-                    <TableRow key={gallery.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{gallery.title}</div>
-                          <div className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Tag className="h-3 w-3" />
-                            {gallery.slug}
-                          </div>
-                          {gallery.description && (
-                            <div className="text-sm text-muted-foreground">
-                              {gallery.description.length > 100
-                                ? gallery.description.substring(0, 40) + "..."
-                                : gallery.description}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            gallery.status === "published"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {gallery.status === "published"
-                            ? "Published"
-                            : "Draft"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                          <span>{gallery._count?.media || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{gallery.order}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {gallery.createdAt?.toLocaleDateString()}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link
-                                  href={`/admin/galleries/${gallery.id}/media`}
-                                >
-                                  <ImageIcon className="h-4 w-4" />
-                                </Link>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Manage Media</p>
-                            </TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link
-                                  href={`/admin/galleries/${gallery.id}/edit`}
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Link>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Edit Gallery</p>
-                            </TooltipContent>
-                          </Tooltip>
-
-                          <DeleteGalleryButton
-                            id={gallery.id}
-                            title={gallery.title}
-                          />
-                        </div>
-                      </TableCell>
+              <div className="rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[220px]">
+                        Gallery Details
+                      </TableHead>
+                      <TableHead>Slug</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Media Count</TableHead>
+                      <TableHead className="w-[80px]">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {galleries.map((gallery) => (
+                      <TableRow key={gallery.id}>
+                        <TableCell>
+                          <div className="space-y-1.5">
+                            <div className="font-medium text-base">
+                              {gallery.title}
+                            </div>
+                            {gallery.description && (
+                              <div className="text-sm text-muted-foreground truncate max-w-[250px]">
+                                {gallery.description}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Tag className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                            <span className="text-sm">{gallery.slug}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(gallery.status)}</TableCell>
+                        <TableCell>
+                          <span className="text-sm">{gallery.order}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <BadgeInfo className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                            <span className="text-sm">
+                              {gallery._count?.media || 0} image
+                              {(gallery._count?.media || 0) !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  asChild
+                                >
+                                  <Link
+                                    href={`/admin/galleries/${gallery.id}/edit`}
+                                    className="flex items-center justify-center"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                    <span className="sr-only">Edit</span>
+                                  </Link>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit Gallery</TooltipContent>
+                            </Tooltip>
 
-              {pagination.totalPages > 1 && (
-                <div className="mt-6">
-                  <CustomPagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                  />
-                </div>
-              )}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  asChild
+                                >
+                                  <Link
+                                    href={`/admin/galleries/${gallery.id}/media`}
+                                    className="flex items-center justify-center"
+                                  >
+                                    <Images className="h-4 w-4" />
+                                    <span className="sr-only">
+                                      Manage Media
+                                    </span>
+                                  </Link>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Manage Media</TooltipContent>
+                            </Tooltip>
+
+                            <DeleteGalleryButton
+                              id={gallery.id}
+                              title={gallery.title}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="mt-6 flex justify-center">
+                <CustomPagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                />
+              </div>
             </>
           )}
         </CardContent>
