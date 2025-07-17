@@ -82,7 +82,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
   };
 
   // Truncate content for preview
-  const truncateContent = (content: string | null, maxLength: number = 100) => {
+  const truncateContent = (content: string | null, maxLength: number = 40) => {
     if (!content) return "No content";
     return content.length > maxLength
       ? `${content.substring(0, maxLength)}...`
