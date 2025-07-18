@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTrackerBySlug } from "./actions";
+import { getTrackerBySlug } from "../actions";
 import { TrackerDetailsContent } from "./components/tracker-details-content";
 
 interface TrackerDetailsPageProps {

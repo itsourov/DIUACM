@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateRankListCSV } from "@/app/(public)/trackers/[slug]/actions";
+import { generateRankListCSV } from "@/app/(public)/trackers/actions";
 
 export async function GET(
   request: NextRequest,

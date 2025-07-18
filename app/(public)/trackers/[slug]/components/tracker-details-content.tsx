@@ -5,7 +5,11 @@ import { Users, TrendingUp, Download, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrackerDetails, RankListWithDetails, AttendanceMap } from "../actions";
+import {
+  TrackerDetails,
+  RankListWithDetails,
+  AttendanceMap,
+} from "../../actions";
 import { RankingTable } from "./ranking-table";
 import { RankListActions } from "./ranklist-actions";
 

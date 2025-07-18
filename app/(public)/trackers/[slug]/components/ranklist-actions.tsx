@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, X, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { joinRankList, leaveRankList, isUserInRankList } from "../actions";
+import { joinRankList, leaveRankList, isUserInRankList } from "../../actions";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
