@@ -29,7 +29,7 @@ export function TrackerDetailsContent({
     <div className="space-y-8">
       {/* Breadcrumb */}
       <TrackerBreadcrumb trackerTitle={tracker.title} />
-      
+
       {/* Header Section */}
       <div className="space-y-6">
         {/* Back Link */}
@@ -57,8 +57,8 @@ export function TrackerDetailsContent({
       </div>
 
       {/* Combined ranklist navigation and info */}
-      <Card className="shadow-sm border-slate-200 dark:border-slate-700">
-        <CardContent className="p-5">
+      <Card className="border-slate-200 dark:border-slate-700">
+        <CardContent>
           <div className="flex flex-col space-y-4">
             {/* Ranklist Navigation Tabs */}
             {allRankListKeywords.length > 1 && (
@@ -97,10 +97,17 @@ export function TrackerDetailsContent({
                 </Badge>
 
                 {/* Download CSV Button */}
-                <Button variant="outline" size="sm" className="gap-x-1.5" asChild>
-                  <a 
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-x-1.5"
+                  asChild
+                >
+                  <a
                     href={`/api/trackers/${tracker.slug}/ranklist/${currentRankList.id}/csv`}
-                    download={`${tracker.title}-${currentRankList.keyword || 'ranklist'}.csv`}
+                    download={`${tracker.title}-${
+                      currentRankList.keyword || "ranklist"
+                    }.csv`}
                   >
                     <Download className="h-4 w-4" />
                     Download CSV
@@ -116,9 +123,10 @@ export function TrackerDetailsContent({
       </Card>
 
       {/* Ranking Table */}
-      <Card className="shadow-sm border-slate-200 dark:border-slate-700">
-        <CardContent className="p-5">
-          {currentRankList.users.length === 0 || currentRankList.events.length === 0 ? (
+      <Card className="border-slate-200 dark:border-slate-700">
+        <CardContent>
+          {currentRankList.users.length === 0 ||
+          currentRankList.events.length === 0 ? (
             <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
               <div className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-4">
                 <svg
@@ -151,7 +159,9 @@ export function TrackerDetailsContent({
               />
               <ScoringInfo
                 weightOfUpsolve={currentRankList.weightOfUpsolve}
-                considerStrictAttendance={currentRankList.considerStrictAttendance}
+                considerStrictAttendance={
+                  currentRankList.considerStrictAttendance
+                }
               />
             </div>
           )}

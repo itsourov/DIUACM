@@ -14,7 +14,7 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
     <div className="relative">
       {/* Fade effect for horizontal scroll */}
       <div className="absolute inset-0 pointer-events-none shadow-[inset_-20px_0_12px_-10px_rgba(255,255,255,0.9)] dark:shadow-[inset_-20px_0_12px_-10px_rgba(30,41,59,0.9)] z-20 hidden md:block" />
-      
+
       <div className="overflow-x-auto overflow-y-visible pb-1 max-h-[calc(100vh-300px)]">
         <div className="inline-block min-w-full align-middle rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
           <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
@@ -55,13 +55,19 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
                       </Link>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-normal normal-case text-slate-500 dark:text-slate-400">
-                          {new Date(event.startingAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(event.startingAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
                         </span>
-                        <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-2 py-0.5"
+                        >
                           W: {event.weight ?? 1}
                         </Badge>
                         {rankList.considerStrictAttendance &&
@@ -86,7 +92,10 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
             {/* Table Body */}
             <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
               {rankList.users.map((user, index) => (
-                <tr key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                <tr
+                  key={user.id}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
                   {/* Rank */}
                   <td className="sticky left-0 z-10 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 whitespace-nowrap">
                     <div className="flex items-center text-gray-800 dark:text-neutral-200">
@@ -137,7 +146,10 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
                       attendanceMap[`${user.id}_${event.id}`];
 
                     return (
-                      <td key={event.id} className="px-4 py-2 whitespace-nowrap">
+                      <td
+                        key={event.id}
+                        className="px-4 py-2 whitespace-nowrap"
+                      >
                         <div className="flex gap-2 w-max">
                           {!solvestat ? (
                             <Badge variant="secondary" className="text-xs">
@@ -158,9 +170,13 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
                               >
                                 Absent
                               </Badge>
-                              {(solvestat.solveCount + (solvestat.upsolveCount ?? 0)) > 0 && (
+                              {solvestat.solveCount +
+                                (solvestat.upsolveCount ?? 0) >
+                                0 && (
                                 <Badge variant="secondary" className="text-xs">
-                                  {solvestat.solveCount + (solvestat.upsolveCount ?? 0)} Upsolve
+                                  {solvestat.solveCount +
+                                    (solvestat.upsolveCount ?? 0)}{" "}
+                                  Upsolve
                                 </Badge>
                               )}
                             </>

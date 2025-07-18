@@ -18,8 +18,10 @@ export function RankListTabs({
     <div className="flex flex-wrap gap-2">
       {keywords.map((keyword) => {
         const isActive = keyword === currentKeyword;
-        const href = `/trackers/${trackerSlug}${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""}`;
-        
+        const href = `/trackers/${trackerSlug}${
+          keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""
+        }`;
+
         return (
           <Link key={keyword} href={href}>
             <Button

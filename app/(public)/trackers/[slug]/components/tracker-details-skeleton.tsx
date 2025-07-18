@@ -14,7 +14,7 @@ export function TrackerDetailsSkeleton() {
       </div>
 
       {/* Navigation and info card */}
-      <Card>
+      <Card className="border-slate-200 dark:border-slate-700">
         <CardHeader>
           <div className="space-y-4">
             <div className="flex gap-2">
@@ -37,7 +37,7 @@ export function TrackerDetailsSkeleton() {
       </Card>
 
       {/* Table skeleton */}
-      <Card>
+      <Card className="border-slate-200 dark:border-slate-700">
         <CardContent className="p-0">
           <div className="overflow-hidden">
             {/* Table header */}
@@ -54,7 +54,10 @@ export function TrackerDetailsSkeleton() {
             {/* Table rows */}
             <div className="space-y-0">
               {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="p-4 border-b border-slate-200 dark:border-slate-700">
+                <div
+                  key={i}
+                  className="p-4 border-b border-slate-200 dark:border-slate-700"
+                >
                   <div className="flex gap-4 items-center">
                     <Skeleton className="h-4 w-6" />
                     <div className="flex items-center gap-2">

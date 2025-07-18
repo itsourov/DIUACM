@@ -73,7 +73,10 @@ export async function getTrackerBySlug(
       .select()
       .from(trackers)
       .where(
-        and(eq(trackers.slug, slug), eq(trackers.status, VisibilityStatus.PUBLISHED))
+        and(
+          eq(trackers.slug, slug),
+          eq(trackers.status, VisibilityStatus.PUBLISHED)
+        )
       );
 
     if (!tracker) {
@@ -87,16 +90,13 @@ export async function getTrackerBySlug(
       })
       .from(rankLists)
       .where(
-        and(
-          eq(rankLists.trackerId, tracker.id),
-          eq(rankLists.isActive, true)
-        )
+        and(eq(rankLists.trackerId, tracker.id), eq(rankLists.isActive, true))
       )
       .orderBy(asc(rankLists.order));
 
     const allRankListKeywords = allRankListsResult
-      .map(rl => rl.keyword)
-      .filter(k => k !== null) as string[];
+      .map((rl) => rl.keyword)
+      .filter((k) => k !== null) as string[];
 
     // Get the current rank list
     const rankListQuery = db
@@ -110,7 +110,9 @@ export async function getTrackerBySlug(
         )
       );
 
-    const [currentRankListBase] = await rankListQuery.orderBy(asc(rankLists.order));
+    const [currentRankListBase] = await rankListQuery.orderBy(
+      asc(rankLists.order)
+    );
 
     if (!currentRankListBase) {
       throw new Error("No rank lists available for this tracker");
@@ -155,8 +157,8 @@ export async function getTrackerBySlug(
       .where(eq(eventRankList.rankListId, currentRankListBase.id))
       .orderBy(desc(events.startingAt));
 
-    const eventIds = rankListEventsResult.map(r => r.event.id);
-    const userIds = rankListUsersResult.map(r => r.userId);
+    const eventIds = rankListEventsResult.map((r) => r.event.id);
+    const userIds = rankListUsersResult.map((r) => r.userId);
 
     // Get solve stats for all users and events
     const solveStatsResult = await db
@@ -175,11 +177,11 @@ export async function getTrackerBySlug(
 
     if (currentRankListBase.considerStrictAttendance) {
       const strictEvents = rankListEventsResult.filter(
-        r => r.event.openForAttendance && r.event.strictAttendance
+        (r) => r.event.openForAttendance && r.event.strictAttendance
       );
 
       if (strictEvents.length > 0) {
-        const strictEventIds = strictEvents.map(r => r.event.id);
+        const strictEventIds = strictEvents.map((r) => r.event.id);
 
         attendanceResult = await db
           .select({
@@ -195,46 +197,50 @@ export async function getTrackerBySlug(
           );
 
         // Build attendance map
-        attendanceResult.forEach(attendance => {
+        attendanceResult.forEach((attendance) => {
           attendanceMap[`${attendance.userId}_${attendance.eventId}`] = true;
         });
       }
     }
 
     // Build the response
-    const usersWithStats: UserWithStats[] = rankListUsersResult.map(userResult => {
-      const userSolveStats = solveStatsResult.filter(
-        stat => stat.userId === userResult.userId
-      );
+    const usersWithStats: UserWithStats[] = rankListUsersResult.map(
+      (userResult) => {
+        const userSolveStats = solveStatsResult.filter(
+          (stat) => stat.userId === userResult.userId
+        );
 
-      return {
-        id: userResult.user.id,
-        name: userResult.user.name,
-        username: userResult.user.username,
-        email: userResult.user.email,
-        image: userResult.user.image,
-        codeforcesHandle: userResult.user.codeforcesHandle,
-        studentId: userResult.user.studentId,
-        department: userResult.user.department,
-        score: userResult.score,
-        solveStats: userSolveStats.map(stat => ({
-          eventId: stat.eventId,
-          solveCount: stat.solveCount,
-          upsolveCount: stat.upsolveCount,
-          participation: stat.participation,
-        })),
-      };
-    });
+        return {
+          id: userResult.user.id,
+          name: userResult.user.name,
+          username: userResult.user.username,
+          email: userResult.user.email,
+          image: userResult.user.image,
+          codeforcesHandle: userResult.user.codeforcesHandle,
+          studentId: userResult.user.studentId,
+          department: userResult.user.department,
+          score: userResult.score,
+          solveStats: userSolveStats.map((stat) => ({
+            eventId: stat.eventId,
+            solveCount: stat.solveCount,
+            upsolveCount: stat.upsolveCount,
+            participation: stat.participation,
+          })),
+        };
+      }
+    );
 
-    const eventsWithWeight: EventWithWeight[] = rankListEventsResult.map(eventResult => ({
-      id: eventResult.event.id,
-      title: eventResult.event.title,
-      startingAt: eventResult.event.startingAt,
-      endingAt: eventResult.event.endingAt,
-      openForAttendance: eventResult.event.openForAttendance,
-      strictAttendance: eventResult.event.strictAttendance,
-      weight: eventResult.weight,
-    }));
+    const eventsWithWeight: EventWithWeight[] = rankListEventsResult.map(
+      (eventResult) => ({
+        id: eventResult.event.id,
+        title: eventResult.event.title,
+        startingAt: eventResult.event.startingAt,
+        endingAt: eventResult.event.endingAt,
+        openForAttendance: eventResult.event.openForAttendance,
+        strictAttendance: eventResult.event.strictAttendance,
+        weight: eventResult.weight,
+      })
+    );
 
     const currentRankList: RankListWithDetails = {
       ...currentRankListBase,
@@ -365,8 +371,8 @@ export async function generateRankListCSV(rankListId: number): Promise<string> {
       .orderBy(desc(events.startingAt));
 
     // Get solve stats for all users and events
-    const eventIds = eventsData.map(e => e.event.id);
-    const userIds = usersData.map(u => u.userId);
+    const eventIds = eventsData.map((e) => e.event.id);
+    const userIds = usersData.map((u) => u.userId);
 
     const solveStats = await db
       .select()
@@ -387,21 +393,27 @@ export async function generateRankListCSV(rankListId: number): Promise<string> {
       "Student ID",
       "Department",
       "Total Score",
-      ...eventsData.map(e => `${e.event.title} (Solves)`),
-      ...eventsData.map(e => `${e.event.title} (Upsolves)`),
+      ...eventsData.map((e) => `${e.event.title} (Solves)`),
+      ...eventsData.map((e) => `${e.event.title} (Upsolves)`),
     ];
 
     // Build CSV rows
     const rows = usersData.map((userData, index) => {
-      const userSolveStats = solveStats.filter(stat => stat.userId === userData.userId);
-      
-      const eventSolves = eventsData.map(eventData => {
-        const stat = userSolveStats.find(s => s.eventId === eventData.event.id);
+      const userSolveStats = solveStats.filter(
+        (stat) => stat.userId === userData.userId
+      );
+
+      const eventSolves = eventsData.map((eventData) => {
+        const stat = userSolveStats.find(
+          (s) => s.eventId === eventData.event.id
+        );
         return stat?.solveCount || 0;
       });
-      
-      const eventUpsolves = eventsData.map(eventData => {
-        const stat = userSolveStats.find(s => s.eventId === eventData.event.id);
+
+      const eventUpsolves = eventsData.map((eventData) => {
+        const stat = userSolveStats.find(
+          (s) => s.eventId === eventData.event.id
+        );
         return stat?.upsolveCount || 0;
       });
 
@@ -421,7 +433,7 @@ export async function generateRankListCSV(rankListId: number): Promise<string> {
     // Convert to CSV format
     const csvRows = [headers, ...rows];
     const csvContent = csvRows
-      .map(row => row.map(cell => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
       .join("\n");
 
     return csvContent;

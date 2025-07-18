@@ -22,7 +22,7 @@ export default async function TrackerDetailsPage({
 
   try {
     const data = await getTrackerBySlug(slug, keyword);
-    
+
     return (
       <div className="container mx-auto px-4 py-12">
         <Suspense fallback={<TrackerDetailsSkeleton />}>
@@ -48,13 +48,15 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  
+
   try {
     const data = await getTrackerBySlug(slug);
-    
+
     return {
       title: `${data.tracker.title} - Tracker | DIU ACM`,
-      description: data.tracker.description || `View rankings and statistics for ${data.tracker.title}`,
+      description:
+        data.tracker.description ||
+        `View rankings and statistics for ${data.tracker.title}`,
     };
   } catch {
     return {
