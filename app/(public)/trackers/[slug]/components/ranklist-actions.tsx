@@ -21,7 +21,11 @@ export function RankListActions({ rankListId }: RankListActionsProps) {
   // Check if user is in ranklist
   useEffect(() => {
     if (session?.user?.id) {
-      isUserInRankList(session.user.id, rankListId).then(setIsInRankList);
+      isUserInRankList(session.user.id, rankListId).then((result) => {
+        if (result.success && result.data !== undefined) {
+          setIsInRankList(result.data);
+        }
+      });
     }
   }, [session?.user?.id, rankListId]);
 
@@ -33,6 +37,9 @@ export function RankListActions({ rankListId }: RankListActionsProps) {
       if (result.success) {
         setIsInRankList(true);
         router.refresh();
+      } else {
+        // Handle error - you might want to show a toast notification here
+        console.error("Failed to join ranklist:", result.error);
       }
     });
   };
@@ -45,6 +52,9 @@ export function RankListActions({ rankListId }: RankListActionsProps) {
       if (result.success) {
         setIsInRankList(false);
         router.refresh();
+      } else {
+        // Handle error - you might want to show a toast notification here
+        console.error("Failed to leave ranklist:", result.error);
       }
     });
   };

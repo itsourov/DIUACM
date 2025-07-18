@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTrackerBySlug } from "./actions";
 import { TrackerDetailsContent } from "./components/tracker-details-content";
-import { TrackerDetailsSkeleton } from "./components/tracker-details-skeleton";
 
 interface TrackerDetailsPageProps {
   params: Promise<{
@@ -25,14 +23,12 @@ export default async function TrackerDetailsPage({
 
     return (
       <div className="container mx-auto px-4 py-12">
-        <Suspense fallback={<TrackerDetailsSkeleton />}>
-          <TrackerDetailsContent
-            tracker={data.tracker}
-            currentRankList={data.currentRankList}
-            allRankListKeywords={data.allRankListKeywords}
-            attendanceMap={data.attendanceMap}
-          />
-        </Suspense>
+        <TrackerDetailsContent
+          tracker={data.tracker}
+          currentRankList={data.currentRankList}
+          allRankListKeywords={data.allRankListKeywords}
+          attendanceMap={data.attendanceMap}
+        />
       </div>
     );
   } catch (error) {

@@ -16,6 +16,28 @@ import {
 } from "@/db/schema";
 import { eq, and, sql, desc, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { revalidatePath } from "next/cache";
+
+// Enhanced error handling type
+type ActionResult<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+};
+
+// Utility function to handle database errors
+function handleDbError(error: unknown): ActionResult {
+  console.error("Database error:", error);
+
+  if (error instanceof Error) {
+    if (error.message.includes("Duplicate entry")) {
+      return { success: false, error: "You are already in this ranklist" };
+    }
+  }
+
+  return { success: false, error: "Something went wrong. Please try again." };
+}
 
 export type TrackerDetails = Tracker & {
   rankLists: RankListWithDetails[];
@@ -271,7 +293,7 @@ export async function getTrackerBySlug(
 export async function isUserInRankList(
   userId: string,
   rankListId: number
-): Promise<boolean> {
+): Promise<ActionResult<boolean>> {
   try {
     const [result] = await db
       .select({ userId: rankListUser.userId })
@@ -283,31 +305,80 @@ export async function isUserInRankList(
         )
       );
 
-    return !!result;
+    return {
+      success: true,
+      data: !!result,
+    };
   } catch (error) {
     console.error("Error checking user rank list membership:", error);
-    return false;
+    return {
+      success: false,
+      error: "Failed to check membership status",
+    };
   }
 }
 
 // Function to join ranklist
-export async function joinRankList(userId: string, rankListId: number) {
+export async function joinRankList(
+  userId: string,
+  rankListId: number
+): Promise<ActionResult> {
   try {
+    // Check if user is already in the ranklist
+    const existingMembership = await db
+      .select({ userId: rankListUser.userId })
+      .from(rankListUser)
+      .where(
+        and(
+          eq(rankListUser.userId, userId),
+          eq(rankListUser.rankListId, rankListId)
+        )
+      )
+      .limit(1);
+
+    if (existingMembership.length > 0) {
+      return { success: false, error: "You are already in this ranklist" };
+    }
+
     await db.insert(rankListUser).values({
       userId,
       rankListId,
       score: 0,
     });
-    return { success: true };
+
+    revalidatePath(`/trackers`, "page");
+
+    return {
+      success: true,
+      message: "Successfully joined the ranklist",
+    };
   } catch (error) {
-    console.error("Error joining rank list:", error);
-    return { success: false, error: "Failed to join rank list" };
+    return handleDbError(error);
   }
 }
 
 // Function to leave ranklist
-export async function leaveRankList(userId: string, rankListId: number) {
+export async function leaveRankList(
+  userId: string,
+  rankListId: number
+): Promise<ActionResult> {
   try {
+    // Check if user is in the ranklist
+    const existingMembership = await db
+      .select({ userId: rankListUser.userId })
+      .from(rankListUser)
+      .where(
+        and(
+          eq(rankListUser.userId, userId),
+          eq(rankListUser.rankListId, rankListId)
+        )
+      )
+      .limit(1);
+
+    if (existingMembership.length === 0) {
+      return { success: false, error: "You are not in this ranklist" };
+    }
+
     await db
       .delete(rankListUser)
       .where(
@@ -316,10 +387,15 @@ export async function leaveRankList(userId: string, rankListId: number) {
           eq(rankListUser.rankListId, rankListId)
         )
       );
-    return { success: true };
+
+    revalidatePath(`/trackers`, "page");
+
+    return {
+      success: true,
+      message: "Successfully left the ranklist",
+    };
   } catch (error) {
-    console.error("Error leaving rank list:", error);
-    return { success: false, error: "Failed to leave rank list" };
+    return handleDbError(error);
   }
 }
 

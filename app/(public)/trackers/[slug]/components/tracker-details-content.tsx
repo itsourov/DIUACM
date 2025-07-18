@@ -1,16 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Users, TrendingUp, Download } from "lucide-react";
+import { Users, TrendingUp, Download, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TrackerDetails, RankListWithDetails, AttendanceMap } from "../actions";
-import { RankListTabs } from "./ranklist-tabs";
 import { RankingTable } from "./ranking-table";
-import { ScoringInfo } from "./scoring-info";
 import { RankListActions } from "./ranklist-actions";
-import { TrackerBreadcrumb } from "./tracker-breadcrumb";
 
 interface TrackerDetailsContentProps {
   tracker: TrackerDetails;
@@ -27,20 +24,8 @@ export function TrackerDetailsContent({
 }: TrackerDetailsContentProps) {
   return (
     <div className="space-y-8">
-      {/* Breadcrumb */}
-      <TrackerBreadcrumb trackerTitle={tracker.title} />
-
       {/* Header Section */}
       <div className="space-y-6">
-        {/* Back Link */}
-        <Link
-          href="/trackers"
-          className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Trackers
-        </Link>
-
         {/* Title and Description */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div>
@@ -62,11 +47,30 @@ export function TrackerDetailsContent({
           <div className="flex flex-col space-y-4">
             {/* Ranklist Navigation Tabs */}
             {allRankListKeywords.length > 1 && (
-              <RankListTabs
-                keywords={allRankListKeywords}
-                currentKeyword={currentRankList.keyword || ""}
-                trackerSlug={tracker.slug}
-              />
+              <div className="flex flex-wrap gap-2">
+                {allRankListKeywords.map((keyword) => {
+                  const isActive = keyword === (currentRankList.keyword || "");
+                  const href = `/trackers/${tracker.slug}${
+                    keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""
+                  }`;
+
+                  return (
+                    <Link key={keyword} href={href}>
+                      <Button
+                        variant={isActive ? "default" : "secondary"}
+                        size="sm"
+                        className={
+                          isActive
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600"
+                        }
+                      >
+                        {keyword}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
             )}
 
             {/* Divider */}
@@ -157,12 +161,39 @@ export function TrackerDetailsContent({
                 rankList={currentRankList}
                 attendanceMap={attendanceMap}
               />
-              <ScoringInfo
-                weightOfUpsolve={currentRankList.weightOfUpsolve}
-                considerStrictAttendance={
-                  currentRankList.considerStrictAttendance
-                }
-              />
+              <div className="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                <div className="flex items-start gap-2">
+                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
+                    <p className="font-medium">Scoring Information</p>
+                    <ul className="mt-1 space-y-1 ml-4 list-disc text-slate-600 dark:text-slate-400">
+                      <li>
+                        Scores are calculated based on solve performance and
+                        upsolve counts
+                      </li>
+                      <li>
+                        Upsolve weight:{" "}
+                        <span className="font-medium">
+                          {currentRankList.weightOfUpsolve}
+                        </span>
+                      </li>
+                      <li>
+                        Event weights are displayed under each event title
+                      </li>
+                      {currentRankList.considerStrictAttendance && (
+                        <li>
+                          <span className="font-medium text-orange-600 dark:text-orange-400">
+                            Strict Attendance:
+                          </span>{" "}
+                          Events marked with &quot;SA&quot; require attendance.
+                          Users without attendance will have their solves
+                          counted as upsolves only.
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
