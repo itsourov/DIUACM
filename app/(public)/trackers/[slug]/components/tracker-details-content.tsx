@@ -11,7 +11,6 @@ import {
   AttendanceMap,
 } from "../../actions";
 import { RankingTable } from "./ranking-table";
-import { RankListActions } from "./ranklist-actions";
 
 interface TrackerDetailsContentProps {
   tracker: TrackerDetails;
@@ -121,9 +120,6 @@ export function TrackerDetailsContent({
                     Download CSV
                   </a>
                 </Button>
-
-                {/* Join/Leave Actions */}
-                <RankListActions rankListId={currentRankList.id} />
               </div>
             </div>
           </div>
