@@ -17,7 +17,6 @@ import {
   Users,
   CalendarCheck,
   TrendingUp,
-  Info,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceModal } from "./components/attendance-modal";
@@ -133,7 +132,7 @@ export default async function EventDetailsPage({
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mx-auto space-y-8">
         {/* Event Header Section - Enhanced with gradient styling from event-row */}
-        <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all overflow-hidden group hover:shadow-lg">
+        <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 transition-all overflow-hidden group hover:shadow-lg">
           <div className="p-6 md:p-8 relative z-10">
             {/* Event Title and Type */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -216,10 +215,6 @@ export default async function EventDetailsPage({
             {/* Event Description (if available) */}
             {event.description && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  Description
-                </h3>
                 <div className="prose prose-slate dark:prose-invert max-w-none">
                   <div className="text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
                     {event.description.split("\n").map((paragraph, index) =>
@@ -353,7 +348,7 @@ export default async function EventDetailsPage({
 
         {/* Tabs Section: Statistics & Attendance - Also Enhanced with gradient styling */}
         {(hasSolveStats || hasAttendanceList) && (
-          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all overflow-hidden group hover:shadow-lg">
+          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 transition-all overflow-hidden group hover:shadow-lg">
             <div className="p-6 relative z-10">
               {showTabs ? (
                 <Tabs defaultValue={defaultTab}>

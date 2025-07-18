@@ -95,9 +95,6 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
                     {attendee.user.studentId || "—"}
                   </TableCell>
                   <TableCell className="text-slate-700 dark:text-slate-300">
-                    {attendee.user.studentId || "—"}
-                  </TableCell>
-                  <TableCell className="text-slate-700 dark:text-slate-300">
                     {attendee.user.department || "—"}
                   </TableCell>
                   <TableCell className="text-right text-slate-500 dark:text-slate-400">
