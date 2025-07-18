@@ -13,6 +13,7 @@ import {
   VisibilityStatus,
   type Tracker,
   type RankList,
+  type UserProfile,
 } from "@/db/schema";
 import { eq, and, sql, desc, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -35,15 +36,17 @@ export type RankListWithDetails = RankList & {
   events: EventWithWeight[];
 };
 
-export type UserWithStats = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  image: string | null;
-  codeforcesHandle: string | null;
-  studentId: string | null;
-  department: string | null;
+export type UserWithStats = Pick<
+  UserProfile,
+  | "id"
+  | "name"
+  | "username"
+  | "email"
+  | "image"
+  | "codeforcesHandle"
+  | "studentId"
+  | "department"
+> & {
   score: number;
   solveStats: {
     eventId: number;
