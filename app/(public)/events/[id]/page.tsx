@@ -216,12 +216,19 @@ export default async function EventDetailsPage({
             {/* Event Description (if available) */}
             {event.description && (
               <div className="mb-6">
-                <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4 border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-start gap-3">
-                    <Info className="h-5 w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-slate-700 dark:text-slate-300 text-sm">
-                      {event.description}
-                    </div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  Description
+                </h3>
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                  <div className="text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+                    {event.description.split("\n").map((paragraph, index) =>
+                      paragraph.trim() ? (
+                        <p key={index} className={index > 0 ? "mt-4" : ""}>
+                          {paragraph}
+                        </p>
+                      ) : null
+                    )}
                   </div>
                 </div>
               </div>

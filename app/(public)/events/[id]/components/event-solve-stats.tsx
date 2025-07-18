@@ -88,7 +88,7 @@ export function EventSolveStats({ stats }: EventSolveStatsProps) {
                   <TableCell>
                     <Link
                       href={`/programmers/${stat.user.username}`}
-                      className="flex items-center gap-3 hover:underline"
+                      className="flex items-center gap-3"
                     >
                       <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-700">
                         {stat.user.image && (
@@ -107,8 +107,8 @@ export function EventSolveStats({ stats }: EventSolveStatsProps) {
                         <div className="font-medium text-slate-900 dark:text-white">
                           {stat.user.name}
                         </div>
-                        <div className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                          {stat.user.username}
+                        <div className="text-sm text-slate-500 dark:text-slate-400">
+                          @{stat.user.username}
                         </div>
                       </div>
                     </Link>

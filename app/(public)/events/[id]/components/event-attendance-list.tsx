@@ -50,9 +50,6 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
                   Name
                 </TableHead>
                 <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
-                  Username
-                </TableHead>
-                <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
                   Student ID
                 </TableHead>
                 <TableHead className="text-slate-700 dark:text-slate-300 font-medium">
@@ -69,7 +66,7 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
                   <TableCell>
                     <Link
                       href={`/programmers/${attendee.user.username}`}
-                      className="flex items-center gap-3 hover:underline"
+                      className="flex items-center gap-3"
                     >
                       <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-700">
                         {attendee.user.image && (
@@ -84,18 +81,18 @@ export function EventAttendanceList({ attendees }: EventAttendanceListProps) {
                           {getInitials(attendee.user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        {attendee.user.name}
-                      </span>
+                      <div>
+                        <div className="font-medium text-slate-900 dark:text-white">
+                          {attendee.user.name}
+                        </div>
+                        <div className="text-sm text-slate-500 dark:text-slate-400">
+                          @{attendee.user.username}
+                        </div>
+                      </div>
                     </Link>
                   </TableCell>
                   <TableCell className="text-slate-700 dark:text-slate-300">
-                    <Link
-                      href={`/programmers/${attendee.user.username}`}
-                      className="hover:underline hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      {attendee.user.username}
-                    </Link>
+                    {attendee.user.studentId || "—"}
                   </TableCell>
                   <TableCell className="text-slate-700 dark:text-slate-300">
                     {attendee.user.studentId || "—"}
