@@ -5,22 +5,25 @@ import { db } from "@/db/drizzle";
 import {
   events,
   eventUserAttendance,
+  Event,
   EventType,
   ParticipationScope,
   VisibilityStatus,
 } from "@/db/schema";
 import { eq, and, like, count, desc } from "drizzle-orm";
 
-// Define types based on Drizzle schema
-export type Event = {
-  id: number;
-  title: string;
-  startingAt: Date;
-  endingAt: Date;
-  eventLink?: string | null;
-  openForAttendance: boolean;
-  type: EventType;
-  participationScope: ParticipationScope;
+// Define a type for the events we return (subset of Event fields)
+export type EventListItem = Pick<
+  Event,
+  | "id"
+  | "title"
+  | "startingAt"
+  | "endingAt"
+  | "eventLink"
+  | "openForAttendance"
+  | "type"
+  | "participationScope"
+> & {
   _count?: {
     attendances?: number;
   };
@@ -28,7 +31,7 @@ export type Event = {
 
 // Define pagination structure
 export type PaginatedEvents = {
-  events: Event[];
+  events: EventListItem[];
   pagination: {
     page: number;
     pages: number;
@@ -120,19 +123,21 @@ export async function getEvents(
     .offset(offset);
 
   // Format the events to match the expected type
-  const formattedEvents: Event[] = eventsWithAttendance.map((event) => ({
-    id: event.id,
-    title: event.title,
-    startingAt: event.startingAt,
-    endingAt: event.endingAt,
-    eventLink: event.eventLink,
-    openForAttendance: event.openForAttendance,
-    type: event.type,
-    participationScope: event.participationScope,
-    _count: {
-      attendances: event.attendanceCount,
-    },
-  }));
+  const formattedEvents: EventListItem[] = eventsWithAttendance.map(
+    (event) => ({
+      id: event.id,
+      title: event.title,
+      startingAt: event.startingAt,
+      endingAt: event.endingAt,
+      eventLink: event.eventLink,
+      openForAttendance: event.openForAttendance,
+      type: event.type,
+      participationScope: event.participationScope,
+      _count: {
+        attendances: event.attendanceCount,
+      },
+    })
+  );
 
   return {
     events: formattedEvents,

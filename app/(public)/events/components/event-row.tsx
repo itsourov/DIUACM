@@ -3,13 +3,13 @@
 import { isAfter, isWithinInterval } from "date-fns";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Event } from "../actions";
+import { EventListItem } from "../actions";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Clock, Users, ArrowUpRight } from "lucide-react";
 import { EventType } from "@/db/schema";
 
 type EventRowProps = {
-  event: Event;
+  event: EventListItem;
   isOwner?: boolean;
 };
 
