@@ -3,27 +3,27 @@ import { notFound } from "next/navigation";
 import { Images } from "lucide-react";
 import { getGalleryBySlug } from "../actions";
 import { GalleryGrid } from "./components/gallery-grid";
-import { db } from "@/db/drizzle";
-import { galleries, VisibilityStatus } from "@/db/schema";
-import { eq } from "drizzle-orm";
+// import { db } from "@/db/drizzle";
+// import { galleries, VisibilityStatus } from "@/db/schema";
+// import { eq } from "drizzle-orm";
 
 interface GalleryDetailPageProps {
   params: Promise<{ slug: string }>;
 }
-export async function generateStaticParams() {
-  const allGalleries = await db
-    .select({
-      id: galleries.id,
-      slug: galleries.slug,
-      status: galleries.status,
-    })
-    .from(galleries)
-    .where(eq(galleries.status, VisibilityStatus.PUBLISHED));
+// export async function generateStaticParams() {
+//   const allGalleries = await db
+//     .select({
+//       id: galleries.id,
+//       slug: galleries.slug,
+//       status: galleries.status,
+//     })
+//     .from(galleries)
+//     .where(eq(galleries.status, VisibilityStatus.PUBLISHED));
 
-  return allGalleries.map((gallery) => ({
-    slug: gallery.slug,
-  }));
-}
+//   return allGalleries.map((gallery) => ({
+//     slug: gallery.slug,
+//   }));
+// }
 
 export async function generateMetadata({
   params,

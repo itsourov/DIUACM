@@ -274,6 +274,7 @@ export const blogPosts = mysqlTable("blog_posts", {
   status: mysqlEnum("status", VisibilityStatus)
     .default(VisibilityStatus.DRAFT)
     .notNull(),
+  featuredImage: varchar("featured_image", { length: 255 }),
   publishedAt: datetime("published_at"),
   isFeatured: boolean("is_featured").notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
