@@ -164,7 +164,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md">
-        <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+        <CardHeader className="border-b border-slate-200 dark:border-slate-700">
           <CardTitle className="flex items-center gap-3 text-xl text-slate-900 dark:text-white">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600 flex items-center justify-center">
               <UserIcon className="h-5 w-5 text-white" />
@@ -172,7 +172,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             Edit Profile
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-8">
+        <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* Profile Picture Section */}
@@ -412,7 +412,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="min-w-[140px] order-1 sm:order-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                  size="lg"
+                  className="min-w-[140px] order-1 sm:order-2 rounded-full px-8 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-md hover:shadow-xl transition-all dark:from-blue-500 dark:to-cyan-500 dark:hover:from-blue-600 dark:hover:to-cyan-600 font-medium"
                 >
                   {isLoading ? (
                     <>
