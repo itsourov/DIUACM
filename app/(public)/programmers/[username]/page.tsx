@@ -1,13 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  Trophy,
-  Phone,
-  MapPin,
-  GraduationCap,
-  Code2,
-} from "lucide-react";
+import { Trophy, Phone, MapPin, GraduationCap, Code2 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

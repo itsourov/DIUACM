@@ -1,8 +1,25 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { users, teams, teamUser, contests, galleries, media } from "@/db/schema";
-import { desc, like, asc, sql, count, and, isNotNull, eq, inArray } from "drizzle-orm";
+import {
+  users,
+  teams,
+  teamUser,
+  contests,
+  galleries,
+  media,
+} from "@/db/schema";
+import {
+  desc,
+  like,
+  asc,
+  sql,
+  count,
+  and,
+  isNotNull,
+  eq,
+  inArray,
+} from "drizzle-orm";
 
 export interface GetProgrammersParams {
   search?: string;
@@ -44,14 +61,18 @@ export async function getProgrammers({
     // Add search condition for name or student ID
     if (search) {
       whereConditions.push(
-        sql`(${like(users.name, `%${search}%`)} OR ${like(users.studentId, `%${search}%`)} OR ${like(users.codeforcesHandle, `%${search}%`)})`
+        sql`(${like(users.name, `%${search}%`)} OR ${like(
+          users.studentId,
+          `%${search}%`
+        )} OR ${like(users.codeforcesHandle, `%${search}%`)})`
       );
     }
 
     // Only show users with codeforces handles (programmers)
     whereConditions.push(isNotNull(users.codeforcesHandle));
 
-    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const whereClause =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     // Get total count for pagination
     const [{ total }] = await db
@@ -167,7 +188,9 @@ export interface GetProgrammerDetailsResponse {
   contestParticipations: ContestParticipation[];
 }
 
-export async function getProgrammerDetails(username: string): Promise<GetProgrammerDetailsResponse> {
+export async function getProgrammerDetails(
+  username: string
+): Promise<GetProgrammerDetailsResponse> {
   try {
     // Get programmer details by username
     const [programmer] = await db
@@ -224,38 +247,50 @@ export async function getProgrammerDetails(username: string): Promise<GetProgram
       .orderBy(contests.date);
 
     // Get team members and gallery media for each unique team
-    const uniqueTeamIds = [...new Set(contestParticipationsQuery.map(p => p.teamId))];
-    const uniqueGalleryIds = [...new Set(contestParticipationsQuery.map(p => p.galleryId).filter(Boolean))] as number[];
+    const uniqueTeamIds = [
+      ...new Set(contestParticipationsQuery.map((p) => p.teamId)),
+    ];
+    const uniqueGalleryIds = [
+      ...new Set(
+        contestParticipationsQuery.map((p) => p.galleryId).filter(Boolean)
+      ),
+    ] as number[];
 
     // Get team members
-    const teamMembers = uniqueTeamIds.length > 0 ? await db
-      .select({
-        teamId: teamUser.teamId,
-        userId: teamUser.userId,
-        userName: users.name,
-        userImage: users.image,
-        userStudentId: users.studentId,
-        userUsername: users.username,
-      })
-      .from(teamUser)
-      .innerJoin(users, eq(teamUser.userId, users.id))
-      .where(inArray(teamUser.teamId, uniqueTeamIds)) : [];
+    const teamMembers =
+      uniqueTeamIds.length > 0
+        ? await db
+            .select({
+              teamId: teamUser.teamId,
+              userId: teamUser.userId,
+              userName: users.name,
+              userImage: users.image,
+              userStudentId: users.studentId,
+              userUsername: users.username,
+            })
+            .from(teamUser)
+            .innerJoin(users, eq(teamUser.userId, users.id))
+            .where(inArray(teamUser.teamId, uniqueTeamIds))
+        : [];
 
     // Get gallery media
-    const galleryMediaQuery = uniqueGalleryIds.length > 0 ? await db
-      .select({
-        galleryId: media.galleryId,
-        mediaId: media.id,
-        mediaUrl: media.url,
-        mediaTitle: media.title,
-        mediaWidth: media.width,
-        mediaHeight: media.height,
-        mediaFileSize: media.fileSize,
-        mediaMimeType: media.mimeType,
-      })
-      .from(media)
-      .where(inArray(media.galleryId, uniqueGalleryIds))
-      .orderBy(media.order) : [];
+    const galleryMediaQuery =
+      uniqueGalleryIds.length > 0
+        ? await db
+            .select({
+              galleryId: media.galleryId,
+              mediaId: media.id,
+              mediaUrl: media.url,
+              mediaTitle: media.title,
+              mediaWidth: media.width,
+              mediaHeight: media.height,
+              mediaFileSize: media.fileSize,
+              mediaMimeType: media.mimeType,
+            })
+            .from(media)
+            .where(inArray(media.galleryId, uniqueGalleryIds))
+            .orderBy(media.order)
+        : [];
 
     // Group data by contest
     const contestParticipations: ContestParticipation[] = [];
@@ -269,8 +304,8 @@ export async function getProgrammerDetails(username: string): Promise<GetProgram
 
       // Get all team members for this team
       const teamMembersList = teamMembers
-        .filter(member => member.teamId === participation.teamId)
-        .map(member => ({
+        .filter((member) => member.teamId === participation.teamId)
+        .map((member) => ({
           id: member.userId,
           user: {
             id: member.userId,
@@ -282,10 +317,10 @@ export async function getProgrammerDetails(username: string): Promise<GetProgram
         }));
 
       // Get gallery media for this contest
-      const contestMedia = participation.galleryId 
+      const contestMedia = participation.galleryId
         ? galleryMediaQuery
-            .filter(media => media.galleryId === participation.galleryId)
-            .map(media => ({
+            .filter((media) => media.galleryId === participation.galleryId)
+            .map((media) => ({
               id: media.mediaId,
               url: media.mediaUrl,
               title: media.mediaTitle,
@@ -305,12 +340,14 @@ export async function getProgrammerDetails(username: string): Promise<GetProgram
           date: participation.contestDate,
           description: participation.contestDescription,
           standingsUrl: participation.contestStandingsUrl,
-          gallery: participation.galleryId ? {
-            id: participation.galleryId,
-            title: participation.galleryTitle || "",
-            slug: participation.gallerySlug || "",
-            media: contestMedia,
-          } : null,
+          gallery: participation.galleryId
+            ? {
+                id: participation.galleryId,
+                title: participation.galleryTitle || "",
+                slug: participation.gallerySlug || "",
+                media: contestMedia,
+              }
+            : null,
         },
         team: {
           id: participation.teamId,
