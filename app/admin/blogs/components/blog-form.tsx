@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { VisibilityStatus, type BlogPost } from "@/db/schema";
 import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
 import { createBlog, updateBlog } from "../actions";
+import { ImageUpload } from "./image-upload";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +52,7 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
       author: blog?.author || "",
       content: blog?.content || "",
       status: blog?.status || VisibilityStatus.DRAFT,
+      featuredImage: blog?.featuredImage || "",
       publishedAt: blog?.publishedAt
         ? new Date(blog.publishedAt).toISOString().split("T")[0]
         : "",
@@ -182,7 +184,29 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
                   </FormItem>
                 )}
               />
+            </div>
 
+            <FormField
+              control={form.control}
+              name="featuredImage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Featured Image</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Upload a featured image for this blog post (optional)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="status"

@@ -26,6 +26,7 @@ export const blogFormSchema = z.object({
     .string()
     .min(1, { message: "Content is required" })
     .min(10, { message: "Content must be at least 10 characters" }),
+  featuredImage: z.string().optional(),
   status: z.nativeEnum(VisibilityStatus, {
     message: "Please select a valid status",
   }),

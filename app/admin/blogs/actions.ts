@@ -7,6 +7,13 @@ import { revalidatePath } from "next/cache";
 import { eq, or, like, count, desc, and, sql } from "drizzle-orm";
 import { blogFormSchema, type BlogFormValues } from "./schemas/blog";
 import { hasPermission } from "@/lib/authorization";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3 } from "@/lib/s3";
+import { v4 as uuid } from "uuid";
+
+// Constants
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
 // Enhanced error handling type
 type ActionResult<T = unknown> = {
@@ -85,6 +92,7 @@ export async function createBlog(
       author: validatedFields.author,
       content: validatedFields.content,
       status: validatedFields.status,
+      featuredImage: validatedFields.featuredImage || null,
       publishedAt:
         validatedFields.publishedAt && validatedFields.publishedAt !== ""
           ? new Date(validatedFields.publishedAt)
@@ -165,6 +173,7 @@ export async function updateBlog(
       author: validatedFields.author,
       content: validatedFields.content,
       status: validatedFields.status,
+      featuredImage: validatedFields.featuredImage || null,
       publishedAt:
         validatedFields.publishedAt && validatedFields.publishedAt !== ""
           ? new Date(validatedFields.publishedAt)
@@ -244,6 +253,7 @@ export async function getBlog(id: number): Promise<ActionResult<BlogData>> {
         author: blogPosts.author,
         content: blogPosts.content,
         status: blogPosts.status,
+        featuredImage: blogPosts.featuredImage,
         publishedAt: blogPosts.publishedAt,
         isFeatured: blogPosts.isFeatured,
         createdAt: blogPosts.createdAt,
@@ -301,6 +311,7 @@ export async function getPaginatedBlogs(
           author: blogPosts.author,
           content: blogPosts.content,
           status: blogPosts.status,
+          featuredImage: blogPosts.featuredImage,
           publishedAt: blogPosts.publishedAt,
           isFeatured: blogPosts.isFeatured,
           createdAt: blogPosts.createdAt,
@@ -334,5 +345,55 @@ export async function getPaginatedBlogs(
     };
   } catch (error) {
     return handleDbError<PaginatedBlogsData>(error);
+  }
+}
+
+// Generate pre-signed URL for featured image upload
+export async function generatePresignedUrl(
+  fileType: string,
+  fileSize: number
+): Promise<ActionResult<{ presignedUrl: string; fileUrl: string }>> {
+  try {
+    // Check if the user has permission to manage blog posts
+    if (!(await hasPermission("manage_blog_posts"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Validate mime type
+    if (!fileType.startsWith("image/")) {
+      return { success: false, error: "Only image files are allowed" };
+    }
+
+    // Validate file size on the server
+    if (fileSize > MAX_FILE_SIZE) {
+      return { success: false, error: "File size exceeds the 5MB limit" };
+    }
+
+    const fileExtension = fileType.split("/")[1];
+    const uniqueId = uuid();
+    const key = `blog-images/${uniqueId}.${fileExtension}`;
+
+    const putObjectCommand = new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+      ContentType: fileType,
+      ContentLength: fileSize,
+    });
+
+    const presignedUrl = await getSignedUrl(s3, putObjectCommand, {
+      expiresIn: 300, // 5 minutes
+    });
+
+    const fileUrl = `${process.env.S3_PUBLIC_URL}/${key}`;
+
+    return {
+      success: true,
+      data: { presignedUrl, fileUrl },
+    };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<{
+      presignedUrl: string;
+      fileUrl: string;
+    }>;
   }
 }
