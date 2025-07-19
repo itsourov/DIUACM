@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 import { getProgrammerDetails } from "../actions";
-import { CopyButton } from "./components/copy-button";
+import { CopyButton } from "../components/copy-button";
 
 interface PageProps {
   params: Promise<{ username: string }>;
