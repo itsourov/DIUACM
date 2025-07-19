@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import Image from "next/image";
 import { getBlogBySlug } from "../actions";
 import { Separator } from "@/components/ui/separator";
 
@@ -14,6 +15,37 @@ import "katex/dist/katex.min.css";
 import { db } from "@/db/drizzle";
 import { blogPosts, VisibilityStatus } from "@/db/schema";
 import { eq } from "drizzle-orm";
+
+// Custom Image component for ReactMarkdown
+interface MarkdownImageProps {
+  src?: string | Blob;
+  alt?: string;
+  title?: string;
+  width?: string | number;
+  height?: string | number;
+}
+
+const MarkdownImage = ({ src, alt, title }: MarkdownImageProps) => {
+  if (!src || typeof src !== "string") return null;
+
+  // Handle relative URLs by making them absolute
+  const imageSrc = src.startsWith("http") ? src : `/${src.replace(/^\//, "")}`;
+
+  return (
+    <span className="block my-6 rounded-lg overflow-hidden relative w-full">
+      <Image
+        src={imageSrc}
+        alt={alt || "Blog image"}
+        title={title}
+        width={0}
+        height={0}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+        className="w-full h-auto object-cover"
+        style={{ width: "100%", height: "auto" }}
+      />
+    </span>
+  );
+};
 
 export async function generateStaticParams() {
   const blogPostsData = await db
@@ -110,6 +142,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                 rehypePlugins={[
                   [rehypeKatex, { throwOnError: false, strict: false }],
                 ]}
+                components={{
+                  img: MarkdownImage,
+                }}
               >
                 {blog.content || "No content available."}
               </ReactMarkdown>
