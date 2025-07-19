@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, Lock, Eye, EyeOff } from "lucide-react";
@@ -19,20 +18,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { changePassword } from "../actions";
+import {
+  changePasswordSchema,
+  ChangePasswordValues,
+} from "../schemas/change-password";
 
-const changePasswordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters long"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+type ChangePasswordFormValues = ChangePasswordValues;
 
 export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);

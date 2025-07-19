@@ -2,10 +2,12 @@
 
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
-import { z } from "zod";
+
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import bcrypt from "bcryptjs";
+import { changePasswordSchema, ChangePasswordValues } from "./schemas/change-password";
+import z from "zod";
 
 // Enhanced error handling type
 type ActionResult<T = unknown> = {
@@ -15,20 +17,6 @@ type ActionResult<T = unknown> = {
   message?: string;
 };
 
-// Schema for password change
-const changePasswordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters long"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
 export async function changePassword(
   values: ChangePasswordValues
