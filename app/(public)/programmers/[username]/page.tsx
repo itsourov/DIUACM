@@ -7,7 +7,11 @@ import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-import { getProgrammerDetails } from "../actions";
+import {
+  getProgrammerDetails,
+  type ContestParticipation,
+  type TeamMemberResult,
+} from "../actions";
 import { CopyButton } from "../components/copy-button";
 
 interface PageProps {
@@ -20,10 +24,13 @@ export async function generateMetadata({
   const { username } = await params;
 
   try {
-    const { programmer } = await getProgrammerDetails(username);
-    if (!programmer) {
+    const response = await getProgrammerDetails(username);
+
+    if (!response.success || !response.data?.programmer) {
       throw new Error("Programmer not found");
     }
+
+    const { programmer } = response.data;
     return {
       title: `${programmer.name} - Programmer Profile | DIU ACM`,
       description: `View ${programmer.name}&apos;s programming profile, contest participations, and achievements at DIU ACM`,
@@ -40,17 +47,17 @@ export async function generateMetadata({
 export default async function ProgrammerDetailsPage({ params }: PageProps) {
   const { username } = await params;
 
-  const { programmer, contestParticipations } = await getProgrammerDetails(
-    username
-  );
+  const response = await getProgrammerDetails(username);
 
-  if (!programmer) {
+  if (!response.success || !response.data?.programmer) {
     notFound();
   }
 
+  const { programmer, contestParticipations } = response.data;
+
   const initials = programmer.name
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase();
 
@@ -205,92 +212,96 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
           </h2>
 
           <div className="space-y-4">
-            {contestParticipations.map((participation) => (
-              <div
-                key={`${participation.contest.id}-${participation.team.id}`}
-                className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-slate-800"
-              >
-                {/* Contest Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                  <div>
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">
-                      {participation.contest.name}
-                    </h3>
-                    {participation.contest.date && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {format(
-                          new Date(participation.contest.date),
-                          "MMM d, yyyy"
-                        )}
-                      </p>
-                    )}
-                  </div>
+            {contestParticipations.map(
+              (participation: ContestParticipation) => (
+                <div
+                  key={`${participation.contest.id}-${participation.team.id}`}
+                  className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-slate-800"
+                >
+                  {/* Contest Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <div>
+                      <h3 className="text-lg font-medium text-slate-900 dark:text-white">
+                        {participation.contest.name}
+                      </h3>
+                      {participation.contest.date && (
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                          {format(
+                            new Date(participation.contest.date),
+                            "MMM d, yyyy"
+                          )}
+                        </p>
+                      )}
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                    >
-                      {participation.team.name}
-                    </Badge>
-                    {participation.team.rank && (
+                    <div className="flex items-center gap-2">
                       <Badge
                         variant="outline"
-                        className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
+                        className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                       >
-                        Rank #{participation.team.rank}
+                        {participation.team.name}
                       </Badge>
+                      {participation.team.rank && (
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
+                        >
+                          Rank #{participation.team.rank}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Team Members */}
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                      Team Members ({participation.team.members.length})
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {participation.team.members.map(
+                        (member: TeamMemberResult) => (
+                          <Link
+                            key={member.id}
+                            href={`/programmers/${member.user.username}`}
+                            className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          >
+                            <Avatar className="w-8 h-8 shrink-0">
+                              <AvatarImage
+                                src={member.user.image || ""}
+                                alt={member.user.name}
+                              />
+                              <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                                {member.user.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-slate-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400">
+                                {member.user.name}
+                              </p>
+                              {member.user.studentId && (
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {member.user.studentId}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        )
+                      )}
+                    </div>
+
+                    {/* Solve Count */}
+                    {participation.team.solveCount !== null && (
+                      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-600 flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm text-slate-600 dark:text-slate-300">
+                          {participation.team.solveCount} problems solved
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>
-
-                {/* Team Members */}
-                <div>
-                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    Team Members ({participation.team.members.length})
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {participation.team.members.map((member) => (
-                      <Link
-                        key={member.id}
-                        href={`/programmers/${member.user.username}`}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                      >
-                        <Avatar className="w-8 h-8 shrink-0">
-                          <AvatarImage
-                            src={member.user.image || ""}
-                            alt={member.user.name}
-                          />
-                          <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                            {member.user.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-slate-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400">
-                            {member.user.name}
-                          </p>
-                          {member.user.studentId && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                              {member.user.studentId}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Solve Count */}
-                  {participation.team.solveCount !== null && (
-                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-600 flex items-center gap-2">
-                      <Trophy className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
-                        {participation.team.solveCount} problems solved
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       ) : (

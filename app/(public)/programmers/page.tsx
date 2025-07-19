@@ -1,13 +1,18 @@
 import { Metadata } from "next";
 import { Code2 } from "lucide-react";
-import { getProgrammers } from "./actions";
+import {
+  getProgrammers,
+  type GetProgrammersResponse,
+  type ProgrammerResult,
+} from "./actions";
 import { ProgrammerCard } from "./components/programmer-card";
 import { SearchProgrammers } from "./components/search-programmers";
 import { CustomPagination } from "@/components/custom-pagination";
 
 export const metadata: Metadata = {
   title: "Programmers - DIU ACM",
-  description: "Discover talented programmers from DIU ACM community ranked by their Codeforces ratings",
+  description:
+    "Discover talented programmers from DIU ACM community ranked by their Codeforces ratings",
 };
 
 export interface SearchParams {
@@ -22,24 +27,30 @@ type PageProps = {
 export default async function ProgrammersPage({ searchParams }: PageProps) {
   // Await searchParams to get the actual values
   const awaitedSearchParams = await searchParams;
-  
+
   // Parse pagination parameters
   const currentPage = awaitedSearchParams.page
     ? parseInt(awaitedSearchParams.page)
     : 1;
 
   // Get programmers data
-  const programmersData = await getProgrammers({
+  const response = await getProgrammers({
     search: awaitedSearchParams.search,
     page: currentPage,
     limit: 12,
   });
 
-  // Destructure programmers data
-  const { programmers, pagination } = programmersData;
+  // Destructure programmers data with defaults
+  const defaultData: GetProgrammersResponse = {
+    programmers: [],
+    pagination: { page: 1, limit: 12, total: 0, pages: 0 },
+  };
+
+  const { programmers, pagination } =
+    response.success && response.data ? response.data : defaultData;
 
   // Determine if there are active filters
-  const hasActiveFilters = !!(awaitedSearchParams.search);
+  const hasActiveFilters = !!awaitedSearchParams.search;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -53,7 +64,8 @@ export default async function ProgrammersPage({ searchParams }: PageProps) {
         </h1>
         <div className="mx-auto w-20 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
-          Discover talented programmers from DIU ACM community ranked by their Codeforces ratings
+          Discover talented programmers from DIU ACM community ranked by their
+          Codeforces ratings
         </p>
       </div>
 
@@ -62,12 +74,11 @@ export default async function ProgrammersPage({ searchParams }: PageProps) {
         <SearchProgrammers />
       </div>
 
-
       {/* Programmers Grid */}
       {programmers.length > 0 ? (
         <div className="mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {programmers.map((programmer) => (
+            {programmers.map((programmer: ProgrammerResult) => (
               <ProgrammerCard key={programmer.id} programmer={programmer} />
             ))}
           </div>

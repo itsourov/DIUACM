@@ -12,7 +12,7 @@ interface ProgrammerCardProps {
 export function ProgrammerCard({ programmer }: ProgrammerCardProps) {
   const initials = programmer.name
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase();
 
@@ -43,43 +43,44 @@ export function ProgrammerCard({ programmer }: ProgrammerCardProps) {
     <Link href={`/programmers/${programmer.username}`}>
       <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer">
         <CardContent className="p-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          {/* Avatar */}
-          <Avatar className="w-16 h-16 ring-2 ring-slate-200 dark:ring-slate-700">
-            <AvatarImage src={programmer.image || ""} alt={programmer.name} />
-            <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex flex-col items-center text-center space-y-4">
+            {/* Avatar */}
+            <Avatar className="w-16 h-16 ring-2 ring-slate-200 dark:ring-slate-700">
+              <AvatarImage src={programmer.image || ""} alt={programmer.name} />
+              <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
 
-          {/* Name */}
-          <div>
-            <h3 className="font-semibold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {programmer.name}
-            </h3>
-            {programmer.studentId && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                ID: {programmer.studentId}
-              </p>
+            {/* Name */}
+            <div>
+              <h3 className="font-semibold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {programmer.name}
+              </h3>
+              {programmer.studentId && (
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  ID: {programmer.studentId}
+                </p>
+              )}
+            </div>
+
+            {/* Rating Badge */}
+            {programmer.maxCfRating && (
+              <div className="flex flex-col items-center space-y-2">
+                <Badge
+                  className={`${getRatingColor(
+                    programmer.maxCfRating
+                  )} text-white hover:opacity-80 transition-opacity`}
+                >
+                  <Trophy className="w-3 h-3 mr-1" />
+                  {programmer.maxCfRating}
+                </Badge>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {getRatingTitle(programmer.maxCfRating)}
+                </p>
+              </div>
             )}
           </div>
-
-          {/* Rating Badge */}
-          {programmer.maxCfRating && (
-            <div className="flex flex-col items-center space-y-2">
-              <Badge
-                className={`${getRatingColor(programmer.maxCfRating)} text-white hover:opacity-80 transition-opacity`}
-              >
-                <Trophy className="w-3 h-3 mr-1" />
-                {programmer.maxCfRating}
-              </Badge>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {getRatingTitle(programmer.maxCfRating)}
-              </p>
-            </div>
-          )}
-
-        </div>
         </CardContent>
       </Card>
     </Link>

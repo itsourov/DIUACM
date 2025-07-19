@@ -8,6 +8,11 @@ import {
   contests,
   galleries,
   media,
+  type User,
+  type Contest,
+  type Team,
+  type Gallery,
+  type Media,
 } from "@/db/schema";
 import {
   desc,
@@ -21,21 +26,52 @@ import {
   inArray,
 } from "drizzle-orm";
 
+// Enhanced error handling type
+type ActionResult<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+};
+
+// Define types for team members and media items to avoid 'any' types
+type TeamMember = {
+  teamId: number;
+  userId: string;
+  userName: string;
+  userImage: string | null;
+  userStudentId: string | null;
+  userUsername: string;
+};
+
+type MediaItem = {
+  galleryId: number;
+  mediaId: number;
+  mediaUrl: string;
+  mediaTitle: string | null;
+  mediaWidth: number;
+  mediaHeight: number;
+  mediaFileSize: number;
+  mediaMimeType: string;
+};
+
 export interface GetProgrammersParams {
   search?: string;
   page?: number;
   limit?: number;
 }
 
-export interface ProgrammerResult {
-  id: string;
-  name: string;
-  image: string | null;
-  studentId: string | null;
-  maxCfRating: number | null;
-  codeforcesHandle: string | null;
-  username: string;
-}
+// Use specific fields from the User type
+export type ProgrammerResult = Pick<
+  User,
+  | "id"
+  | "name"
+  | "image"
+  | "studentId"
+  | "maxCfRating"
+  | "codeforcesHandle"
+  | "username"
+>;
 
 export interface GetProgrammersResponse {
   programmers: ProgrammerResult[];
@@ -51,14 +87,14 @@ export async function getProgrammers({
   search = "",
   page = 1,
   limit = 12,
-}: GetProgrammersParams = {}): Promise<GetProgrammersResponse> {
+}: GetProgrammersParams = {}): Promise<ActionResult<GetProgrammersResponse>> {
   try {
     const offset = (page - 1) * limit;
 
     // Build the where conditions
-    const whereConditions = [];
+    const whereConditions = [isNotNull(users.codeforcesHandle)]; // Base condition: only users with CF handles
 
-    // Add search condition for name or student ID
+    // Add search condition for name or student ID or CF handle
     if (search) {
       whereConditions.push(
         sql`(${like(users.name, `%${search}%`)} OR ${like(
@@ -68,119 +104,123 @@ export async function getProgrammers({
       );
     }
 
-    // Only show users with codeforces handles (programmers)
-    whereConditions.push(isNotNull(users.codeforcesHandle));
+    const whereClause = and(...whereConditions);
 
-    const whereClause =
-      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    // Use Promise.all to run both queries in parallel for better performance
+    const [countResult, programmers] = await Promise.all([
+      // Get total count for pagination
+      db
+        .select({
+          total: count(),
+        })
+        .from(users)
+        .where(whereClause),
 
-    // Get total count for pagination
-    const [{ total }] = await db
-      .select({
-        total: count(),
-      })
-      .from(users)
-      .where(whereClause);
+      // Get programmers with pagination, sorted by maxCfRating (highest first)
+      db
+        .select({
+          id: users.id,
+          name: users.name,
+          image: users.image,
+          studentId: users.studentId,
+          maxCfRating: users.maxCfRating,
+          codeforcesHandle: users.codeforcesHandle,
+          username: users.username,
+        })
+        .from(users)
+        .where(whereClause)
+        .orderBy(desc(users.maxCfRating), asc(users.name))
+        .limit(limit)
+        .offset(offset),
+    ]);
 
-    // Get programmers with pagination, sorted by maxCfRating (highest first)
-    const programmers = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        image: users.image,
-        studentId: users.studentId,
-        maxCfRating: users.maxCfRating,
-        codeforcesHandle: users.codeforcesHandle,
-        username: users.username,
-      })
-      .from(users)
-      .where(whereClause)
-      .orderBy(desc(users.maxCfRating), asc(users.name))
-      .limit(limit)
-      .offset(offset);
+    const [{ total }] = countResult;
 
     return {
-      programmers,
-      pagination: {
-        page,
-        limit,
-        total: Number(total),
-        pages: Math.ceil(Number(total) / limit),
+      success: true,
+      data: {
+        programmers,
+        pagination: {
+          page,
+          limit,
+          total: Number(total),
+          pages: Math.ceil(Number(total) / limit),
+        },
       },
+      message: "Programmers fetched successfully",
     };
   } catch (error) {
     console.error("Error fetching programmers:", error);
     return {
-      programmers: [],
-      pagination: {
-        page: 1,
-        limit: 12,
-        total: 0,
-        pages: 0,
+      success: false,
+      error: "Failed to fetch programmers",
+      data: {
+        programmers: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          pages: 0,
+        },
       },
     };
   }
 }
 
 // Programmer details interfaces and functions
-export interface ProgrammerDetails {
+export type ProgrammerDetails = Pick<
+  User,
+  | "id"
+  | "name"
+  | "email"
+  | "username"
+  | "image"
+  | "gender"
+  | "phone"
+  | "codeforcesHandle"
+  | "atcoderHandle"
+  | "vjudgeHandle"
+  | "startingSemester"
+  | "department"
+  | "studentId"
+  | "maxCfRating"
+  | "createdAt"
+>;
+
+export type MediaResult = Pick<
+  Media,
+  "id" | "url" | "title" | "width" | "height" | "fileSize" | "mimeType"
+>;
+
+export type GalleryResult = Pick<Gallery, "id" | "title" | "slug"> & {
+  media: MediaResult[];
+};
+
+export type ContestResult = Pick<
+  Contest,
+  | "id"
+  | "name"
+  | "contestType"
+  | "location"
+  | "date"
+  | "description"
+  | "standingsUrl"
+> & {
+  gallery: GalleryResult | null;
+};
+
+export type TeamMemberResult = {
   id: string;
-  name: string;
-  email: string;
-  username: string;
-  image: string | null;
-  gender: string | null;
-  phone: string | null;
-  codeforcesHandle: string | null;
-  atcoderHandle: string | null;
-  vjudgeHandle: string | null;
-  startingSemester: string | null;
-  department: string | null;
-  studentId: string | null;
-  maxCfRating: number | null;
-  createdAt: Date | null;
-}
+  user: Pick<User, "id" | "name" | "image" | "studentId" | "username">;
+};
+
+export type TeamResult = Pick<Team, "id" | "name" | "rank" | "solveCount"> & {
+  members: TeamMemberResult[];
+};
 
 export interface ContestParticipation {
-  contest: {
-    id: number;
-    name: string;
-    contestType: string;
-    location: string | null;
-    date: Date | null;
-    description: string | null;
-    standingsUrl: string | null;
-    gallery: {
-      id: number;
-      title: string;
-      slug: string;
-      media: {
-        id: number;
-        url: string;
-        title: string | null;
-        width: number;
-        height: number;
-        fileSize: number;
-        mimeType: string;
-      }[];
-    } | null;
-  };
-  team: {
-    id: number;
-    name: string;
-    rank: number | null;
-    solveCount: number | null;
-    members: {
-      id: string;
-      user: {
-        id: string;
-        name: string;
-        image: string | null;
-        studentId: string | null;
-        username: string;
-      };
-    }[];
-  };
+  contest: ContestResult;
+  team: TeamResult;
 }
 
 export interface GetProgrammerDetailsResponse {
@@ -190,7 +230,7 @@ export interface GetProgrammerDetailsResponse {
 
 export async function getProgrammerDetails(
   username: string
-): Promise<GetProgrammerDetailsResponse> {
+): Promise<ActionResult<GetProgrammerDetailsResponse>> {
   try {
     // Get programmer details by username
     const [programmer] = await db
@@ -216,12 +256,16 @@ export async function getProgrammerDetails(
 
     if (!programmer) {
       return {
-        programmer: null,
-        contestParticipations: [],
+        success: false,
+        error: "Programmer not found",
+        data: {
+          programmer: null,
+          contestParticipations: [],
+        },
       };
     }
 
-    // Get contest participations
+    // Get contest participations with a single query
     const contestParticipationsQuery = await db
       .select({
         contestId: contests.id,
@@ -246,7 +290,19 @@ export async function getProgrammerDetails(
       .where(eq(teamUser.userId, programmer.id))
       .orderBy(contests.date);
 
-    // Get team members and gallery media for each unique team
+    // Optimize: If there are no contests, return early
+    if (contestParticipationsQuery.length === 0) {
+      return {
+        success: true,
+        data: {
+          programmer,
+          contestParticipations: [],
+        },
+        message: "Programmer details fetched successfully (no contests)",
+      };
+    }
+
+    // Extract unique IDs for subsequent queries
     const uniqueTeamIds = [
       ...new Set(contestParticipationsQuery.map((p) => p.teamId)),
     ];
@@ -256,10 +312,11 @@ export async function getProgrammerDetails(
       ),
     ] as number[];
 
-    // Get team members
-    const teamMembers =
+    // Run team members and gallery media queries in parallel for better performance
+    const [teamMembers, galleryMediaResults] = await Promise.all([
+      // Get team members for all teams in one query
       uniqueTeamIds.length > 0
-        ? await db
+        ? db
             .select({
               teamId: teamUser.teamId,
               userId: teamUser.userId,
@@ -271,12 +328,11 @@ export async function getProgrammerDetails(
             .from(teamUser)
             .innerJoin(users, eq(teamUser.userId, users.id))
             .where(inArray(teamUser.teamId, uniqueTeamIds))
-        : [];
+        : Promise.resolve([]),
 
-    // Get gallery media
-    const galleryMediaQuery =
+      // Get gallery media for all galleries in one query
       uniqueGalleryIds.length > 0
-        ? await db
+        ? db
             .select({
               galleryId: media.galleryId,
               mediaId: media.id,
@@ -290,9 +346,27 @@ export async function getProgrammerDetails(
             .from(media)
             .where(inArray(media.galleryId, uniqueGalleryIds))
             .orderBy(media.order)
-        : [];
+        : Promise.resolve([]),
+    ]);
 
-    // Group data by contest
+    // Pre-organize data into maps for O(1) lookup instead of filtering repeatedly
+    const teamMembersMap = new Map<number, TeamMember[]>();
+    teamMembers.forEach((member: TeamMember) => {
+      if (!teamMembersMap.has(member.teamId)) {
+        teamMembersMap.set(member.teamId, []);
+      }
+      teamMembersMap.get(member.teamId)!.push(member);
+    });
+
+    const galleryMediaMap = new Map<number, MediaItem[]>();
+    galleryMediaResults.forEach((mediaItem: MediaItem) => {
+      if (!galleryMediaMap.has(mediaItem.galleryId)) {
+        galleryMediaMap.set(mediaItem.galleryId, []);
+      }
+      galleryMediaMap.get(mediaItem.galleryId)!.push(mediaItem);
+    });
+
+    // Group data by contest efficiently
     const contestParticipations: ContestParticipation[] = [];
     const processedContests = new Set<number>();
 
@@ -302,34 +376,32 @@ export async function getProgrammerDetails(
       }
       processedContests.add(participation.contestId);
 
-      // Get all team members for this team
-      const teamMembersList = teamMembers
-        .filter((member) => member.teamId === participation.teamId)
-        .map((member) => ({
+      // Get team members for this team using the map
+      const teamMembersList = (
+        teamMembersMap.get(participation.teamId) || []
+      ).map((member: TeamMember) => ({
+        id: member.userId,
+        user: {
           id: member.userId,
-          user: {
-            id: member.userId,
-            name: member.userName,
-            image: member.userImage,
-            studentId: member.userStudentId,
-            username: member.userUsername,
-          },
-        }));
+          name: member.userName,
+          image: member.userImage,
+          studentId: member.userStudentId,
+          username: member.userUsername,
+        },
+      }));
 
-      // Get gallery media for this contest
-      const contestMedia = participation.galleryId
-        ? galleryMediaQuery
-            .filter((media) => media.galleryId === participation.galleryId)
-            .map((media) => ({
-              id: media.mediaId,
-              url: media.mediaUrl,
-              title: media.mediaTitle,
-              width: media.mediaWidth,
-              height: media.mediaHeight,
-              fileSize: media.mediaFileSize,
-              mimeType: media.mediaMimeType,
-            }))
-        : [];
+      // Get media for this gallery using the map
+      const galleryId = participation.galleryId;
+      const mediaItems = galleryId ? galleryMediaMap.get(galleryId) || [] : [];
+      const contestMedia = mediaItems.map((media: MediaItem) => ({
+        id: media.mediaId,
+        url: media.mediaUrl,
+        title: media.mediaTitle,
+        width: media.mediaWidth,
+        height: media.mediaHeight,
+        fileSize: media.mediaFileSize,
+        mimeType: media.mediaMimeType,
+      }));
 
       contestParticipations.push({
         contest: {
@@ -360,14 +432,22 @@ export async function getProgrammerDetails(
     }
 
     return {
-      programmer,
-      contestParticipations,
+      success: true,
+      data: {
+        programmer,
+        contestParticipations,
+      },
+      message: "Programmer details fetched successfully",
     };
   } catch (error) {
     console.error("Error fetching programmer details:", error);
     return {
-      programmer: null,
-      contestParticipations: [],
+      success: false,
+      error: "Failed to fetch programmer details",
+      data: {
+        programmer: null,
+        contestParticipations: [],
+      },
     };
   }
 }
