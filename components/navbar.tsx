@@ -17,6 +17,7 @@ import {
   Info,
   LogOut,
   User,
+  Lock,
   Mail,
   Calendar,
   ListChecks,
@@ -198,6 +199,16 @@ export default function Navbar() {
                           <span>Edit Profile</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/change-password"
+                          className="cursor-pointer flex w-full items-center"
+                        >
+                          <Lock className="mr-2 h-4 w-4" />
+                          <span>Change Password</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/50 cursor-pointer"
                         onClick={() => signOut()}

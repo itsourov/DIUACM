@@ -397,17 +397,27 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row justify-between gap-4 pt-8 border-t border-slate-200 dark:border-slate-700">
-                <Button
-                  type="button"
-                  variant="outline"
-                  asChild
-                  disabled={isLoading || !user.username}
-                  className="order-2 sm:order-1"
-                >
-                  <Link href={`/programmers/${user.username || ""}`}>
-                    View Profile
-                  </Link>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 order-2 sm:order-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    asChild
+                    disabled={isLoading || !user.username}
+                  >
+                    <Link href={`/programmers/${user.username || ""}`}>
+                      View Profile
+                    </Link>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    asChild
+                    disabled={isLoading}
+                  >
+                    <Link href="/change-password">Change Password</Link>
+                  </Button>
+                </div>
 
                 <Button
                   type="submit"
