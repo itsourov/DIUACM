@@ -9,6 +9,7 @@ import { VisibilityStatus, type BlogPost } from "@/db/schema";
 import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
 import { createBlog, updateBlog } from "../actions";
 import { ImageUpload } from "./image-upload";
+import MarkdownEditorWrapper from "./markdown-editor-wrapper";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -290,15 +290,14 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
                 <FormItem>
                   <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Write your blog post content here..."
-                      className="min-h-[200px]"
-                      {...field}
-                      disabled={isLoading}
+                    <MarkdownEditorWrapper
+                      value={field.value || ""}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormDescription>
-                    The main content of your blog post
+                    You can use Markdown for formatting and mathematical
+                    expressions with KaTeX/MathJax.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
