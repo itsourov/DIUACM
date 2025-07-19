@@ -384,7 +384,7 @@ export async function generatePresignedUrl(
       expiresIn: 300, // 5 minutes
     });
 
-    const fileUrl = `${process.env.S3_PUBLIC_URL}/${key}`;
+    const fileUrl = `${process.env.NEXT_PUBLIC_S3_DOMAIN}/${key}`;
 
     return {
       success: true,
