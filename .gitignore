@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/old-db-backup
 
 # next.js
 /.next/
