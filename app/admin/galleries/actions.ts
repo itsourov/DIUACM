@@ -334,19 +334,22 @@ export async function createGallery(
     }
 
     // Insert gallery
-    const result = await db.insert(galleries).values({
-      title: validatedFields.title,
-      slug: validatedFields.slug,
-      description: validatedFields.description || null,
-      status: validatedFields.status,
-      order: validatedFields.order,
-    });
+    const result = await db
+      .insert(galleries)
+      .values({
+        title: validatedFields.title,
+        slug: validatedFields.slug,
+        description: validatedFields.description || null,
+        status: validatedFields.status,
+        order: validatedFields.order,
+      })
+      .returning({ id: galleries.id });
 
     revalidatePath("/admin/galleries");
 
     return {
       success: true,
-      data: { id: result[0].insertId },
+      data: { id: result[0].id },
       message: "Gallery created successfully",
     };
   } catch (error) {

@@ -162,19 +162,22 @@ export async function createTeam(
       }
     }
 
-    const result = await db.insert(teams).values({
-      contestId,
-      name: validatedFields.name,
-      rank: validatedFields.rank || null,
-      solveCount: validatedFields.solveCount || null,
-    });
+    const result = await db
+      .insert(teams)
+      .values({
+        contestId,
+        name: validatedFields.name,
+        rank: validatedFields.rank || null,
+        solveCount: validatedFields.solveCount || null,
+      })
+      .returning({ id: teams.id });
 
     revalidatePath(`/admin/contests/${contestId}/teams`);
 
     return {
       success: true,
       data: {
-        id: result[0].insertId,
+        id: result[0].id,
         ...validatedFields,
         contestId,
       },

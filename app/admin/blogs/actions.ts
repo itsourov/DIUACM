@@ -100,14 +100,17 @@ export async function createBlog(
       isFeatured: validatedFields.isFeatured || false,
     };
 
-    const result = await db.insert(blogPosts).values(dbValues);
+    const result = await db
+      .insert(blogPosts)
+      .values(dbValues)
+      .returning({ id: blogPosts.id });
 
     revalidatePath("/admin/blogs");
     revalidatePath("/blogs");
 
     return {
       success: true,
-      data: { ...dbValues, id: result[0].insertId },
+      data: { ...dbValues, id: result[0].id },
       message: "Blog post created successfully",
     };
   } catch (error) {

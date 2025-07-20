@@ -109,14 +109,17 @@ export async function createContest(
       }
     }
 
-    const result = await db.insert(contests).values(dbValues);
+    const result = await db
+      .insert(contests)
+      .values(dbValues)
+      .returning({ id: contests.id });
 
     revalidatePath("/admin/contests");
     revalidatePath("/contests");
 
     return {
       success: true,
-      data: { ...dbValues, id: result[0].insertId },
+      data: { ...dbValues, id: result[0].id },
       message: "Contest created successfully",
     };
   } catch (error) {

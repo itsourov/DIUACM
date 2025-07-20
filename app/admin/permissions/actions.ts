@@ -66,18 +66,18 @@ export async function createPermission(
     }
 
     // Create permission
-    const [result] = await db
+    const result = await db
       .insert(permissions)
       .values({
         name: validatedFields.name,
         description: validatedFields.description,
       })
-      .$returningId();
+      .returning({ id: permissions.id });
 
     revalidatePath("/admin/permissions");
     return {
       success: true,
-      data: result,
+      data: result[0],
       message: "Permission created successfully",
     };
   } catch (error) {
