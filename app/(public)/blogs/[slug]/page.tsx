@@ -12,9 +12,6 @@ import { Separator } from "@/components/ui/separator";
 
 // Import KaTeX CSS for math rendering
 import "katex/dist/katex.min.css";
-import { db } from "@/db/drizzle";
-import { blogPosts, VisibilityStatus } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 // Custom Image component for ReactMarkdown
 interface MarkdownImageProps {
@@ -48,18 +45,7 @@ const MarkdownImage = ({ src, alt, title }: MarkdownImageProps) => {
 };
 
 export async function generateStaticParams() {
-  const blogPostsData = await db
-    .select({
-      id: blogPosts.id,
-      slug: blogPosts.slug,
-      status: blogPosts.status,
-    })
-    .from(blogPosts)
-    .where(eq(blogPosts.status, VisibilityStatus.PUBLISHED));
-
-  return blogPostsData.map((blogPost) => ({
-    slug: blogPost.slug,
-  }));
+  return [];
 }
 
 interface BlogDetailPageProps {
