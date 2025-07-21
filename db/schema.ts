@@ -100,7 +100,7 @@ export const users = pgTable("user", {
   startingSemester: varchar("starting_semester", { length: 255 }),
   department: varchar("department", { length: 255 }),
   studentId: varchar("student_id", { length: 255 }),
-  maxCfRating: integer("max_cf_rating"),
+  maxCfRating: integer("max_cf_rating").default(-1),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" })
     .defaultNow()

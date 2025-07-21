@@ -8,6 +8,13 @@
       "when": 1752992849598,
       "tag": "0000_loving_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1753127273240,
+      "tag": "0001_dapper_tyger_tiger",
+      "breakpoints": true
     }
   ]
 }
