@@ -2,8 +2,10 @@ import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db/drizzle";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import { users, accounts } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: {
@@ -38,7 +40,59 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       };
     },
   },
-  providers: [Google],
+  providers: [
+    Google,
+    Credentials({
+      name: "credentials",
+      credentials: {
+        identifier: { label: "Email or Username", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.identifier || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          // Find user by email or username
+          const [user] = await db
+            .select()
+            .from(users)
+            .where(
+              or(
+                eq(users.email, credentials.identifier as string),
+                eq(users.username, credentials.identifier as string)
+              )
+            )
+            .limit(1);
+
+          if (!user || !user.password) {
+            return null;
+          }
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isValidPassword) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
+      }
+    })
+  ],
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
