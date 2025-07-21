@@ -92,6 +92,7 @@ export async function createTracker(
       .returning({ id: trackers.id });
 
     revalidatePath("/admin/trackers");
+    revalidatePath("/trackers");
 
     return {
       success: true,
@@ -183,6 +184,8 @@ export async function updateTracker(
 
     revalidatePath("/admin/trackers");
     revalidatePath(`/admin/trackers/${id}/edit`);
+    revalidatePath("/trackers");
+    revalidatePath(`/trackers/${validatedFields.slug}`);
 
     return {
       success: true,
@@ -212,6 +215,7 @@ export async function deleteTracker(id: number): Promise<ActionResult> {
       .select({
         id: trackers.id,
         title: trackers.title,
+        slug: trackers.slug,
         rankListCount: count(rankLists.id),
       })
       .from(trackers)
@@ -236,6 +240,8 @@ export async function deleteTracker(id: number): Promise<ActionResult> {
     await db.delete(trackers).where(eq(trackers.id, id));
 
     revalidatePath("/admin/trackers");
+    revalidatePath("/trackers");
+    revalidatePath(`/trackers/${tracker.slug}`, "page");
 
     return {
       success: true,
