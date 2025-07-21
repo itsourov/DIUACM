@@ -40,7 +40,7 @@ export default function NotFound() {
           size="lg"
           className="rounded-full px-8 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-xl transition-all"
         >
-          <Link href="/questions">Browse Questions</Link>
+          <Link href="/contact">Report a Problem</Link>
         </Button>
       </div>
     </div>
