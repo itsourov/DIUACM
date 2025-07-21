@@ -4,13 +4,14 @@ import LoginForm from "./components/LoginForm";
 
 export interface SearchParams {
   error?: string;
+  callbackUrl?: string;
 }
 interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
 export default async function LoginPage({ searchParams }: PageProps) {
-  const { error } = await searchParams;
+  const { error, callbackUrl } = await searchParams;
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center min-h-[80vh]">
       <Card className="w-full max-w-md p-6 md:p-8 shadow-lg border border-slate-200 dark:border-slate-700 rounded-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
@@ -30,7 +31,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
           )}
         </div>
 
-        <GoogleLoginButton callbackUrl="/" />
+        <GoogleLoginButton callbackUrl={callbackUrl || "/"} />
 
         <LoginForm />
 
