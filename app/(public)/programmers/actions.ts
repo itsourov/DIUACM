@@ -16,7 +16,7 @@ import {
 } from "@/db/schema";
 import {
   desc,
-  like,
+  ilike,
   asc,
   sql,
   count,
@@ -97,10 +97,10 @@ export async function getProgrammers({
     // Add search condition for name or student ID or CF handle
     if (search) {
       whereConditions.push(
-        sql`(${like(users.name, `%${search}%`)} OR ${like(
+        sql`(${ilike(users.name, `%${search}%`)} OR ${ilike(
           users.studentId,
           `%${search}%`
-        )} OR ${like(users.codeforcesHandle, `%${search}%`)})`
+        )} OR ${ilike(users.codeforcesHandle, `%${search}%`)})`
       );
     }
 

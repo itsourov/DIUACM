@@ -10,7 +10,7 @@ import {
   ParticipationScope,
   VisibilityStatus,
 } from "@/db/schema";
-import { eq, and, like, count, desc } from "drizzle-orm";
+import { eq, and, ilike, count, desc } from "drizzle-orm";
 
 // Define a type for the events we return (subset of Event fields)
 export type EventListItem = Pick<
@@ -81,7 +81,7 @@ export async function getEvents(
 
   // Filter by title (case-insensitive search)
   if (validatedFilters.title) {
-    whereConditions.push(like(events.title, `%${validatedFilters.title}%`));
+    whereConditions.push(ilike(events.title, `%${validatedFilters.title}%`));
   }
 
   // Combine all conditions with AND
