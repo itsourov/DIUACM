@@ -2,7 +2,7 @@
 import { hasPermission } from "@/lib/authorization";
 import { db } from "@/db/drizzle";
 import { eventUserAttendance, users, events } from "@/db/schema";
-import { eq, and, like, or, notInArray } from "drizzle-orm";
+import { eq, and, ilike, or, notInArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getEventAttendees(eventId: number) {
@@ -67,13 +67,13 @@ export async function searchUsersForEvent(
 
     // Build search conditions
     const searchConditions = [
-      like(users.name, `%${search}%`),
-      like(users.email, `%${search}%`),
-      like(users.studentId, `%${search}%`),
+      ilike(users.name, `%${search}%`),
+      ilike(users.email, `%${search}%`),
+      ilike(users.studentId, `%${search}%`),
     ];
 
     if (users.username) {
-      searchConditions.push(like(users.username, `%${search}%`));
+      searchConditions.push(ilike(users.username, `%${search}%`));
     }
 
     // Search for users excluding existing attendees

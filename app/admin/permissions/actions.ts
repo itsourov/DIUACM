@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { permissions, type Permission } from "@/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, asc } from "drizzle-orm";
+import { eq, or, ilike, count, desc, asc } from "drizzle-orm";
 import {
   permissionFormSchema,
   type PermissionFormValues,
@@ -235,8 +235,8 @@ export async function getPaginatedPermissions(
     // Build the where clause for search
     const whereClause = search
       ? or(
-          like(permissions.name, `%${search}%`),
-          like(permissions.description, `%${search}%`)
+          ilike(permissions.name, `%${search}%`),
+          ilike(permissions.description, `%${search}%`)
         )
       : undefined;
 

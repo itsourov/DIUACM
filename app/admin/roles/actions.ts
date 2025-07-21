@@ -3,7 +3,7 @@
 import { db } from "@/db/drizzle";
 import { roles, rolePermissions, permissions } from "@/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc } from "drizzle-orm";
+import { eq, or, ilike, count, desc } from "drizzle-orm";
 import {
   roleFormSchema,
   roleUpdateFormSchema,
@@ -144,8 +144,8 @@ export async function getPaginatedRoles(
     // Build the where clause for search
     const whereClause = search
       ? or(
-          like(roles.name, `%${search}%`),
-          like(roles.description, `%${search}%`)
+          ilike(roles.name, `%${search}%`),
+          ilike(roles.description, `%${search}%`)
         )
       : undefined;
 

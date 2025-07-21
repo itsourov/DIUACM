@@ -2,7 +2,7 @@
 import { hasPermission } from "@/lib/authorization";
 import { db } from "@/db/drizzle";
 import { eventRankList, rankLists, events, trackers } from "@/db/schema";
-import { eq, and, like, or, notInArray } from "drizzle-orm";
+import { eq, and, ilike, or, notInArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getEventRanklists(eventId: number) {
@@ -67,8 +67,8 @@ export async function searchRanklistsForEvent(
 
     // Build search conditions
     const searchConditions = [
-      like(rankLists.keyword, `%${search}%`),
-      like(rankLists.description, `%${search}%`),
+      ilike(rankLists.keyword, `%${search}%`),
+      ilike(rankLists.description, `%${search}%`),
     ];
 
     // Search for ranklists excluding existing ones

@@ -11,7 +11,7 @@ import {
 } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc } from "drizzle-orm";
+import { eq, or, ilike, count, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import {
   userFormSchema,
@@ -234,10 +234,10 @@ export async function getPaginatedUsers(
     // Build search condition
     const searchCondition = search
       ? or(
-          like(users.name, `%${search}%`),
-          like(users.email, `%${search}%`),
-          like(users.username, `%${search}%`),
-          like(users.studentId, `%${search}%`)
+          ilike(users.name, `%${search}%`),
+          ilike(users.email, `%${search}%`),
+          ilike(users.username, `%${search}%`),
+          ilike(users.studentId, `%${search}%`)
         )
       : undefined;
 

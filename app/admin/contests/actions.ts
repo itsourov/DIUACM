@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { contests, galleries, teams, teamUser } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, and, asc, sql } from "drizzle-orm";
+import { eq, or, ilike, count, desc, and, asc, sql } from "drizzle-orm";
 import { contestFormSchema, type ContestFormValues } from "./schemas/contest";
 import type { Contest, Gallery } from "@/db/schema";
 import { hasPermission } from "@/lib/authorization";
@@ -343,9 +343,9 @@ export async function getPaginatedContests(
 
     const searchCondition = search
       ? or(
-          like(contests.name, `%${search}%`),
-          like(contests.location, `%${search}%`),
-          like(contests.description, `%${search}%`)
+          ilike(contests.name, `%${search}%`),
+          ilike(contests.location, `%${search}%`),
+          ilike(contests.description, `%${search}%`)
         )
       : undefined;
 

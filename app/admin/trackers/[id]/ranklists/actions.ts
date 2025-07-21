@@ -14,7 +14,7 @@ import { revalidatePath } from "next/cache";
 import {
   eq,
   or,
-  like,
+  ilike,
   count,
   desc,
   and,
@@ -308,8 +308,8 @@ export async function getPaginatedRanklists(
     // Build search condition
     const searchCondition = search
       ? or(
-          like(rankLists.keyword, `%${search}%`),
-          like(rankLists.description, `%${search}%`)
+          ilike(rankLists.keyword, `%${search}%`),
+          ilike(rankLists.description, `%${search}%`)
         )
       : undefined;
 
@@ -720,10 +720,10 @@ export async function getAvailableUsers(
     // Build search condition
     const searchCondition = search
       ? or(
-          like(users.name, `%${search}%`),
-          like(users.email, `%${search}%`),
-          like(users.username, `%${search}%`),
-          like(users.studentId, `%${search}%`)
+          ilike(users.name, `%${search}%`),
+          ilike(users.email, `%${search}%`),
+          ilike(users.username, `%${search}%`),
+          ilike(users.studentId, `%${search}%`)
         )
       : undefined;
 

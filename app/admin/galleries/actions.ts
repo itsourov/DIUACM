@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { galleries, media, type Gallery, type Media } from "@/db/schema";
 // z import removed - validation handled by galleryFormSchema
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, asc, sql } from "drizzle-orm";
+import { eq, or, ilike, count, desc, asc, sql } from "drizzle-orm";
 import { galleryFormSchema, type GalleryFormValues } from "./schemas/gallery";
 import { hasPermission } from "@/lib/authorization";
 import { s3 } from "@/lib/s3";
@@ -208,9 +208,9 @@ export async function getPaginatedGalleries(
     // Build where conditions
     const whereConditions = search
       ? or(
-          like(galleries.title, `%${search}%`),
-          like(galleries.slug, `%${search}%`),
-          like(galleries.description, `%${search}%`)
+          ilike(galleries.title, `%${search}%`),
+          ilike(galleries.slug, `%${search}%`),
+          ilike(galleries.description, `%${search}%`)
         )
       : undefined;
 

@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { trackers, rankLists } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, and, asc, sql } from "drizzle-orm";
+import { eq, or, ilike, count, desc, and, asc, sql } from "drizzle-orm";
 import { trackerFormSchema, type TrackerFormValues } from "./schemas/tracker";
 import { hasPermission } from "@/lib/authorization";
 
@@ -287,9 +287,9 @@ export async function getPaginatedTrackers(
     // Build search condition
     const searchCondition = search
       ? or(
-          like(trackers.title, `%${search}%`),
-          like(trackers.slug, `%${search}%`),
-          like(trackers.description, `%${search}%`)
+          ilike(trackers.title, `%${search}%`),
+          ilike(trackers.slug, `%${search}%`),
+          ilike(trackers.description, `%${search}%`)
         )
       : undefined;
 

@@ -4,7 +4,7 @@ import { db } from "@/db/drizzle";
 import { blogPosts, type BlogPost, type NewBlogPost } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, like, count, desc, and, sql } from "drizzle-orm";
+import { eq, or, ilike, count, desc, and, sql } from "drizzle-orm";
 import { blogFormSchema, type BlogFormValues } from "./schemas/blog";
 import { hasPermission } from "@/lib/authorization";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -299,9 +299,9 @@ export async function getPaginatedBlogs(
 
     const searchCondition = search
       ? or(
-          like(blogPosts.title, `%${search}%`),
-          like(blogPosts.author, `%${search}%`),
-          like(blogPosts.content, `%${search}%`)
+          ilike(blogPosts.title, `%${search}%`),
+          ilike(blogPosts.author, `%${search}%`),
+          ilike(blogPosts.content, `%${search}%`)
         )
       : undefined;
 

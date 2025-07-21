@@ -2,7 +2,7 @@
 import { hasPermission } from "@/lib/authorization";
 import { db } from "@/db/drizzle";
 import { teamUser, users, teams } from "@/db/schema";
-import { eq, and, like, or, notInArray } from "drizzle-orm";
+import { eq, and, ilike, or, notInArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getTeamMembers(teamId: number) {
@@ -63,7 +63,7 @@ export async function searchUsersForTeam(
       .from(teamUser)
       .where(eq(teamUser.teamId, teamId));
 
-    const existingUserIds = existingMembers.map(m => m.userId);
+    const existingUserIds = existingMembers.map((m) => m.userId);
 
     // Search for users who are not in this team
     const query = db
@@ -80,12 +80,14 @@ export async function searchUsersForTeam(
       .where(
         and(
           or(
-            like(users.name, `%${search}%`),
-            like(users.email, `%${search}%`),
-            like(users.username, `%${search}%`),
-            like(users.studentId, `%${search}%`)
+            ilike(users.name, `%${search}%`),
+            ilike(users.email, `%${search}%`),
+            ilike(users.username, `%${search}%`),
+            ilike(users.studentId, `%${search}%`)
           ),
-          existingUserIds.length > 0 ? notInArray(users.id, existingUserIds) : undefined
+          existingUserIds.length > 0
+            ? notInArray(users.id, existingUserIds)
+            : undefined
         )
       )
       .limit(limit)
@@ -166,7 +168,9 @@ export async function addTeamMember(teamId: number, userId: string) {
       .where(and(eq(teamUser.teamId, teamId), eq(teamUser.userId, userId)))
       .limit(1);
 
-    revalidatePath(`/admin/contests/${team[0].contestId}/teams/${teamId}/members`);
+    revalidatePath(
+      `/admin/contests/${team[0].contestId}/teams/${teamId}/members`
+    );
 
     return {
       success: true,
@@ -206,7 +210,9 @@ export async function removeTeamMember(teamId: number, userId: string) {
       .delete(teamUser)
       .where(and(eq(teamUser.teamId, teamId), eq(teamUser.userId, userId)));
 
-    revalidatePath(`/admin/contests/${team[0].contestId}/teams/${teamId}/members`);
+    revalidatePath(
+      `/admin/contests/${team[0].contestId}/teams/${teamId}/members`
+    );
 
     return { success: true };
   } catch (error) {
