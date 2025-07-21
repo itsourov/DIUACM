@@ -108,11 +108,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        className="w-full py-6"
-        disabled={isLoading}
-      >
+      <Button type="submit" className="w-full py-6" disabled={isLoading}>
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />

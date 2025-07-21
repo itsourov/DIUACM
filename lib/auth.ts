@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       name: "credentials",
       credentials: {
         identifier: { label: "Email or Username", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) {
@@ -90,8 +90,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.error("Auth error:", error);
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user, account }) {

@@ -1,7 +1,13 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import LoginForm from "./components/LoginForm";
 import { GoogleLoginButton } from "./components/google-login-button";
@@ -13,51 +19,68 @@ export const metadata: Metadata = {
 
 function LoginPageContent() {
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            Welcome back to{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">
+              DIU ACM
+            </span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <div className="mx-auto w-16 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-300">
             Sign in to your account to continue
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl text-slate-900 dark:text-white">
+              Sign In
+            </CardTitle>
+            <CardDescription className="text-slate-600 dark:text-slate-300">
               Choose your preferred sign in method
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Suspense fallback={<div>Loading...</div>}>
+          <CardContent className="space-y-6">
+            <Suspense
+              fallback={
+                <div className="h-12 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-lg"></div>
+              }
+            >
               <GoogleLoginButton callbackUrl="/" />
             </Suspense>
-            
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-white dark:bg-slate-800 px-4 text-slate-500 dark:text-slate-400 font-medium">
                   Or continue with
                 </span>
               </div>
             </div>
 
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense
+              fallback={
+                <div className="space-y-4">
+                  <div className="h-10 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-lg"></div>
+                  <div className="h-10 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-lg"></div>
+                </div>
+              }
+            >
               <LoginForm />
             </Suspense>
           </CardContent>
         </Card>
 
-        <p className="px-8 text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-slate-600 dark:text-slate-400">
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
-            className="hover:text-brand underline underline-offset-4"
+            className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
             Sign up
           </Link>
