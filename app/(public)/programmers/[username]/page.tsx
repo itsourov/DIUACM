@@ -14,6 +14,10 @@ import {
 } from "../actions";
 import { CopyButton } from "../components/copy-button";
 
+export async function generateStaticParams() {
+  return [];
+}
+
 interface PageProps {
   params: Promise<{ username: string }>;
 }
