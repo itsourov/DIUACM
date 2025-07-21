@@ -61,9 +61,11 @@ Returns current statistics without performing calculations.
 ## Optimizations
 
 - **Single Query**: All data fetched in one complex join instead of multiple loops
-- **Batch Updates**: Parallel processing of user score updates
+- **Batch Updates**: Parallel processing of user score updates in optimized batches
 - **Memory Efficient**: Uses Maps for score calculation instead of nested loops
 - **Parallel Processing**: Rank lists processed concurrently when possible
+- **HTTP Driver Compatible**: Optimized for Neon HTTP driver without transaction dependency
+- **Batch Processing**: Large datasets processed in chunks to avoid database timeouts
 
 ## Score Logic
 

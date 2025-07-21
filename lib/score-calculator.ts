@@ -101,25 +101,35 @@ export async function recalculateRankListScores(rankListId: number) {
     }
   }
 
-  // Batch update all user scores using a single query
+  // Batch update all user scores using sequential batches for Neon HTTP compatibility
   if (userScores.size > 0) {
     const now = new Date();
-    const userScoreValues = Array.from(userScores.entries())
-      .map(
-        ([userId, score]) =>
-          `('${userId}', ${rankListId}, ${score}, '${now.toISOString()}')`
-      )
-      .join(", ");
 
-    await db.execute(sql`
-      UPDATE rank_list_user 
-      SET score = temp.score, updated_at = temp.updated_at
-      FROM (VALUES ${sql.raw(
-        userScoreValues
-      )}) AS temp(user_id, rank_list_id, score, updated_at)
-      WHERE rank_list_user.user_id = temp.user_id 
-        AND rank_list_user.rank_list_id = temp.rank_list_id
-    `);
+    // Process updates in smaller batches to avoid overwhelming the database
+    const BATCH_SIZE = 50; // Smaller batch size for HTTP driver
+    const userScoreEntries = Array.from(userScores.entries());
+
+    for (let i = 0; i < userScoreEntries.length; i += BATCH_SIZE) {
+      const batch = userScoreEntries.slice(i, i + BATCH_SIZE);
+
+      // Execute batch updates in parallel
+      const updatePromises = batch.map(([userId, score]) =>
+        db
+          .update(rankListUser)
+          .set({
+            score: score,
+            updatedAt: now,
+          })
+          .where(
+            and(
+              eq(rankListUser.userId, userId),
+              eq(rankListUser.rankListId, rankListId)
+            )
+          )
+      );
+
+      await Promise.all(updatePromises);
+    }
   }
 
   return {
