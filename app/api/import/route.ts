@@ -93,34 +93,31 @@ async function clearDatabase() {
   console.log("🗑️ Clearing existing data...");
 
   try {
-    // Use a transaction for better performance and atomicity
-    await db.transaction(async (tx) => {
-      // Clear junction tables first
-      await Promise.all([
-        tx.delete(rolePermissions),
-        tx.delete(userRoles),
-        tx.delete(eventUserAttendance),
-        tx.delete(userSolveStatOnEvents),
-        tx.delete(rankListUser),
-        tx.delete(teamUser),
-        tx.delete(eventRankList),
-      ]);
+    // Clear junction tables first (in parallel for better performance)
+    await Promise.all([
+      db.delete(rolePermissions),
+      db.delete(userRoles),
+      db.delete(eventUserAttendance),
+      db.delete(userSolveStatOnEvents),
+      db.delete(rankListUser),
+      db.delete(teamUser),
+      db.delete(eventRankList),
+    ]);
 
-      // Clear main tables
-      await Promise.all([
-        tx.delete(contactFormSubmissions),
-        tx.delete(blogPosts),
-        tx.delete(rankLists),
-        tx.delete(trackers),
-        tx.delete(events),
-        tx.delete(teams),
-        tx.delete(contests),
-        tx.delete(galleries),
-        tx.delete(permissions),
-        tx.delete(roles),
-        tx.delete(users),
-      ]);
-    });
+    // Clear main tables (in parallel for better performance)
+    await Promise.all([
+      db.delete(contactFormSubmissions),
+      db.delete(blogPosts),
+      db.delete(rankLists),
+      db.delete(trackers),
+      db.delete(events),
+      db.delete(teams),
+      db.delete(contests),
+      db.delete(galleries),
+      db.delete(permissions),
+      db.delete(roles),
+      db.delete(users),
+    ]);
 
     console.log("✅ Database cleared");
   } catch (error) {
