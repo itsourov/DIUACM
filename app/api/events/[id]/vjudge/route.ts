@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
-import { 
-  events, 
-  eventUserAttendance, 
-  eventRankList, 
-  rankListUser, 
-  users, 
-  userSolveStatOnEvents 
+import {
+  events,
+  eventUserAttendance,
+  eventRankList,
+  rankListUser,
+  users,
+  userSolveStatOnEvents,
 } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { hasPermission } from "@/lib/authorization";
 
 // Types
 interface ParticipantInfo {
@@ -132,6 +133,17 @@ export async function POST(
       );
     }
 
+    // Check if the user has permission to manage events
+    if (!(await hasPermission("EVENTS:MANAGE"))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 403 }
+      );
+    }
+
     // Parse the request body
     const payload: VjudgeContestData = await request.json();
 
@@ -196,7 +208,7 @@ export async function POST(
     }
 
     // Get users from ranklists with their vjudge handles
-    const rankListIds = eventRankLists.map(erl => erl.rankListId);
+    const rankListIds = eventRankLists.map((erl) => erl.rankListId);
     const usersFromRankLists = await db
       .select({
         id: users.id,
@@ -209,9 +221,11 @@ export async function POST(
 
     // Filter users with vjudge handles and remove duplicates
     const uniqueUsers = usersFromRankLists
-      .filter((user): user is UserWithVjudgeHandle => Boolean(user.vjudgeHandle))
-      .filter((user, index, self) => 
-        index === self.findIndex(u => u.id === user.id)
+      .filter((user): user is UserWithVjudgeHandle =>
+        Boolean(user.vjudgeHandle)
+      )
+      .filter(
+        (user, index, self) => index === self.findIndex((u) => u.id === user.id)
       );
 
     if (uniqueUsers.length === 0) {
@@ -229,9 +243,7 @@ export async function POST(
 
     // Create a Set of participating user IDs for quick lookup
     const participatingUserIds = new Set(
-      eventData.strictAttendance
-        ? attendances.map(ea => ea.userId)
-        : []
+      eventData.strictAttendance ? attendances.map((ea) => ea.userId) : []
     );
 
     // Delete existing solve stats for this event
@@ -252,10 +264,7 @@ export async function POST(
         let finalUpsolveCount = stats?.upSolveCount ?? 0;
 
         // If strict attendance is enabled and user is not in eventAttendances
-        if (
-          eventData.strictAttendance &&
-          !participatingUserIds.has(user.id)
-        ) {
+        if (eventData.strictAttendance && !participatingUserIds.has(user.id)) {
           finalUpsolveCount += finalSolveCount; // Move solves to upsolves
           finalSolveCount = 0;
         }
