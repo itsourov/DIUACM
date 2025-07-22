@@ -1,5 +1,5 @@
 {
-  "id": "93f8b1e3-d93b-41f7-8e46-f31454aeee1b",
+  "id": "11fc3539-ae18-4661-8e0e-20b10e693f9b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1637,7 +1637,8 @@
           "name": "max_cf_rating",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": -1
         },
         "created_at": {
           "name": "created_at",

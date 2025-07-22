@@ -231,7 +231,7 @@ CREATE TABLE "user" (
 	"starting_semester" varchar(255),
 	"department" varchar(255),
 	"student_id" varchar(255),
-	"max_cf_rating" integer,
+	"max_cf_rating" integer DEFAULT -1 NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "user_email_unique" UNIQUE("email"),

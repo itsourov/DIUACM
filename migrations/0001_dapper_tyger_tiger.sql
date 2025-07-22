@@ -1,1 +1,0 @@
-ALTER TABLE "user" ALTER COLUMN "max_cf_rating" SET DEFAULT -1;
