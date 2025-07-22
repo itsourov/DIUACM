@@ -43,7 +43,9 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
                             className="block text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate"
                             title={event.title}
                           >
-                            {event.title}
+                            {event.title.length > 30
+                              ? `${event.title.substring(0, 30)}...`
+                              : event.title}
                           </Link>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -274,7 +276,9 @@ export function RankingTable({ rankList, attendanceMap }: RankingTableProps) {
                               className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 line-clamp-2 flex-1"
                               title={event.title}
                             >
-                              {event.title}
+                              {event.title.length > 40
+                                ? `${event.title.substring(0, 40)}...`
+                                : event.title}
                             </Link>
                             <Badge
                               variant="secondary"
