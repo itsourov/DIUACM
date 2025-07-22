@@ -6,7 +6,6 @@ import { useRouter } from "nextjs-toploader/app";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -68,11 +67,6 @@ export function SearchEvents() {
     updateSearchParams(debouncedSearch, eventType);
   }, [debouncedSearch, eventType, updateSearchParams]);
 
-  const handleClear = () => {
-    setSearchQuery("");
-    setEventType("ALL");
-  };
-
   return (
     <div className="flex flex-col md:flex-row gap-4">
       <div className="relative flex-1">
@@ -84,17 +78,6 @@ export function SearchEvents() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        {searchQuery && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute right-1 top-1 h-7 w-7 p-0"
-            onClick={handleClear}
-          >
-            <span className="sr-only">Clear</span>
-            <span aria-hidden="true">&times;</span>
-          </Button>
-        )}
       </div>
 
       <Select value={eventType} onValueChange={setEventType}>
