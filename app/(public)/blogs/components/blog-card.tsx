@@ -39,33 +39,25 @@ export function BlogCard({ blog }: BlogCardProps) {
             ratio={16 / 9}
             className="bg-slate-200 dark:bg-slate-700"
           >
-            {blog.featuredImage ? (
-              <>
-                {/* Skeleton placeholder with fixed dimensions */}
-                <div
-                  className={cn(
-                    "absolute inset-0 bg-slate-200 dark:bg-slate-700 transition-opacity duration-300",
-                    isLoading ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                <Image
-                  src={blog.featuredImage}
-                  alt={blog.title}
-                  fill
-                  className={cn(
-                    "object-cover transition-all duration-500 group-hover:scale-105",
-                    isLoading ? "opacity-0 scale-110" : "opacity-100 scale-100"
-                  )}
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                  onLoadingComplete={() => setIsLoading(false)}
-                  priority={false}
-                />
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-                <BookOpen className="h-12 w-12 text-slate-400" />
-              </div>
-            )}
+            {/* Skeleton placeholder with fixed dimensions */}
+            <div
+              className={cn(
+                "absolute inset-0 bg-slate-200 dark:bg-slate-700 transition-opacity duration-300",
+                isLoading ? "opacity-100" : "opacity-0"
+              )}
+            />
+            <Image
+              src={blog.featuredImage ?? "/diuacm.jpeg"}
+              alt={blog.title}
+              fill
+              className={cn(
+                "object-cover transition-all duration-500 group-hover:scale-105",
+                isLoading ? "opacity-0 scale-110" : "opacity-100 scale-100"
+              )}
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              onLoadingComplete={() => setIsLoading(false)}
+              priority={false}
+            />
           </AspectRatio>
         </div>
 
