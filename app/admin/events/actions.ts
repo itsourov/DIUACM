@@ -18,6 +18,22 @@ export async function createEvent(values: EventFormValues) {
     }
     const validatedFields = eventFormSchema.parse(values);
 
+    // Check if an event with the same eventLink already exists
+    if (validatedFields.eventLink) {
+      const existingEvent = await db
+        .select({ id: events.id })
+        .from(events)
+        .where(eq(events.eventLink, validatedFields.eventLink))
+        .limit(1);
+
+      if (existingEvent.length > 0) {
+        return {
+          success: false,
+          error: "An event with this event link already exists.",
+        };
+      }
+    }
+
     await db.insert(events).values({
       ...validatedFields,
       // Handle nullable fields
@@ -62,6 +78,25 @@ export async function updateEvent(id: number, values: EventFormValues) {
         success: false,
         error: "Event not found.",
       };
+    }
+
+    // Check if an event with the same eventLink already exists (excluding current event)
+    if (validatedFields.eventLink) {
+      const duplicateEvents = await db
+        .select({ id: events.id })
+        .from(events)
+        .where(eq(events.eventLink, validatedFields.eventLink));
+
+      // If we found any events, check if any have different IDs than the current event
+      if (duplicateEvents.length > 0) {
+        const isDuplicate = duplicateEvents.some((event) => event.id !== id);
+        if (isDuplicate) {
+          return {
+            success: false,
+            error: "An event with this event link already exists.",
+          };
+        }
+      }
     }
 
     await db
