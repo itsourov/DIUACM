@@ -1,7 +1,16 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Trophy, Phone, MapPin, GraduationCap, Code2 } from "lucide-react";
+import {
+  Trophy,
+  Phone,
+  MapPin,
+  GraduationCap,
+  Code2,
+  Target,
+  Users,
+  Calendar,
+} from "lucide-react";
 import { format } from "date-fns";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +20,7 @@ import {
   getProgrammerDetails,
   type ContestParticipation,
   type TeamMemberResult,
+  type TrackerPerformance,
 } from "../actions";
 import { CopyButton } from "../components/copy-button";
 
@@ -57,7 +67,8 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
     notFound();
   }
 
-  const { programmer, contestParticipations } = response.data;
+  const { programmer, contestParticipations, trackerPerformances } =
+    response.data;
 
   const initials = programmer.name
     .split(" ")
@@ -206,6 +217,98 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Tracker Performance */}
+      {trackerPerformances.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center">
+            <Target className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" />
+            Tracker Performance ({trackerPerformances.length})
+          </h2>
+
+          <div className="space-y-6">
+            {trackerPerformances.map((tracker: TrackerPerformance) => (
+              <div
+                key={tracker.tracker.id}
+                className="relative bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 transition-all overflow-hidden group hover:shadow-lg"
+              >
+                {/* Ambient light effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-slate-50 dark:from-slate-800 dark:to-slate-900 opacity-50 -z-10"></div>
+
+                {/* Decorative accent element */}
+                <div className="absolute -bottom-10 -right-10 h-24 w-24 rounded-full bg-purple-100/40 dark:bg-purple-900/20 -z-10"></div>
+
+                <div className="p-5 relative z-10">
+                  {/* Tracker Header */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">
+                      {tracker.tracker.title}
+                    </h3>
+                  </div>
+
+                  {/* Rank Lists */}
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {tracker.rankLists.map((rankList) => (
+                      <Link
+                        key={rankList.rankList.id}
+                        href={`/trackers/${tracker.tracker.slug}?keyword=${rankList.rankList.keyword}`}
+                        className="block p-4 rounded-lg bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors border border-slate-200/60 dark:border-slate-600/40 backdrop-blur-sm"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-slate-900 dark:text-white">
+                            {rankList.rankList.keyword}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className="bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                          >
+                            #{rankList.userPosition}
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>Total Users</span>
+                            </div>
+                            <span className="font-medium">
+                              {rankList.totalUsers}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>Events</span>
+                            </div>
+                            <span className="font-medium">
+                              {rankList.eventCount}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Trophy className="w-4 h-4 text-amber-500" />
+                              <span>Score</span>
+                            </div>
+                            <span className="font-medium text-amber-600 dark:text-amber-400">
+                              {rankList.score.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Contest Participations */}
       {contestParticipations.length > 0 ? (

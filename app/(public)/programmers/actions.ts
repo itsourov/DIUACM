@@ -8,11 +8,18 @@ import {
   contests,
   galleries,
   media,
+  trackers,
+  rankLists,
+  rankListUser,
+  eventRankList,
+  VisibilityStatus,
   type User,
   type Contest,
   type Team,
   type Gallery,
   type Media,
+  type Tracker,
+  type RankList,
 } from "@/db/schema";
 import {
   desc,
@@ -223,9 +230,146 @@ export interface ContestParticipation {
   team: TeamResult;
 }
 
+// Tracker performance types
+export interface TrackerPerformance {
+  tracker: Pick<Tracker, "id" | "title" | "slug">;
+  rankLists: RankListPerformance[];
+}
+
+export interface RankListPerformance {
+  rankList: Pick<RankList, "id" | "keyword">;
+  userPosition: number;
+  totalUsers: number;
+  eventCount: number;
+  score: number;
+}
+
 export interface GetProgrammerDetailsResponse {
   programmer: ProgrammerDetails | null;
   contestParticipations: ContestParticipation[];
+  trackerPerformances: TrackerPerformance[];
+}
+
+// Function to get user's tracker performances
+async function getUserTrackerPerformances(
+  userId: string
+): Promise<TrackerPerformance[]> {
+  try {
+    // Get all trackers where the user has performance records
+    const userTrackerData = await db
+      .select({
+        trackerId: trackers.id,
+        trackerTitle: trackers.title,
+        trackerSlug: trackers.slug,
+        rankListId: rankLists.id,
+        rankListKeyword: rankLists.keyword,
+        userScore: rankListUser.score,
+      })
+      .from(rankListUser)
+      .innerJoin(rankLists, eq(rankListUser.rankListId, rankLists.id))
+      .innerJoin(trackers, eq(rankLists.trackerId, trackers.id))
+      .where(
+        and(
+          eq(rankListUser.userId, userId),
+          eq(trackers.status, VisibilityStatus.PUBLISHED),
+          eq(rankLists.isActive, true)
+        )
+      )
+      .orderBy(asc(trackers.order), asc(rankLists.order));
+
+    if (userTrackerData.length === 0) {
+      return [];
+    }
+
+    // Get unique rank list IDs to fetch statistics
+    const uniqueRankListIds = [
+      ...new Set(userTrackerData.map((data) => data.rankListId)),
+    ];
+
+    // Get user counts, event counts, and user positions for each rank list
+    const [userCounts, eventCounts, userPositions] = await Promise.all([
+      // Get total users count for each rank list
+      db
+        .select({
+          rankListId: rankListUser.rankListId,
+          totalUsers: count(),
+        })
+        .from(rankListUser)
+        .where(inArray(rankListUser.rankListId, uniqueRankListIds))
+        .groupBy(rankListUser.rankListId),
+
+      // Get event counts for each rank list
+      db
+        .select({
+          rankListId: eventRankList.rankListId,
+          eventCount: count(),
+        })
+        .from(eventRankList)
+        .where(inArray(eventRankList.rankListId, uniqueRankListIds))
+        .groupBy(eventRankList.rankListId),
+
+      // Get user positions in each rank list (rank by score descending)
+      db
+        .select({
+          rankListId: rankListUser.rankListId,
+          userId: rankListUser.userId,
+          score: rankListUser.score,
+          position: sql<number>`ROW_NUMBER() OVER (PARTITION BY ${rankListUser.rankListId} ORDER BY ${rankListUser.score} DESC)`,
+        })
+        .from(rankListUser)
+        .where(inArray(rankListUser.rankListId, uniqueRankListIds)),
+    ]);
+
+    // Create maps for efficient lookup
+    const userCountMap = new Map(
+      userCounts.map((uc) => [uc.rankListId, Number(uc.totalUsers)])
+    );
+    const eventCountMap = new Map(
+      eventCounts.map((ec) => [ec.rankListId, Number(ec.eventCount)])
+    );
+    const positionMap = new Map<string, number>();
+
+    userPositions.forEach((up) => {
+      const key = `${up.rankListId}-${up.userId}`;
+      positionMap.set(key, Number(up.position));
+    });
+
+    // Group data by tracker
+    const trackerMap = new Map<number, TrackerPerformance>();
+
+    userTrackerData.forEach((data) => {
+      const trackerId = data.trackerId;
+      const positionKey = `${data.rankListId}-${userId}`;
+
+      if (!trackerMap.has(trackerId)) {
+        trackerMap.set(trackerId, {
+          tracker: {
+            id: trackerId,
+            title: data.trackerTitle,
+            slug: data.trackerSlug,
+          },
+          rankLists: [],
+        });
+      }
+
+      const tracker = trackerMap.get(trackerId)!;
+      tracker.rankLists.push({
+        rankList: {
+          id: data.rankListId,
+          keyword: data.rankListKeyword,
+        },
+        userPosition: positionMap.get(positionKey) || 0,
+        totalUsers: userCountMap.get(data.rankListId) || 0,
+        eventCount: eventCountMap.get(data.rankListId) || 0,
+        score: data.userScore,
+      });
+    });
+
+    return Array.from(trackerMap.values());
+  } catch (error) {
+    console.error("Error fetching user tracker performances:", error);
+    return [];
+  }
 }
 
 export async function getProgrammerDetails(
@@ -261,34 +405,40 @@ export async function getProgrammerDetails(
         data: {
           programmer: null,
           contestParticipations: [],
+          trackerPerformances: [],
         },
       };
     }
 
-    // Get contest participations with a single query
-    const contestParticipationsQuery = await db
-      .select({
-        contestId: contests.id,
-        contestName: contests.name,
-        contestType: contests.contestType,
-        contestLocation: contests.location,
-        contestDate: contests.date,
-        contestDescription: contests.description,
-        contestStandingsUrl: contests.standingsUrl,
-        teamId: teams.id,
-        teamName: teams.name,
-        teamRank: teams.rank,
-        teamSolveCount: teams.solveCount,
-        galleryId: galleries.id,
-        galleryTitle: galleries.title,
-        gallerySlug: galleries.slug,
-      })
-      .from(teamUser)
-      .innerJoin(teams, eq(teamUser.teamId, teams.id))
-      .innerJoin(contests, eq(teams.contestId, contests.id))
-      .leftJoin(galleries, eq(contests.galleryId, galleries.id))
-      .where(eq(teamUser.userId, programmer.id))
-      .orderBy(contests.date);
+    // Get tracker performances and contest participations in parallel
+    const [trackerPerformances, contestParticipationsQuery] = await Promise.all(
+      [
+        getUserTrackerPerformances(programmer.id),
+        db
+          .select({
+            contestId: contests.id,
+            contestName: contests.name,
+            contestType: contests.contestType,
+            contestLocation: contests.location,
+            contestDate: contests.date,
+            contestDescription: contests.description,
+            contestStandingsUrl: contests.standingsUrl,
+            teamId: teams.id,
+            teamName: teams.name,
+            teamRank: teams.rank,
+            teamSolveCount: teams.solveCount,
+            galleryId: galleries.id,
+            galleryTitle: galleries.title,
+            gallerySlug: galleries.slug,
+          })
+          .from(teamUser)
+          .innerJoin(teams, eq(teamUser.teamId, teams.id))
+          .innerJoin(contests, eq(teams.contestId, contests.id))
+          .leftJoin(galleries, eq(contests.galleryId, galleries.id))
+          .where(eq(teamUser.userId, programmer.id))
+          .orderBy(contests.date),
+      ]
+    );
 
     // Optimize: If there are no contests, return early
     if (contestParticipationsQuery.length === 0) {
@@ -297,6 +447,7 @@ export async function getProgrammerDetails(
         data: {
           programmer,
           contestParticipations: [],
+          trackerPerformances,
         },
         message: "Programmer details fetched successfully (no contests)",
       };
@@ -436,6 +587,7 @@ export async function getProgrammerDetails(
       data: {
         programmer,
         contestParticipations,
+        trackerPerformances,
       },
       message: "Programmer details fetched successfully",
     };
@@ -447,6 +599,7 @@ export async function getProgrammerDetails(
       data: {
         programmer: null,
         contestParticipations: [],
+        trackerPerformances: [],
       },
     };
   }
