@@ -6,7 +6,6 @@ import {
   Phone,
   MapPin,
   GraduationCap,
-  Code2,
   Target,
   Users,
   Calendar,
@@ -311,7 +310,7 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
       )}
 
       {/* Contest Participations */}
-      {contestParticipations.length > 0 ? (
+      {contestParticipations.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 flex items-center">
             <Trophy className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
@@ -410,18 +409,6 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
               )
             )}
           </div>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 mb-4">
-            <Code2 className="h-8 w-8 text-slate-500 dark:text-slate-400" />
-          </div>
-          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-            No contest participations
-          </h3>
-          <p className="text-slate-500 dark:text-slate-400">
-            This programmer hasn&apos;t participated in any contests yet.
-          </p>
         </div>
       )}
     </div>
