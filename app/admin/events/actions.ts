@@ -396,7 +396,7 @@ async function fetchAtcoderContest(contestLink: string) {
         type: EventType.CONTEST,
         status: VisibilityStatus.PUBLISHED,
         participationScope: ParticipationScope.OPEN_FOR_ALL,
-        openForAttendance: true,
+        openForAttendance: false,
       },
     };
   } catch (error) {
