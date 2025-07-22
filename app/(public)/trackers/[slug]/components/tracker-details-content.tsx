@@ -11,12 +11,14 @@ import {
   AttendanceMap,
 } from "../../actions";
 import { RankingTable } from "./ranking-table";
+import { JoinLeaveButton } from "./join-leave-button";
 
 interface TrackerDetailsContentProps {
   tracker: TrackerDetails;
   currentRankList: RankListWithDetails;
   allRankListKeywords: string[];
   attendanceMap: AttendanceMap;
+  userInRanklist: boolean;
 }
 
 export function TrackerDetailsContent({
@@ -24,6 +26,7 @@ export function TrackerDetailsContent({
   currentRankList,
   allRankListKeywords,
   attendanceMap,
+  userInRanklist,
 }: TrackerDetailsContentProps) {
   return (
     <div className="space-y-6">
@@ -83,6 +86,13 @@ export function TrackerDetailsContent({
                 <span className="hidden sm:inline">Events:</span>
                 {currentRankList.eventCount}
               </Badge>
+
+              {/* Join/Leave Button */}
+              <JoinLeaveButton
+                rankListId={currentRankList.id}
+                userInRanklist={userInRanklist}
+                className="ml-2"
+              />
             </div>
           </div>
         </CardContent>

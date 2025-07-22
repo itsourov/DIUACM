@@ -28,6 +28,7 @@ export default async function TrackerDetailsPage({
           currentRankList={data.currentRankList}
           allRankListKeywords={data.allRankListKeywords}
           attendanceMap={data.attendanceMap}
+          userInRanklist={data.userInRanklist}
         />
       </div>
     );
