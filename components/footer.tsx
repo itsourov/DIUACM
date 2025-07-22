@@ -23,7 +23,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-slate-600 dark:text-slate-400 mb-4">
-              The official ACM student chapter at Daffodil International
+              The official ACM website at Daffodil International
               University. Promoting computing knowledge, skills, and innovation
               within our community.
             </p>
