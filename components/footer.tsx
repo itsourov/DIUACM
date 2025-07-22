@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Github,
+  // Facebook,
+  // Twitter,
+  // Instagram,
+  // Linkedin,
+  // Github,
   Mail,
   Heart,
 } from "lucide-react";
@@ -14,7 +14,7 @@ const Footer = () => {
   return (
     <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-8">
           {/* Logo and description */}
           <div className="col-span-1 md:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center mb-4">
@@ -28,7 +28,7 @@ const Footer = () => {
               within our community.
             </p>
             <div className="flex space-x-4">
-              <Link
+              {/* <Link
                 href="https://facebook.com/diuacm"
                 className="text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition"
               >
@@ -62,7 +62,7 @@ const Footer = () => {
               >
                 <Github className="h-5 w-5" />
                 <span className="sr-only">GitHub</span>
-              </Link>
+              </Link> */}
             </div>
           </div>
 
@@ -107,34 +107,34 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Extra */}
           <div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
-              Resources
+              Extra
             </h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/membership"
+                  href="/privacy-policy"
                   className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 >
-                  Membership
+                  Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/resources"
+                  href="/terms-and-conditions"
                   className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 >
-                  Learning Resources
+                  Terms & Conditions
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/projects"
+                  href="/galleries"
                   className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
                 >
-                  Projects
+                  Galleries
                 </Link>
               </li>
               <li>
@@ -172,8 +172,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-slate-600 dark:text-slate-400 mb-4 md:mb-0">
               <p className="mb-2">
-                © {new Date().getFullYear()} DIU ACM. All rights
-                reserved.
+                © {new Date().getFullYear()} DIU ACM. All rights reserved.
               </p>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center">
