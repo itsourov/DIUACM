@@ -79,7 +79,7 @@ export function SearchEvents() {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search events by title or description..."
+          placeholder="Search events by title, description, or link..."
           className="pl-8 w-full"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

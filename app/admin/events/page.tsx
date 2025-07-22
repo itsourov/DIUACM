@@ -88,6 +88,12 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
   };
 
+  // Helper function to truncate text with ellipsis
+  const truncateText = (text: string, maxLength: number = 50) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -183,8 +189,11 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                       <TableRow key={event.id}>
                         <TableCell>
                           <div className="space-y-1">
-                            <div className="font-medium text-base">
-                              {event.title}
+                            <div
+                              className="font-medium text-base"
+                              title={event.title}
+                            >
+                              {truncateText(event.title, 40)}
                             </div>
                             <div className="flex items-center space-x-1">
                               <Badge variant="outline" className="text-xs">

@@ -174,7 +174,8 @@ export async function getPaginatedEvents(
       whereConditions.push(
         or(
           ilike(events.title, `%${search}%`),
-          ilike(events.description, `%${search}%`)
+          ilike(events.description, `%${search}%`),
+          ilike(events.eventLink, `%${search}%`)
         )
       );
     }
