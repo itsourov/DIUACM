@@ -159,20 +159,37 @@ export async function getTrackerBySlug(
       .filter((k) => k !== null) as string[];
 
     // Get the current rank list
-    const rankListQuery = db
-      .select()
-      .from(rankLists)
-      .where(
-        and(
-          eq(rankLists.trackerId, tracker.id),
-          eq(rankLists.isActive, true),
-          keyword ? eq(rankLists.keyword, keyword) : undefined
-        )
-      );
+    let currentRankListBase;
 
-    const [currentRankListBase] = await rankListQuery.orderBy(
-      asc(rankLists.order)
-    );
+    if (keyword) {
+      // Try to find rank list with the provided keyword
+      const [specificRankList] = await db
+        .select()
+        .from(rankLists)
+        .where(
+          and(
+            eq(rankLists.trackerId, tracker.id),
+            eq(rankLists.isActive, true),
+            eq(rankLists.keyword, keyword)
+          )
+        )
+        .orderBy(asc(rankLists.order));
+
+      currentRankListBase = specificRankList;
+    }
+
+    // If no keyword provided or keyword not found, get the default (first) rank list
+    if (!currentRankListBase) {
+      const [defaultRankList] = await db
+        .select()
+        .from(rankLists)
+        .where(
+          and(eq(rankLists.trackerId, tracker.id), eq(rankLists.isActive, true))
+        )
+        .orderBy(asc(rankLists.order));
+
+      currentRankListBase = defaultRankList;
+    }
 
     if (!currentRankListBase) {
       throw new Error("No rank lists available for this tracker");
