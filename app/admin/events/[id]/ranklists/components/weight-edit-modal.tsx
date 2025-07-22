@@ -69,7 +69,7 @@ export function WeightEditModal({
             <Input
               id="weight"
               type="number"
-              step="0.1"
+              step="0.01"
               min="0.1"
               value={weight}
               onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}

@@ -201,7 +201,7 @@ async function EditScoreButton({
                 id="score"
                 name="score"
                 type="number"
-                step="0.1"
+                step="0.01"
                 defaultValue={currentScore}
                 placeholder="Enter new score"
                 required
