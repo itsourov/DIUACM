@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import React from "react";
 import NextTopLoader from "nextjs-toploader";
 import { SessionProvider } from "next-auth/react";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 import { Metadata } from "next";
 
@@ -44,6 +45,7 @@ export default function RootLayout({
           </SessionProvider>
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId="G-CSW7LT4FFP" />
     </html>
   );
 }
