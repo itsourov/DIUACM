@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Users, TrendingUp, Download, Info, BarChart3 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, TrendingUp, Info, BarChart3 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,63 +29,48 @@ export function TrackerDetailsContent({
     <div className="space-y-6">
       {/* Header Section */}
       <div className="text-center lg:text-left">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
           {tracker.title}
         </h1>
-        {tracker.description && (
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto lg:mx-0">
-            {tracker.description}
-          </p>
-        )}
       </div>
 
-      {/* Ranklist Navigation */}
-      {allRankListKeywords.length > 1 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Available Rankings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {allRankListKeywords.map((keyword) => {
-                const isActive = keyword === (currentRankList.keyword || "");
-                const href = `/trackers/${tracker.slug}${
-                  keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""
-                }`;
-
-                return (
-                  <Link key={keyword} href={href}>
-                    <Button
-                      variant={isActive ? "default" : "outline"}
-                      size="sm"
-                      className={
-                        isActive ? "bg-blue-600 hover:bg-blue-700" : ""
-                      }
-                    >
-                      {keyword || "Main"}
-                    </Button>
-                  </Link>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Current Ranklist Info */}
+      {/* Ranklist Navigation and Stats */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Description */}
-            <div className="flex-1">
-              {currentRankList.description && (
-                <p className="text-slate-600 dark:text-slate-400">
-                  {currentRankList.description}
-                </p>
-              )}
-            </div>
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            {/* Ranklist Navigation */}
+            {allRankListKeywords.length > 1 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+                  Available Rankings
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {allRankListKeywords.map((keyword) => {
+                    const isActive =
+                      keyword === (currentRankList.keyword || "");
+                    const href = `/trackers/${tracker.slug}${
+                      keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""
+                    }`;
 
-            {/* Stats and Actions */}
+                    return (
+                      <Link key={keyword} href={href}>
+                        <Button
+                          variant={isActive ? "default" : "outline"}
+                          size="sm"
+                          className={
+                            isActive ? "bg-blue-600 hover:bg-blue-700" : ""
+                          }
+                        >
+                          {keyword || "Main"}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Stats */}
             <div className="flex flex-wrap items-center gap-3">
               <Badge variant="secondary" className="gap-1.5">
                 <Users className="h-4 w-4" />
@@ -98,19 +83,6 @@ export function TrackerDetailsContent({
                 <span className="hidden sm:inline">Events:</span>
                 {currentRankList.eventCount}
               </Badge>
-
-              <Button variant="outline" size="sm" className="gap-1.5" asChild>
-                <a
-                  href={`/api/trackers/${tracker.slug}/ranklist/${currentRankList.id}/csv`}
-                  download={`${tracker.title}-${
-                    currentRankList.keyword || "ranklist"
-                  }.csv`}
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="hidden sm:inline">Download</span>
-                  CSV
-                </a>
-              </Button>
             </div>
           </div>
         </CardContent>
