@@ -22,7 +22,7 @@ export default async function TrackerDetailsPage({
     const data = await getTrackerBySlug(slug, keyword);
 
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 lg:py-12">
         <TrackerDetailsContent
           tracker={data.tracker}
           currentRankList={data.currentRankList}
