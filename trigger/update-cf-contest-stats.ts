@@ -537,6 +537,7 @@ async function updateSolveStatsInDatabase(stats: {
               solveCount: stat.solveCount,
               upsolveCount: stat.upsolveCount,
               participation: stat.participation,
+              updatedAt: new Date(),
             },
           })
       )
