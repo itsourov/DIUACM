@@ -247,7 +247,6 @@
 
 //     // Prepare rank lists for batch insert
 //     const rankListInsertData = newRankLists.map((rankList: ImportRankList) => ({
-//       id: rankList.id,
 //       trackerId: trackerMap.get(rankList.tracker.slug)!,
 //       keyword: rankList.keyword,
 //       description: rankList.description,
