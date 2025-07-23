@@ -141,6 +141,19 @@ export async function saveMediaData(
     });
 
     revalidatePath(`/admin/galleries/${galleryId}/media`);
+
+    // Get gallery slug to revalidate public paths
+    const galleryResult = await db
+      .select({ slug: galleries.slug })
+      .from(galleries)
+      .where(eq(galleries.id, galleryId))
+      .limit(1);
+
+    if (galleryResult.length > 0) {
+      revalidatePath("/galleries");
+      revalidatePath(`/galleries/${galleryResult[0].slug}`);
+    }
+
     return { success: true, message: "Media uploaded successfully" };
   } catch (error) {
     return handleDbError(error);
@@ -180,6 +193,19 @@ export async function deleteMedia(mediaId: number): Promise<ActionResult> {
     await db.delete(media).where(eq(media.id, mediaId));
 
     revalidatePath(`/admin/galleries/${mediaData.galleryId}/media`);
+
+    // Get gallery slug to revalidate public paths
+    const galleryResult = await db
+      .select({ slug: galleries.slug })
+      .from(galleries)
+      .where(eq(galleries.id, mediaData.galleryId))
+      .limit(1);
+
+    if (galleryResult.length > 0) {
+      revalidatePath("/galleries");
+      revalidatePath(`/galleries/${galleryResult[0].slug}`);
+    }
+
     return { success: true, message: "Media deleted successfully" };
   } catch (error) {
     return handleDbError(error);
@@ -346,6 +372,7 @@ export async function createGallery(
       .returning({ id: galleries.id });
 
     revalidatePath("/admin/galleries");
+    revalidatePath("/galleries"); // Revalidate public galleries list
 
     return {
       success: true,
@@ -412,6 +439,13 @@ export async function updateGallery(
     revalidatePath("/admin/galleries");
     revalidatePath(`/admin/galleries/${id}`);
 
+    // Revalidate public paths - need to check both old and new slugs
+    revalidatePath("/galleries"); // Always revalidate the list
+    revalidatePath(`/galleries/${existingGallery[0].slug}`); // Old slug
+    if (validatedFields.slug !== existingGallery[0].slug) {
+      revalidatePath(`/galleries/${validatedFields.slug}`); // New slug if changed
+    }
+
     return {
       success: true,
       message: "Gallery updated successfully",
@@ -465,6 +499,10 @@ export async function deleteGallery(id: number): Promise<ActionResult> {
 
     revalidatePath("/admin/galleries");
 
+    // Revalidate public paths
+    revalidatePath("/galleries"); // Always revalidate the list
+    revalidatePath(`/galleries/${existingGallery[0].slug}`); // Revalidate the specific gallery page
+
     return {
       success: true,
       message: "Gallery deleted successfully",
@@ -510,15 +548,25 @@ export async function updateMediaOrder(
       .set({ order: newOrder })
       .where(eq(media.id, mediaId));
 
-    // Get gallery ID to revalidate
+    // Get gallery ID and slug to revalidate
     const mediaItem = await db
-      .select({ galleryId: media.galleryId })
+      .select({
+        galleryId: media.galleryId,
+        slug: galleries.slug,
+      })
       .from(media)
+      .leftJoin(galleries, eq(media.galleryId, galleries.id))
       .where(eq(media.id, mediaId))
       .limit(1);
 
     if (mediaItem.length > 0) {
       revalidatePath(`/admin/galleries/${mediaItem[0].galleryId}/media`);
+
+      // Revalidate public paths
+      if (mediaItem[0].slug) {
+        revalidatePath("/galleries");
+        revalidatePath(`/galleries/${mediaItem[0].slug}`);
+      }
     }
 
     return { success: true, message: "Media order updated successfully" };
@@ -543,15 +591,25 @@ export async function updateMediaTitle(
       .set({ title: title || null })
       .where(eq(media.id, mediaId));
 
-    // Get gallery ID to revalidate
+    // Get gallery ID and slug to revalidate
     const mediaItem = await db
-      .select({ galleryId: media.galleryId })
+      .select({
+        galleryId: media.galleryId,
+        slug: galleries.slug,
+      })
       .from(media)
+      .leftJoin(galleries, eq(media.galleryId, galleries.id))
       .where(eq(media.id, mediaId))
       .limit(1);
 
     if (mediaItem.length > 0) {
       revalidatePath(`/admin/galleries/${mediaItem[0].galleryId}/media`);
+
+      // Revalidate public paths
+      if (mediaItem[0].slug) {
+        revalidatePath("/galleries");
+        revalidatePath(`/galleries/${mediaItem[0].slug}`);
+      }
     }
 
     return { success: true, message: "Media title updated successfully" };
