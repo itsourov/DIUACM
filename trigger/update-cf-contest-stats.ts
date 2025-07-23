@@ -55,7 +55,7 @@ interface MinimalEventInfo {
  * Extract contest ID from a Codeforces URL
  */
 function extractContestId(eventLink: string): string | null {
-  const match = eventLink.match(/contests\/(\d+)/);
+  const match = eventLink.match(/contests?\/(\d+)/);
   return match ? match[1] : null;
 }
 
@@ -537,6 +537,7 @@ async function updateSolveStatsInDatabase(stats: {
               solveCount: stat.solveCount,
               upsolveCount: stat.upsolveCount,
               participation: stat.participation,
+              updatedAt: new Date(),
             },
           })
       )
