@@ -126,11 +126,11 @@ export const accounts = pgTable(
     id_token: varchar("id_token", { length: 2048 }),
     session_state: varchar("session_state", { length: 255 }),
   },
-  (table) => ({
-    compoundKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.provider, table.providerAccountId],
     }),
-  })
+  ]
 );
 
 export const sessions = pgTable("session", {
@@ -148,11 +148,11 @@ export const verificationTokens = pgTable(
     token: varchar("token", { length: 255 }).notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
-  (table) => ({
-    compoundKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.identifier, table.token],
     }),
-  })
+  ]
 );
 
 // Galleries table
@@ -221,9 +221,7 @@ export const teams = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueNameContest: unique().on(table.name, table.contestId),
-  })
+  (table) => [unique().on(table.name, table.contestId)]
 );
 
 // Events table
@@ -283,9 +281,7 @@ export const rankLists = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueKeywordTracker: unique().on(table.keyword, table.trackerId),
-  })
+  (table) => [unique().on(table.keyword, table.trackerId)]
 );
 
 // Blog Posts table
@@ -317,9 +313,7 @@ export const eventRankList = pgTable(
       .references(() => rankLists.id, { onDelete: "cascade" }),
     weight: real("weight").notNull(),
   },
-  (table) => ({
-    uniqueEventRankList: unique().on(table.eventId, table.rankListId),
-  })
+  (table) => [unique().on(table.eventId, table.rankListId)]
 );
 
 export const teamUser = pgTable(
@@ -336,9 +330,7 @@ export const teamUser = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueTeamUser: unique().on(table.teamId, table.userId),
-  })
+  (table) => [unique().on(table.teamId, table.userId)]
 );
 
 export const rankListUser = pgTable(
@@ -356,9 +348,7 @@ export const rankListUser = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueRankListUser: unique().on(table.rankListId, table.userId),
-  })
+  (table) => [unique().on(table.rankListId, table.userId)]
 );
 
 export const eventUserAttendance = pgTable(
@@ -375,9 +365,7 @@ export const eventUserAttendance = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueEventUser: unique().on(table.eventId, table.userId),
-  })
+  (table) => [unique().on(table.eventId, table.userId)]
 );
 
 export const userSolveStatOnEvents = pgTable(
@@ -398,9 +386,7 @@ export const userSolveStatOnEvents = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueUserEvent: unique().on(table.userId, table.eventId),
-  })
+  (table) => [unique().on(table.userId, table.eventId)]
 );
 
 export const contactFormSubmissions = pgTable("contactFormSubmission", {
@@ -440,9 +426,7 @@ export const userRoles = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date()),
   },
-  (table) => ({
-    uniqueUserRole: unique().on(table.userId, table.roleId),
-  })
+  (table) => [unique().on(table.userId, table.roleId)]
 );
 
 // Junction table for role-permission many-to-many relationship
@@ -456,9 +440,7 @@ export const rolePermissions = pgTable(
       .notNull()
       .references(() => permissions.id, { onDelete: "cascade" }),
   },
-  (table) => ({
-    uniqueRolePermission: unique().on(table.roleId, table.permissionId),
-  })
+  (table) => [unique().on(table.roleId, table.permissionId)]
 );
 
 // Type exports for better type safety
