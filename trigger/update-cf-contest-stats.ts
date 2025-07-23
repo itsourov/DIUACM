@@ -173,7 +173,7 @@ export const updateCodeforcesContestStats = schedules.task({
   // Run every 6 hours
   cron: "0 */6 * * *",
   // Set a maximum duration to prevent tasks from running indefinitely
-  maxDuration: 600, // 10 minutes
+  maxDuration: 1800, // 10 minutes
   run: async (payload) => {
     try {
       const startTime = new Date();
@@ -516,10 +516,10 @@ async function updateSolveStatsInDatabase(stats: {
       progress: `${i + 1}/${chunks.length}`,
     });
 
-    // Create or update solve stats for each user in parallel
-    await Promise.all(
-      chunk.map((stat) =>
-        db
+    // Process each stat in the chunk sequentially to avoid race conditions
+    for (const stat of chunk) {
+      try {
+        await db
           .insert(userSolveStatOnEvents)
           .values({
             userId: stat.userId,
@@ -537,10 +537,19 @@ async function updateSolveStatsInDatabase(stats: {
               solveCount: stat.solveCount,
               upsolveCount: stat.upsolveCount,
               participation: stat.participation,
-              updatedAt: new Date(),
             },
-          })
-      )
-    );
+          });
+      } catch (error) {
+        logger.error(`Failed to upsert solve stat for user ${stat.userId}`, {
+          userId: stat.userId,
+          eventId: stat.eventId,
+          solveCount: stat.solveCount,
+          upsolveCount: stat.upsolveCount,
+          participation: stat.participation,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+    }
   }
 }
