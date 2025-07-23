@@ -127,7 +127,6 @@ export async function getTrackerBySlug(
   currentRankList: RankListWithDetails;
   allRankListKeywords: string[];
   attendanceMap: AttendanceMap;
-  userInRanklist: boolean;
 }> {
   try {
     // First, get the tracker
@@ -338,15 +337,11 @@ export async function getTrackerBySlug(
       rankLists: [currentRankList], // We're only loading the current rank list
     };
 
-    // Check if current user is in the ranklist
-    const userInRanklist = await checkUserInRanklist(currentRankListBase.id);
-
     return {
       tracker: trackerWithRankLists,
       currentRankList,
       allRankListKeywords,
       attendanceMap,
-      userInRanklist,
     };
   } catch (error) {
     console.error("Error fetching tracker details:", error);
@@ -471,159 +466,5 @@ export async function generateRankListCSV(rankListId: number): Promise<string> {
   } catch (error) {
     console.error("Error generating CSV:", error);
     throw new Error("Failed to generate CSV");
-  }
-}
-
-// Public join/leave ranklist functions
-export async function joinRanklist(
-  rankListId: number
-): Promise<{ success: boolean; error?: string; message?: string }> {
-  try {
-    const { auth } = await import("@/lib/auth");
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Please login to join the ranklist" };
-    }
-
-    const userId = session.user.id;
-
-    // Check if ranklist exists and is active
-    const ranklist = await db
-      .select({ id: rankLists.id, isActive: rankLists.isActive })
-      .from(rankLists)
-      .where(eq(rankLists.id, rankListId))
-      .limit(1);
-
-    if (ranklist.length === 0) {
-      return { success: false, error: "Ranklist not found" };
-    }
-
-    if (!ranklist[0].isActive) {
-      return {
-        success: false,
-        error: "This ranklist is not accepting new members",
-      };
-    }
-
-    // Check if user is already in the ranklist
-    const existing = await db
-      .select({ userId: rankListUser.userId })
-      .from(rankListUser)
-      .where(
-        and(
-          eq(rankListUser.rankListId, rankListId),
-          eq(rankListUser.userId, userId)
-        )
-      )
-      .limit(1);
-
-    if (existing.length > 0) {
-      return { success: false, error: "You are already in this ranklist" };
-    }
-
-    // Add user to ranklist with initial score of 0
-    await db.insert(rankListUser).values({
-      rankListId: rankListId,
-      userId,
-      score: 0,
-    });
-
-    const { revalidatePath } = await import("next/cache");
-    revalidatePath("/trackers");
-    revalidatePath(`/trackers/[slug]`, "page");
-
-    return { success: true, message: "Successfully joined the ranklist!" };
-  } catch (error) {
-    console.error("Error joining ranklist:", error);
-    return {
-      success: false,
-      error: "Failed to join ranklist. Please try again.",
-    };
-  }
-}
-
-export async function leaveRanklist(
-  rankListId: number
-): Promise<{ success: boolean; error?: string; message?: string }> {
-  try {
-    const { auth } = await import("@/lib/auth");
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Please login to leave the ranklist" };
-    }
-
-    const userId = session.user.id;
-
-    // Check if user is in the ranklist
-    const existing = await db
-      .select({ userId: rankListUser.userId })
-      .from(rankListUser)
-      .where(
-        and(
-          eq(rankListUser.rankListId, rankListId),
-          eq(rankListUser.userId, userId)
-        )
-      )
-      .limit(1);
-
-    if (existing.length === 0) {
-      return { success: false, error: "You are not in this ranklist" };
-    }
-
-    // Remove user from ranklist
-    await db
-      .delete(rankListUser)
-      .where(
-        and(
-          eq(rankListUser.rankListId, rankListId),
-          eq(rankListUser.userId, userId)
-        )
-      );
-
-    const { revalidatePath } = await import("next/cache");
-    revalidatePath("/trackers");
-    revalidatePath(`/trackers/[slug]`, "page");
-
-    return { success: true, message: "Successfully left the ranklist!" };
-  } catch (error) {
-    console.error("Error leaving ranklist:", error);
-    return {
-      success: false,
-      error: "Failed to leave ranklist. Please try again.",
-    };
-  }
-}
-
-// Check if current user is in a ranklist
-export async function checkUserInRanklist(
-  rankListId: number
-): Promise<boolean> {
-  try {
-    const { auth } = await import("@/lib/auth");
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return false;
-    }
-
-    const userId = session.user.id;
-
-    const existing = await db
-      .select({ userId: rankListUser.userId })
-      .from(rankListUser)
-      .where(
-        and(
-          eq(rankListUser.rankListId, rankListId),
-          eq(rankListUser.userId, userId)
-        )
-      )
-      .limit(1);
-
-    return existing.length > 0;
-  } catch (error) {
-    console.error("Error checking user in ranklist:", error);
-    return false;
   }
 }
