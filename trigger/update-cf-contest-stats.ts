@@ -55,7 +55,7 @@ interface MinimalEventInfo {
  * Extract contest ID from a Codeforces URL
  */
 function extractContestId(eventLink: string): string | null {
-  const match = eventLink.match(/contests\/(\d+)/);
+  const match = eventLink.match(/contests?\/(\d+)/);
   return match ? match[1] : null;
 }
 
