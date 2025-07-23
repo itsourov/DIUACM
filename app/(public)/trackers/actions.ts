@@ -14,8 +14,9 @@ import {
   type Tracker,
   type RankList,
   type UserProfile,
+  type UserSolveStatOnEvents,
 } from "@/db/schema";
-import { eq, and, sql, desc, asc } from "drizzle-orm";
+import { eq, and, sql, desc, asc, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 // Define tracker type with rank lists count
@@ -239,15 +240,19 @@ export async function getTrackerBySlug(
     const userIds = rankListUsersResult.map((r) => r.userId);
 
     // Get solve stats for all users and events
-    const solveStatsResult = await db
-      .select()
-      .from(userSolveStatOnEvents)
-      .where(
-        and(
-          sql`${userSolveStatOnEvents.eventId} IN ${eventIds}`,
-          sql`${userSolveStatOnEvents.userId} IN ${userIds}`
-        )
-      );
+    let solveStatsResult: UserSolveStatOnEvents[] = [];
+
+    if (eventIds.length > 0 && userIds.length > 0) {
+      solveStatsResult = await db
+        .select()
+        .from(userSolveStatOnEvents)
+        .where(
+          and(
+            inArray(userSolveStatOnEvents.eventId, eventIds),
+            inArray(userSolveStatOnEvents.userId, userIds)
+          )
+        );
+    }
 
     // Get attendance data if needed
     let attendanceResult: Array<{ userId: string; eventId: number }> = [];
@@ -258,7 +263,7 @@ export async function getTrackerBySlug(
         (r) => r.event.openForAttendance && r.event.strictAttendance
       );
 
-      if (strictEvents.length > 0) {
+      if (strictEvents.length > 0 && userIds.length > 0) {
         const strictEventIds = strictEvents.map((r) => r.event.id);
 
         attendanceResult = await db
@@ -269,8 +274,8 @@ export async function getTrackerBySlug(
           .from(eventUserAttendance)
           .where(
             and(
-              sql`${eventUserAttendance.eventId} IN ${strictEventIds}`,
-              sql`${eventUserAttendance.userId} IN ${userIds}`
+              inArray(eventUserAttendance.eventId, strictEventIds),
+              inArray(eventUserAttendance.userId, userIds)
             )
           );
 
