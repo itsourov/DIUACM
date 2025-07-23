@@ -128,7 +128,7 @@
 // async function importUsers() {
 //   console.log("📥 Importing users...");
 //   try {
-//     const res = await fetch("https://diuacm.com/api/users");
+//     const res = await fetch("https://pt.diuacm.com/api/users");
 //     const data = await res.json();
 //     const usersData = data.data;
 
@@ -181,7 +181,7 @@
 // async function importRankLists() {
 //   console.log("📥 Importing rank lists...");
 //   try {
-//     const res = await fetch("https://diuacm.com/api/ranklists");
+//     const res = await fetch("https://pt.diuacm.com/api/ranklists");
 //     const data = await res.json();
 //     const rankListsData = data.data;
 //     console.log(`Found ${rankListsData.length} rank lists to import`);
@@ -304,7 +304,7 @@
 // async function importEvents() {
 //   console.log("📥 Importing events...");
 //   try {
-//     const res = await fetch("https://diuacm.com/api/events");
+//     const res = await fetch("https://pt.diuacm.com/api/events");
 //     const data = await res.json();
 //     const eventsData = data.data;
 //     console.log(`Found ${eventsData.length} events to import`);
