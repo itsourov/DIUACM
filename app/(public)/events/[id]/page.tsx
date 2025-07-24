@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { format, formatDistanceToNow, isFuture, isPast } from "date-fns";
+import { isFuture, isPast } from "date-fns";
 import { EventType, VisibilityStatus } from "@/db/schema";
 import {
   getEventDetails,
@@ -11,17 +11,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  CalendarDays,
-  Clock,
   ExternalLink,
   Users,
   CalendarCheck,
   TrendingUp,
+  Clock,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AttendanceModal } from "./components/attendance-modal";
 import { EventSolveStats } from "./components/event-solve-stats";
 import { EventAttendanceList } from "./components/event-attendance-list";
+import { EventDateTime } from "./components/event-date-time";
+import { AttendanceWindowInfo } from "./components/attendance-window-info";
 import { auth } from "@/lib/auth";
 import { Separator } from "@/components/ui/separator";
 
@@ -110,11 +111,6 @@ export default async function EventDetailsPage({
   const showTabs = hasAttendanceList && hasSolveStats;
   const defaultTab = hasSolveStats ? "stats" : "attendance";
 
-  // Format event times for better display
-  const eventDate = format(new Date(event.startingAt), "MMMM d, yyyy");
-  const startTime = format(new Date(event.startingAt), "h:mm a");
-  const endTime = format(new Date(event.endingAt), "h:mm a");
-
   // Event status calculation
   const eventStarted = isPast(new Date(event.startingAt));
   const eventEnded = isPast(new Date(event.endingAt));
@@ -182,35 +178,10 @@ export default async function EventDetailsPage({
             </div>
 
             {/* Event Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    Date
-                  </p>
-                  <p className="text-slate-900 dark:text-white font-medium">
-                    {eventDate}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    Time
-                  </p>
-                  <p className="text-slate-900 dark:text-white font-medium">
-                    {startTime} - {endTime}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <EventDateTime
+              startingAt={event.startingAt}
+              endingAt={event.endingAt}
+            />
 
             {/* Event Description (if available) */}
             {event.description && (
@@ -302,44 +273,10 @@ export default async function EventDetailsPage({
                 </div>
 
                 {session?.user && (
-                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                      Attendance Window
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-sm text-slate-700 dark:text-slate-300">
-                          Opens: {format(startWindowTime, "MMM d, h:mm a")}
-                          {attendanceWindowFuture && (
-                            <span className="ml-1 text-slate-500 dark:text-slate-400">
-                              (
-                              {formatDistanceToNow(startWindowTime, {
-                                addSuffix: true,
-                              })}
-                              )
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-sm text-slate-700 dark:text-slate-300">
-                          Closes: {format(endWindowTime, "MMM d, h:mm a")}
-                          {!attendanceWindowPassed &&
-                            !attendanceWindowFuture && (
-                              <span className="ml-1 text-slate-500 dark:text-slate-400">
-                                (
-                                {formatDistanceToNow(endWindowTime, {
-                                  addSuffix: true,
-                                })}
-                                )
-                              </span>
-                            )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <AttendanceWindowInfo
+                    startingAt={event.startingAt}
+                    endingAt={event.endingAt}
+                  />
                 )}
               </div>
             )}
