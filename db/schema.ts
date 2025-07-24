@@ -10,9 +10,20 @@ import {
   pgEnum,
   unique,
   serial,
+  uniqueIndex,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import {
+  type InferSelectModel,
+  type InferInsertModel,
+  SQL,
+  sql,
+} from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
+
+export function lower(email: AnyPgColumn): SQL {
+  return sql`lower(${email})`;
+}
 
 export const VisibilityStatus = {
   PUBLISHED: "published",
@@ -80,32 +91,39 @@ export const participationScopeEnum = pgEnum("participation_scope", [
   "selected_persons",
 ]);
 
-export const users = pgTable("user", {
-  id: varchar("id", { length: 255 })
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  username: varchar("username", { length: 255 }).unique().notNull(),
-  emailVerified: timestamp("emailVerified", {
-    mode: "date",
-  }),
-  image: varchar("image", { length: 255 }),
-  password: varchar("password", { length: 255 }),
-  gender: genderTypeEnum("gender"),
-  phone: varchar("phone", { length: 255 }),
-  codeforcesHandle: varchar("codeforces_handle", { length: 255 }),
-  atcoderHandle: varchar("atcoder_handle", { length: 255 }),
-  vjudgeHandle: varchar("vjudge_handle", { length: 255 }),
-  startingSemester: varchar("starting_semester", { length: 255 }),
-  department: varchar("department", { length: 255 }),
-  studentId: varchar("student_id", { length: 255 }),
-  maxCfRating: integer("max_cf_rating").notNull().default(-1),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" })
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
-});
+export const users = pgTable(
+  "user",
+  {
+    id: varchar("id", { length: 255 })
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).unique().notNull(),
+    username: varchar("username", { length: 255 }).unique().notNull(),
+    emailVerified: timestamp("emailVerified", {
+      mode: "date",
+    }),
+    image: varchar("image", { length: 255 }),
+    password: varchar("password", { length: 255 }),
+    gender: genderTypeEnum("gender"),
+    phone: varchar("phone", { length: 255 }),
+    codeforcesHandle: varchar("codeforces_handle", { length: 255 }),
+    atcoderHandle: varchar("atcoder_handle", { length: 255 }),
+    vjudgeHandle: varchar("vjudge_handle", { length: 255 }),
+    startingSemester: varchar("starting_semester", { length: 255 }),
+    department: varchar("department", { length: 255 }),
+    studentId: varchar("student_id", { length: 255 }),
+    maxCfRating: integer("max_cf_rating").notNull().default(-1),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex("emailUniqueIndex").on(lower(table.email)),
+    uniqueIndex("usernameUniqueIndex").on(lower(table.username)),
+  ]
+);
 
 export const accounts = pgTable(
   "account",
