@@ -52,7 +52,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           })
           .from(users)
           .where(
-            or(eq(users.email, identifier), eq(users.username, identifier))
+            or(
+              eq(users.email, identifier),
+              eq(users.username, identifier),
+              eq(users.email, identifier.toLowerCase() as string),
+              eq(users.username, identifier.toLowerCase() as string)
+            )
           )
           .limit(1);
 
