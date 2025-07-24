@@ -23,7 +23,7 @@ import {
   ListChecks,
   BookOpen,
   Image,
-  Trophy,
+  // Trophy,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,7 +39,7 @@ import { useSession, signOut } from "next-auth/react";
 const menuItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Events", href: "/events", icon: Calendar },
-  { name: "Contests", href: "/contests", icon: Trophy },
+  // { name: "Contests", href: "/contests", icon: Trophy },
   { name: "Trackers", href: "/trackers", icon: ListChecks },
   { name: "Blog", href: "/blogs", icon: BookOpen },
   { name: "Galleries", href: "/galleries", icon: Image },
