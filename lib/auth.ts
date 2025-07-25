@@ -8,7 +8,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import Google from "@auth/core/providers/google";
 import { users, accounts } from "@/db/schema";
-import { eq, or } from "drizzle-orm";
+import { eq, or, and } from "drizzle-orm";
 
 const adapter = DrizzleAdapter(db);
 
@@ -96,8 +96,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .select()
             .from(accounts)
             .where(
-              eq(accounts.userId, existingUser.id) &&
+              and(
+                eq(accounts.userId, existingUser.id),
                 eq(accounts.provider, "google")
+              )
             )
             .limit(1);
 
