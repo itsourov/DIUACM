@@ -96,12 +96,7 @@ export async function getPublicTrackers(): Promise<PublicTracker[]> {
             count: sql<number>`count(*)`,
           })
           .from(rankLists)
-          .where(
-            and(
-              eq(rankLists.trackerId, tracker.id),
-              eq(rankLists.isActive, true)
-            )
-          );
+          .where(eq(rankLists.trackerId, tracker.id));
 
         return {
           ...tracker,
@@ -150,9 +145,7 @@ export async function getTrackerBySlug(
         keyword: rankLists.keyword,
       })
       .from(rankLists)
-      .where(
-        and(eq(rankLists.trackerId, tracker.id), eq(rankLists.isActive, true))
-      )
+      .where(eq(rankLists.trackerId, tracker.id))
       .orderBy(asc(rankLists.order));
 
     const allRankListKeywords = allRankListsResult
@@ -170,7 +163,6 @@ export async function getTrackerBySlug(
         .where(
           and(
             eq(rankLists.trackerId, tracker.id),
-            eq(rankLists.isActive, true),
             eq(rankLists.keyword, keyword)
           )
         )
@@ -184,9 +176,7 @@ export async function getTrackerBySlug(
       const [defaultRankList] = await db
         .select()
         .from(rankLists)
-        .where(
-          and(eq(rankLists.trackerId, tracker.id), eq(rankLists.isActive, true))
-        )
+        .where(eq(rankLists.trackerId, tracker.id))
         .orderBy(asc(rankLists.order));
 
       currentRankListBase = defaultRankList;
