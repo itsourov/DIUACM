@@ -1,3 +1,5 @@
+"use client";
+
 import { EventUserAttendance, User } from "@/db/schema";
 import {
   Table,
