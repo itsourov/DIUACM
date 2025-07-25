@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  Users,
-  Trophy,
-  Trash2,
-  ArrowLeft,
-  UserCheck,
-  Edit3,
-} from "lucide-react";
+import { Users, Trophy, Trash2, ArrowLeft, UserCheck } from "lucide-react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -32,9 +25,9 @@ import {
   getRanklist,
   getAttachedUsers,
   detachUserFromRanklist,
-  updateUserScore,
 } from "../../actions";
 import { AttachUserDialog } from "./components/add-user-dialog";
+import { EditScoreDialog } from "./components/edit-score-dialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -53,17 +46,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { UserSearchResult } from "@/components/user-search-dialog";
 
 interface UsersPageProps {
@@ -152,68 +134,6 @@ async function DetachUserButton({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-}
-
-async function EditScoreButton({
-  ranklistId,
-  userId,
-  userName,
-  currentScore,
-}: {
-  ranklistId: number;
-  userId: string;
-  userName: string;
-  currentScore: number;
-}) {
-  const handleUpdateScore = async (formData: FormData) => {
-    "use server";
-    const newScore = parseFloat(formData.get("score") as string);
-    if (isNaN(newScore)) {
-      throw new Error("Invalid score value");
-    }
-
-    const response = await updateUserScore(ranklistId, userId, newScore);
-    if (!response.success) {
-      throw new Error(response.error || "Failed to update score");
-    }
-  };
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Edit3 className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Score</DialogTitle>
-          <DialogDescription>
-            Update the score for {userName} in this ranklist.
-          </DialogDescription>
-        </DialogHeader>
-        <form action={handleUpdateScore}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="score">Score</Label>
-              <Input
-                id="score"
-                name="score"
-                type="number"
-                step="0.01"
-                defaultValue={currentScore}
-                placeholder="Enter new score"
-                required
-              />
-            </div>
-          </div>
-          <DialogFooter className="mt-6">
-            <Button type="submit">Update Score</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -439,7 +359,7 @@ export default async function UsersPage({ params }: UsersPageProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <EditScoreButton
+                        <EditScoreDialog
                           ranklistId={ranklistId}
                           userId={item.userId}
                           userName={item.user.name}
