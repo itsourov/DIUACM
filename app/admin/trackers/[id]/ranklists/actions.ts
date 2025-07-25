@@ -226,20 +226,15 @@ export async function deleteRanklist(id: number): Promise<ActionResult> {
     const permissionError = await validatePermission();
     if (permissionError) return permissionError;
 
-    // Check if ranklist exists and get event/user counts
+    // Check if ranklist exists
     const ranklistData = await db
       .select({
         id: rankLists.id,
         keyword: rankLists.keyword,
         trackerId: rankLists.trackerId,
-        eventCount: count(eventRankList.eventId),
-        userCount: count(rankListUser.userId),
       })
       .from(rankLists)
-      .leftJoin(eventRankList, eq(eventRankList.rankListId, rankLists.id))
-      .leftJoin(rankListUser, eq(rankListUser.rankListId, rankLists.id))
       .where(eq(rankLists.id, id))
-      .groupBy(rankLists.id)
       .limit(1);
 
     if (ranklistData.length === 0) {
@@ -248,11 +243,26 @@ export async function deleteRanklist(id: number): Promise<ActionResult> {
 
     const ranklist = ranklistData[0];
 
-    const totalAttachments = ranklist.eventCount + ranklist.userCount;
+    // Get event and user counts separately
+    const [eventCountResult, userCountResult] = await Promise.all([
+      db
+        .select({ count: count() })
+        .from(eventRankList)
+        .where(eq(eventRankList.rankListId, ranklist.id)),
+      db
+        .select({ count: count() })
+        .from(rankListUser)
+        .where(eq(rankListUser.rankListId, ranklist.id)),
+    ]);
+
+    const eventCount = eventCountResult[0]?.count || 0;
+    const userCount = userCountResult[0]?.count || 0;
+
+    const totalAttachments = eventCount + userCount;
     if (totalAttachments > 0) {
       return {
         success: false,
-        error: `Cannot delete ranklist "${ranklist.keyword}" because it has ${ranklist.eventCount} event(s) and ${ranklist.userCount} user(s) attached. Please remove all attachments first.`,
+        error: `Cannot delete ranklist "${ranklist.keyword}" because it has ${eventCount} event(s) and ${userCount} user(s) attached. Please remove all attachments first.`,
       };
     }
 
@@ -318,7 +328,7 @@ export async function getPaginatedRanklists(
       ? and(eq(rankLists.trackerId, trackerId), searchCondition)
       : eq(rankLists.trackerId, trackerId);
 
-    // Get ranklists with event and user counts
+    // Get ranklists first
     const ranklistsList = await db
       .select({
         id: rankLists.id,
@@ -331,17 +341,34 @@ export async function getPaginatedRanklists(
         considerStrictAttendance: rankLists.considerStrictAttendance,
         createdAt: rankLists.createdAt,
         updatedAt: rankLists.updatedAt,
-        eventCount: count(eventRankList.eventId),
-        userCount: count(rankListUser.userId),
       })
       .from(rankLists)
-      .leftJoin(eventRankList, eq(eventRankList.rankListId, rankLists.id))
-      .leftJoin(rankListUser, eq(rankListUser.rankListId, rankLists.id))
       .where(whereCondition)
-      .groupBy(rankLists.id)
       .orderBy(asc(rankLists.order), desc(rankLists.createdAt))
       .limit(pageSize)
       .offset(offset);
+
+    // Get counts for each ranklist separately to avoid Cartesian product issues
+    const ranklistsWithCounts = await Promise.all(
+      ranklistsList.map(async (ranklist) => {
+        const [eventCountResult, userCountResult] = await Promise.all([
+          db
+            .select({ count: count() })
+            .from(eventRankList)
+            .where(eq(eventRankList.rankListId, ranklist.id)),
+          db
+            .select({ count: count() })
+            .from(rankListUser)
+            .where(eq(rankListUser.rankListId, ranklist.id)),
+        ]);
+
+        return {
+          ...ranklist,
+          eventCount: eventCountResult[0]?.count || 0,
+          userCount: userCountResult[0]?.count || 0,
+        };
+      })
+    );
 
     // Get total count
     const [{ count: totalCount }] = await db
@@ -354,7 +381,7 @@ export async function getPaginatedRanklists(
     return {
       success: true,
       data: {
-        ranklists: ranklistsList.map((ranklist) => ({
+        ranklists: ranklistsWithCounts.map((ranklist) => ({
           ...ranklist,
           _count: {
             events: ranklist.eventCount,

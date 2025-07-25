@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getTracker } from "../../actions";
 import { deleteRanklist, getPaginatedRanklists } from "./actions";
 import { formatDistanceToNow } from "date-fns";
@@ -198,6 +199,7 @@ export default async function RanklistsPage({ params }: RanklistsPageProps) {
                     <TableHead className="min-w-[220px]">
                       Ranklist Details
                     </TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Upsolve Weight</TableHead>
                     <TableHead>Order</TableHead>
                     <TableHead>Events</TableHead>
@@ -220,6 +222,18 @@ export default async function RanklistsPage({ params }: RanklistsPageProps) {
                             </div>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={ranklist.isActive ? "default" : "secondary"}
+                          className={
+                            ranklist.isActive
+                              ? "bg-green-100 text-green-800 border-green-200"
+                              : "bg-gray-100 text-gray-600 border-gray-200"
+                          }
+                        >
+                          {ranklist.isActive ? "Active" : "Inactive"}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm">
