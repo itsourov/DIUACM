@@ -1,6 +1,7 @@
 import { logger, schedules } from "@trigger.dev/sdk/v3";
 import { db } from "../db/drizzle";
 import {
+  users as usersTable,
   events as eventsTable,
   rankLists,
   rankListUser,
@@ -28,7 +29,7 @@ interface NewUserToAdd {
 export const manageRanklistUsers = schedules.task({
   id: "manage-ranklist-users",
   description:
-    "Manages ranklist users by removing inactive users (12+ consecutive absences from start) and adding active users who attended events in the last 24 hours",
+    "Manages ranklist users by removing inactive users (no handles OR 12+ consecutive absences from start) and adding active users who attended events in the last 24 hours",
   // Run every 24 hours at 2 AM
   cron: "0 2 * * *",
   // Set a maximum duration to prevent tasks from running indefinitely
@@ -208,16 +209,22 @@ async function getEventsForRankList(rankListId: number): Promise<EventData[]> {
 }
 
 /**
- * Find users to remove from ranklist (12+ consecutive absences from start)
+ * Find users to remove from ranklist (12+ consecutive absences from start OR no handles)
  */
 async function findUsersToRemove(
   rankListId: number,
   events: EventData[]
 ): Promise<string[]> {
-  // Get all users currently in this ranklist
+  // Get all users currently in this ranklist with their handle information
   const currentUsers = await db
-    .select({ userId: rankListUser.userId })
+    .select({
+      userId: rankListUser.userId,
+      codeforcesHandle: usersTable.codeforcesHandle,
+      atcoderHandle: usersTable.atcoderHandle,
+      vjudgeHandle: usersTable.vjudgeHandle,
+    })
     .from(rankListUser)
+    .innerJoin(usersTable, eq(usersTable.id, rankListUser.userId))
     .where(eq(rankListUser.rankListId, rankListId));
 
   if (currentUsers.length === 0) {
@@ -226,23 +233,42 @@ async function findUsersToRemove(
 
   const usersToRemove: string[] = [];
 
-  // Only consider events that have some form of data (attendance or solve stats)
-  const eventsWithData = events.filter(
-    (event) => event.hasAttendanceData || event.hasSolveData
-  );
-
-  if (eventsWithData.length < 12) {
-    logger.info(
-      `Ranklist ${rankListId} has fewer than 12 events with data, skipping removal check`
-    );
-    return [];
-  }
-
   for (const user of currentUsers) {
     const userId = user.userId;
+
+    // Check if user has any of the required handles
+    const hasAnyHandle = !!(
+      user.codeforcesHandle ||
+      user.atcoderHandle ||
+      user.vjudgeHandle
+    );
+
+    if (!hasAnyHandle) {
+      // User doesn't have any handle, mark for removal immediately
+      usersToRemove.push(userId);
+      logger.info(`Marking user ${userId} for removal (no handles)`, {
+        rankListId,
+        reason: "no-handles",
+        codeforcesHandle: user.codeforcesHandle,
+        atcoderHandle: user.atcoderHandle,
+        vjudgeHandle: user.vjudgeHandle,
+      });
+      continue; // Skip absence check for this user
+    }
+
+    // Only consider events that have some form of data (attendance or solve stats)
+    const eventsWithData = events.filter(
+      (event) => event.hasAttendanceData || event.hasSolveData
+    );
+
+    if (eventsWithData.length < 12) {
+      // Not enough events to check for consecutive absences, but we still remove users without handles
+      continue;
+    }
+
+    // Check consecutive absences from the start for users who have handles
     let consecutiveAbsences = 0;
 
-    // Check consecutive absences from the start
     for (const event of eventsWithData) {
       const hasData = await checkUserHasDataForEvent(userId, event.id);
 
@@ -258,8 +284,9 @@ async function findUsersToRemove(
     // If user has 12 or more consecutive absences from start, mark for removal
     if (consecutiveAbsences >= 12) {
       usersToRemove.push(userId);
-      logger.info(`Marking user ${userId} for removal`, {
+      logger.info(`Marking user ${userId} for removal (consecutive absences)`, {
         rankListId,
+        reason: "consecutive-absences",
         consecutiveAbsences,
         totalEventsChecked: Math.min(
           consecutiveAbsences,
@@ -268,6 +295,14 @@ async function findUsersToRemove(
       });
     }
   }
+
+  logger.info(
+    `Found ${usersToRemove.length} users to remove from ranklist ${rankListId}`,
+    {
+      totalUsers: currentUsers.length,
+      usersToRemove: usersToRemove.length,
+    }
+  );
 
   return usersToRemove;
 }
