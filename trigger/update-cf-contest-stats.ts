@@ -9,6 +9,7 @@ import {
   userSolveStatOnEvents,
 } from "../db/schema";
 import { eq, and, isNotNull } from "drizzle-orm";
+import { recalculateAllRankListScores } from "../lib/score-calculator";
 
 interface ContestRow {
   party: {
@@ -291,6 +292,24 @@ export const updateCodeforcesContestStats = schedules.task({
         failed: failedCount,
         skipped: skippedCount,
       });
+
+      // Recalculate all rank list scores after processing all contests
+      try {
+        logger.info("🔄 Starting rank list score recalculation");
+        const scoreRecalcResult = await recalculateAllRankListScores();
+        logger.info("✅ Rank list score recalculation complete", {
+          rankListsProcessed: scoreRecalcResult.totalRankListsProcessed,
+          usersUpdated: scoreRecalcResult.totalUsersUpdated,
+        });
+      } catch (scoreError) {
+        logger.error("❌ Error during score recalculation", {
+          error:
+            scoreError instanceof Error
+              ? scoreError.message
+              : String(scoreError),
+        });
+        // Don't fail the entire task if score recalculation fails
+      }
 
       return {
         status: "complete",
