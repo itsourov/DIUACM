@@ -31,7 +31,7 @@ export default function RootLayout({
         >
           <NextTopLoader showSpinner={false} />
 
-          <SessionProvider refetchOnWindowFocus={false}>
+          <SessionProvider refetchOnWindowFocus={false} refetchInterval={0}>
             {/* Background elements */}
             <div className="fixed inset-0 -z-10">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-950" />
