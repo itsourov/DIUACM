@@ -120,6 +120,16 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check if the user has permission to Update VJudge scores
+    if (!(await hasPermission("TRACKER:VJUDGE_SCORE_UPDATE"))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        { status: 403 }
+      );
+    }
     const awaitedParams = await params;
     const eventId = parseInt(awaitedParams.id);
 
@@ -130,17 +140,6 @@ export async function POST(
           message: "Invalid event ID",
         },
         { status: 400 }
-      );
-    }
-
-    // Check if the user has permission to manage events
-    if (!(await hasPermission("EVENTS:MANAGE"))) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
-        { status: 403 }
       );
     }
 
