@@ -22,6 +22,7 @@ import { CustomPagination } from "@/components/custom-pagination";
 import { getPaginatedUsers, deleteUser } from "./actions";
 import { DeleteButton } from "../components/delete-button";
 import { SearchUsers } from "./components/search-users";
+import { ImportUsers } from "./components/import-users";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -93,12 +94,15 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
               Manage your system users
             </p>
           </div>
-          <Button asChild className="w-full sm:w-auto">
-            <Link href="/admin/users/create">
-              <Plus className="h-4 w-4 mr-2" />
-              Create User
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <ImportUsers />
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/admin/users/create">
+                <Plus className="h-4 w-4 mr-2" />
+                Create User
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
