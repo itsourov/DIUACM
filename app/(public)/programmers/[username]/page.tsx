@@ -253,7 +253,7 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
                     {tracker.rankLists.map((rankList) => (
                       <Link
                         key={rankList.rankList.id}
-                        href={`/trackers/${tracker.tracker.slug}?keyword=${rankList.rankList.keyword}`}
+                        href={`/trackers/${tracker.tracker.slug}/${rankList.rankList.keyword}`}
                         className="block p-4 rounded-lg bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors border border-slate-200/60 dark:border-slate-600/40 backdrop-blur-sm"
                       >
                         <div className="flex items-center justify-between mb-3">

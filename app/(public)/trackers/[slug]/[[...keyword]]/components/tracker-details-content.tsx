@@ -9,7 +9,7 @@ import {
   TrackerDetails,
   RankListWithDetails,
   AttendanceMap,
-} from "../../actions";
+} from "../../../actions";
 import { RankingTable } from "./ranking-table";
 
 interface TrackerDetailsContentProps {
@@ -49,7 +49,7 @@ export function TrackerDetailsContent({
                     const isActive =
                       keyword === (currentRankList.keyword || "");
                     const href = `/trackers/${tracker.slug}${
-                      keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""
+                      keyword ? `/${encodeURIComponent(keyword)}` : ""
                     }`;
 
                     return (
