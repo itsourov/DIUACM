@@ -28,6 +28,7 @@ import {
 } from "../../actions";
 import { AttachUserDialog } from "./components/add-user-dialog";
 import { EditScoreDialog } from "./components/edit-score-dialog";
+import { AddEventAttendeesButton } from "./components/add-event-attendees-button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -247,6 +248,7 @@ export default async function UsersPage({ params }: UsersPageProps) {
                 Back to Ranklist
               </Link>
             </Button>
+            <AddEventAttendeesButton ranklistId={ranklistId} />
             <AttachUserDialog ranklistId={ranklistId} />
           </div>
         </div>
@@ -285,7 +287,10 @@ export default async function UsersPage({ params }: UsersPageProps) {
                 Start by attaching users to this ranklist to track their
                 progress and scores.
               </p>
-              <AttachUserDialog ranklistId={ranklistId} />
+              <div className="flex items-center justify-center gap-2">
+                <AddEventAttendeesButton ranklistId={ranklistId} />
+                <AttachUserDialog ranklistId={ranklistId} />
+              </div>
             </div>
           ) : (
             <Table>
