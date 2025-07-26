@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, ArrowLeft, BarChart3 } from "lucide-react";
+import {  ArrowLeft, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -20,10 +20,6 @@ export function RankListNotFound({
     <div className="container mx-auto px-4 py-16">
       {/* Header section */}
       <div className="mb-12 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 mb-6">
-          <Search className="h-8 w-8 text-slate-500 dark:text-slate-400" />
-        </div>
-
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">
           Rank List{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">
