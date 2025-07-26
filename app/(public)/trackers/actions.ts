@@ -128,6 +128,7 @@ export async function getTrackerBySlug(
       success: false;
       error: "tracker_not_found" | "ranklist_not_found";
       availableRankLists?: string[];
+      tracker?: Tracker;
     }
 > {
   try {
@@ -184,6 +185,7 @@ export async function getTrackerBySlug(
           success: false,
           error: "ranklist_not_found",
           availableRankLists: allRankListKeywords,
+          tracker,
         };
       }
 

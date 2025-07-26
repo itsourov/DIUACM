@@ -28,6 +28,7 @@ export default async function TrackerDetailsPage({
       return (
         <RankListNotFound
           trackerSlug={slug}
+          trackerName={result.tracker?.title}
           requestedKeyword={keyword || ""}
           availableRankLists={result.availableRankLists || []}
         />
