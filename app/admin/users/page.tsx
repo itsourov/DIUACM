@@ -211,7 +211,9 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                                 <Code className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                                 <span className="text-sm">
                                   CF: {user.codeforcesHandle}
-                                  {user.maxCfRating && ` (${user.maxCfRating})`}
+                                  {user.maxCfRating &&
+                                    user.maxCfRating > -1 &&
+                                    ` (${user.maxCfRating})`}
                                 </span>
                               </div>
                             )}

@@ -17,7 +17,7 @@ export function ProgrammerCard({ programmer }: ProgrammerCardProps) {
     .toUpperCase();
 
   const getRatingColor = (rating: number | null) => {
-    if (!rating) return "bg-gray-500";
+    if (!rating || rating === -1) return "bg-gray-500";
     if (rating >= 2400) return "bg-red-500";
     if (rating >= 2100) return "bg-orange-500";
     if (rating >= 1900) return "bg-purple-500";
@@ -28,7 +28,7 @@ export function ProgrammerCard({ programmer }: ProgrammerCardProps) {
   };
 
   const getRatingTitle = (rating: number | null) => {
-    if (!rating) return "Unrated";
+    if (!rating || rating === -1) return "Unrated";
     if (rating >= 2400) return "International Grandmaster";
     if (rating >= 2300) return "Grandmaster";
     if (rating >= 2100) return "International Master";
@@ -65,7 +65,7 @@ export function ProgrammerCard({ programmer }: ProgrammerCardProps) {
             </div>
 
             {/* Rating Badge */}
-            {programmer.maxCfRating && (
+            {programmer.maxCfRating && programmer.maxCfRating > -1 && (
               <div className="flex flex-col items-center space-y-2">
                 <Badge
                   className={`${getRatingColor(
