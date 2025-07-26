@@ -8,8 +8,6 @@ import {
   rankListUser,
   events,
   users,
-  eventUserAttendance,
-  userSolveStatOnEvents,
 } from "@/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -23,7 +21,6 @@ import {
   asc,
   sql,
   notInArray,
-  inArray,
 } from "drizzle-orm";
 import {
   ranklistFormSchema,
@@ -782,100 +779,6 @@ export async function getAvailableUsers(
     return {
       success: true,
       data: availableUsers,
-    };
-  } catch (error) {
-    return handleDbError(error);
-  }
-}
-
-// Add event attendees to ranklist
-export async function addEventAttendeesToRanklist(
-  ranklistId: number
-): Promise<ActionResult> {
-  try {
-    const permissionError = await validatePermission();
-    if (permissionError) return permissionError;
-
-    // Get events attached to this ranklist
-    const attachedEvents = await db
-      .select({ eventId: eventRankList.eventId })
-      .from(eventRankList)
-      .where(eq(eventRankList.rankListId, ranklistId));
-
-    if (attachedEvents.length === 0) {
-      return {
-        success: false,
-        error: "No events are attached to this ranklist",
-      };
-    }
-
-    const eventIds = attachedEvents.map((e) => e.eventId);
-
-    // Get users who are already attached to this ranklist
-    const alreadyAttachedUsers = await db
-      .select({ userId: rankListUser.userId })
-      .from(rankListUser)
-      .where(eq(rankListUser.rankListId, ranklistId));
-
-    const alreadyAttachedUserIds = alreadyAttachedUsers.map((u) => u.userId);
-
-    // Find users who attended events (either through attendance or solve stats)
-    const attendeesFromAttendance = await db
-      .select({ userId: eventUserAttendance.userId })
-      .from(eventUserAttendance)
-      .where(
-        and(
-          inArray(eventUserAttendance.eventId, eventIds),
-          alreadyAttachedUserIds.length > 0
-            ? notInArray(eventUserAttendance.userId, alreadyAttachedUserIds)
-            : undefined
-        )
-      );
-
-    const attendeesFromSolveStats = await db
-      .select({ userId: userSolveStatOnEvents.userId })
-      .from(userSolveStatOnEvents)
-      .where(
-        and(
-          inArray(userSolveStatOnEvents.eventId, eventIds),
-          alreadyAttachedUserIds.length > 0
-            ? notInArray(userSolveStatOnEvents.userId, alreadyAttachedUserIds)
-            : undefined
-        )
-      );
-
-    // Combine and deduplicate user IDs
-    const allAttendeeUserIds = new Set([
-      ...attendeesFromAttendance.map((a) => a.userId),
-      ...attendeesFromSolveStats.map((s) => s.userId),
-    ]);
-
-    if (allAttendeeUserIds.size === 0) {
-      return {
-        success: true,
-        message: "No new users found to add to this ranklist",
-        data: { addedCount: 0 },
-      };
-    }
-
-    // Prepare data for insertion
-    const usersToAdd = Array.from(allAttendeeUserIds).map((userId) => ({
-      rankListId: ranklistId,
-      userId,
-      score: 0,
-    }));
-
-    // Insert users into ranklist
-    await db.insert(rankListUser).values(usersToAdd);
-
-    revalidatePath(`/admin/trackers/*/ranklists/${ranklistId}/users`);
-
-    return {
-      success: true,
-      message: `Successfully added ${usersToAdd.length} user${
-        usersToAdd.length !== 1 ? "s" : ""
-      } to the ranklist`,
-      data: { addedCount: usersToAdd.length },
     };
   } catch (error) {
     return handleDbError(error);
