@@ -18,8 +18,10 @@ export default async function TrackerDetailsPage({
 }: TrackerDetailsPageProps) {
   const { slug, keyword: keywordArray } = await params;
 
-  // Extract the first keyword from the array, if it exists
-  const keyword = keywordArray?.[0];
+  // Extract the first keyword from the array, if it exists, and URL decode it
+  const keyword = keywordArray?.[0]
+    ? decodeURIComponent(keywordArray[0])
+    : undefined;
 
   const result = await getTrackerBySlug(slug, keyword);
 
@@ -58,7 +60,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string; keyword?: string[] }>;
 }) {
   const { slug, keyword: keywordArray } = await params;
-  const keyword = keywordArray?.[0];
+  const keyword = keywordArray?.[0]
+    ? decodeURIComponent(keywordArray[0])
+    : undefined;
 
   const result = await getTrackerBySlug(slug, keyword);
 
