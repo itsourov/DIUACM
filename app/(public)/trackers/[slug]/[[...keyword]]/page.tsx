@@ -1,27 +1,10 @@
 import { notFound } from "next/navigation";
-import { getTrackerBySlug, getPublicTrackers } from "../../actions";
+import { getTrackerBySlug } from "../../actions";
 import { TrackerDetailsContent } from "./components/tracker-details-content";
 import { RankListNotFound } from "./components/ranklist-not-found";
 
 // Enable ISR with 2-hour revalidation
 export const revalidate = 7200; // 2 hours in seconds
-
-// Generate static params for better ISR performance
-export async function generateStaticParams() {
-  try {
-    const trackers = await getPublicTrackers();
-
-    // Generate paths for all tracker slugs (without keywords)
-    const paths = trackers.map((tracker) => ({
-      slug: tracker.slug,
-    }));
-
-    return paths;
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
-}
 
 interface TrackerDetailsPageProps {
   params: Promise<{
