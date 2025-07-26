@@ -17,7 +17,6 @@ import {
   type UserSolveStatOnEvents,
 } from "@/db/schema";
 import { eq, and, sql, desc, asc, inArray } from "drizzle-orm";
-import { notFound } from "next/navigation";
 
 // Define tracker type with rank lists count
 export type PublicTracker = Tracker & {
@@ -117,12 +116,20 @@ export async function getPublicTrackers(): Promise<PublicTracker[]> {
 export async function getTrackerBySlug(
   slug: string,
   keyword?: string
-): Promise<{
-  tracker: TrackerDetails;
-  currentRankList: RankListWithDetails;
-  allRankListKeywords: string[];
-  attendanceMap: AttendanceMap;
-}> {
+): Promise<
+  | {
+      success: true;
+      tracker: TrackerDetails;
+      currentRankList: RankListWithDetails;
+      allRankListKeywords: string[];
+      attendanceMap: AttendanceMap;
+    }
+  | {
+      success: false;
+      error: "tracker_not_found" | "ranklist_not_found";
+      availableRankLists?: string[];
+    }
+> {
   try {
     // First, get the tracker
     const [tracker] = await db
@@ -136,7 +143,10 @@ export async function getTrackerBySlug(
       );
 
     if (!tracker) {
-      notFound();
+      return {
+        success: false,
+        error: "tracker_not_found",
+      };
     }
 
     // Get all rank list keywords for this tracker
@@ -168,11 +178,18 @@ export async function getTrackerBySlug(
         )
         .orderBy(asc(rankLists.order));
 
-      currentRankListBase = specificRankList;
-    }
+      if (!specificRankList) {
+        // Keyword provided but not found - return error response
+        return {
+          success: false,
+          error: "ranklist_not_found",
+          availableRankLists: allRankListKeywords,
+        };
+      }
 
-    // If no keyword provided or keyword not found, get the default (first) rank list
-    if (!currentRankListBase) {
+      currentRankListBase = specificRankList;
+    } else {
+      // No keyword provided, get the default (first) rank list
       const [defaultRankList] = await db
         .select()
         .from(rankLists)
@@ -328,6 +345,7 @@ export async function getTrackerBySlug(
     };
 
     return {
+      success: true,
       tracker: trackerWithRankLists,
       currentRankList,
       allRankListKeywords,
@@ -335,7 +353,10 @@ export async function getTrackerBySlug(
     };
   } catch (error) {
     console.error("Error fetching tracker details:", error);
-    throw new Error("Failed to fetch tracker details");
+    return {
+      success: false,
+      error: "tracker_not_found",
+    };
   }
 }
 
