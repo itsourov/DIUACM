@@ -1,22 +1,21 @@
 import { notFound } from "next/navigation";
-import { getTrackerBySlug } from "../actions";
+import { getTrackerBySlug } from "../../actions";
 import { TrackerDetailsContent } from "./components/tracker-details-content";
 
 interface TrackerDetailsPageProps {
   params: Promise<{
     slug: string;
-  }>;
-  searchParams: Promise<{
-    keyword?: string;
+    keyword?: string[];
   }>;
 }
 
 export default async function TrackerDetailsPage({
   params,
-  searchParams,
 }: TrackerDetailsPageProps) {
-  const { slug } = await params;
-  const { keyword } = await searchParams;
+  const { slug, keyword: keywordArray } = await params;
+
+  // Extract the first keyword from the array, if it exists
+  const keyword = keywordArray?.[0];
 
   try {
     const data = await getTrackerBySlug(slug, keyword);
@@ -41,12 +40,13 @@ export default async function TrackerDetailsPage({
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; keyword?: string[] }>;
 }) {
-  const { slug } = await params;
+  const { slug, keyword: keywordArray } = await params;
+  const keyword = keywordArray?.[0];
 
   try {
-    const data = await getTrackerBySlug(slug);
+    const data = await getTrackerBySlug(slug, keyword);
 
     return {
       title: `${data.tracker.title} - Tracker | DIU ACM`,

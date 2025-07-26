@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { RankListWithDetails, AttendanceMap } from "../../actions";
+import { RankListWithDetails, AttendanceMap } from "../../../actions";
 
 interface RankingTableProps {
   rankList: RankListWithDetails;
