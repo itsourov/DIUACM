@@ -183,7 +183,6 @@ export type ProgrammerDetails = Pick<
   | "username"
   | "image"
   | "gender"
-  | "phone"
   | "codeforcesHandle"
   | "atcoderHandle"
   | "vjudgeHandle"
@@ -384,7 +383,6 @@ export async function getProgrammerDetails(
         username: users.username,
         image: users.image,
         gender: users.gender,
-        phone: users.phone,
         codeforcesHandle: users.codeforcesHandle,
         atcoderHandle: users.atcoderHandle,
         vjudgeHandle: users.vjudgeHandle,

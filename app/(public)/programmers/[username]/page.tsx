@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   Trophy,
-  Phone,
   MapPin,
   GraduationCap,
   Target,
@@ -148,12 +147,6 @@ export default async function ProgrammerDetailsPage({ params }: PageProps) {
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   <span>{programmer.department}</span>
-                </div>
-              )}
-              {programmer.phone && (
-                <div className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  <span>{programmer.phone}</span>
                 </div>
               )}
             </div>
