@@ -271,8 +271,7 @@ async function getUserTrackerPerformances(
       .where(
         and(
           eq(rankListUser.userId, userId),
-          eq(trackers.status, VisibilityStatus.PUBLISHED),
-          eq(rankLists.isActive, true)
+          eq(trackers.status, VisibilityStatus.PUBLISHED)
         )
       )
       .orderBy(asc(trackers.order), asc(rankLists.order));
