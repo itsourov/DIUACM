@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,10 +39,14 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { QuickFillDialog } from "./quick-fill-dialog";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 
 interface ExtendedEvent extends Event {
-  ranklistId?: number | null;
-  ranklistWeight?: number | null;
+  ranklists?: Array<{
+    id: number;
+    weight: number;
+  }>;
 }
 
 interface EventFormProps {
@@ -88,22 +92,9 @@ export function EventForm({
       type: initialData?.type || EventType.CONTEST,
       participationScope:
         initialData?.participationScope || ParticipationScope.OPEN_FOR_ALL,
-      ranklistId: initialData?.ranklistId || null,
-      ranklistWeight: initialData?.ranklistWeight || null,
+      ranklists: initialData?.ranklists || [],
     },
   });
-
-  // Watch ranklist selection to show/hide weight field
-  const selectedRanklistId = form.watch("ranklistId");
-
-  // Reset weight when ranklist is deselected
-  useEffect(() => {
-    if (!selectedRanklistId) {
-      form.setValue("ranklistWeight", null);
-    } else if (selectedRanklistId && !form.getValues("ranklistWeight")) {
-      form.setValue("ranklistWeight", 1.0);
-    }
-  }, [selectedRanklistId, form]);
 
   const onSubmit = async (values: EventFormValues) => {
     setIsLoading(true);
@@ -457,79 +448,124 @@ export function EventForm({
             {/* Ranklist Settings */}
             <div className="space-y-4 border rounded-lg p-4">
               <h3 className="text-lg font-medium">Ranklist Settings</h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="ranklistId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ranklist</FormLabel>
-                      <Select
-                        onValueChange={(value) =>
-                          field.onChange(
-                            value === "none" ? null : Number(value)
-                          )
+              <FormField
+                control={form.control}
+                name="ranklists"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ranklists</FormLabel>
+                    <FormDescription>
+                      Select ranklists and assign weights for this event
+                    </FormDescription>
+
+                    {/* Display selected ranklists */}
+                    <div className="space-y-2">
+                      {field.value?.map((selectedRanklist, index) => {
+                        const ranklist = activeRanklists.find(
+                          (r) => r.id === selectedRanklist.id
+                        );
+                        return (
+                          <div
+                            key={selectedRanklist.id}
+                            className="flex items-center gap-2 p-2 border rounded-lg"
+                          >
+                            <div className="flex-1">
+                              <Badge variant="secondary">
+                                {ranklist?.trackerTitle} - {ranklist?.keyword}
+                              </Badge>
+                              {ranklist?.description && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {ranklist.description}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0.1"
+                                max="10"
+                                value={selectedRanklist.weight}
+                                onChange={(e) => {
+                                  const newValue = Number(e.target.value);
+                                  const newRanklists = [...(field.value || [])];
+                                  newRanklists[index] = {
+                                    ...selectedRanklist,
+                                    weight: newValue,
+                                  };
+                                  field.onChange(newRanklists);
+                                }}
+                                className="w-20"
+                                placeholder="1.0"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newRanklists =
+                                    field.value?.filter(
+                                      (_, i) => i !== index
+                                    ) || [];
+                                  field.onChange(newRanklists);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Add new ranklist */}
+                    <Select
+                      onValueChange={(value) => {
+                        if (value !== "none") {
+                          const ranklistId = Number(value);
+                          const isAlreadySelected = field.value?.some(
+                            (r) => r.id === ranklistId
+                          );
+                          if (!isAlreadySelected) {
+                            const newRanklists = [
+                              ...(field.value || []),
+                              { id: ranklistId, weight: 1.0 },
+                            ];
+                            field.onChange(newRanklists);
+                          }
                         }
-                        value={field.value?.toString() || "none"}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select ranklist (optional)" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {activeRanklists.map((ranklist) => (
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Add ranklist" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Select a ranklist</SelectItem>
+                        {activeRanklists
+                          .filter(
+                            (ranklist) =>
+                              !field.value?.some(
+                                (selected) => selected.id === ranklist.id
+                              )
+                          )
+                          .map((ranklist) => (
                             <SelectItem
                               key={ranklist.id}
                               value={ranklist.id.toString()}
                             >
-                              {ranklist.keyword}
+                              {ranklist.trackerTitle} - {ranklist.keyword}
                               {ranklist.description &&
-                                ` - ${ranklist.description}`}
+                                ` (${ranklist.description})`}
                             </SelectItem>
                           ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Attach this event to a ranklist to track scores
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {selectedRanklistId && (
-                  <FormField
-                    control={form.control}
-                    name="ranklistWeight"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weight</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0.1"
-                            max="10"
-                            placeholder="1.0"
-                            value={field.value || ""}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value ? Number(e.target.value) : null
-                              )
-                            }
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Weight for this event in the ranklist (0.1 - 10)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
             </div>
 
             <div className="flex justify-end gap-3">

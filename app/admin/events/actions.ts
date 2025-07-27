@@ -8,6 +8,7 @@ import {
   eventUserAttendance,
   rankLists,
   eventRankList,
+  trackers,
 } from "@/db/schema";
 import { eventFormSchema, type EventFormValues } from "./schemas/event";
 import { hasPermission } from "@/lib/authorization";
@@ -20,6 +21,7 @@ export type ActiveRanklist = {
   keyword: string;
   description: string | null;
   trackerId: number;
+  trackerTitle: string;
 };
 
 // Create a new event
@@ -60,13 +62,15 @@ export async function createEvent(values: EventFormValues) {
 
     const eventId = result[0].id;
 
-    // If ranklist is selected, attach event to ranklist
-    if (validatedFields.ranklistId && validatedFields.ranklistWeight) {
-      await db.insert(eventRankList).values({
-        eventId: eventId,
-        rankListId: validatedFields.ranklistId,
-        weight: validatedFields.ranklistWeight,
-      });
+    // If ranklists are selected, attach event to ranklists
+    if (validatedFields.ranklists && validatedFields.ranklists.length > 0) {
+      await db.insert(eventRankList).values(
+        validatedFields.ranklists.map((ranklist) => ({
+          eventId: eventId,
+          rankListId: ranklist.id,
+          weight: ranklist.weight,
+        }))
+      );
     }
 
     revalidatePath("/admin/events");
@@ -136,17 +140,19 @@ export async function updateEvent(id: number, values: EventFormValues) {
       })
       .where(eq(events.id, id));
 
-    // Handle ranklist attachment for update
-    // First, remove existing attachment if any
+    // Handle ranklist attachments for update
+    // First, remove existing attachments
     await db.delete(eventRankList).where(eq(eventRankList.eventId, id));
 
-    // If ranklist is selected, attach event to ranklist
-    if (validatedFields.ranklistId && validatedFields.ranklistWeight) {
-      await db.insert(eventRankList).values({
-        eventId: id,
-        rankListId: validatedFields.ranklistId,
-        weight: validatedFields.ranklistWeight,
-      });
+    // If ranklists are selected, attach event to ranklists
+    if (validatedFields.ranklists && validatedFields.ranklists.length > 0) {
+      await db.insert(eventRankList).values(
+        validatedFields.ranklists.map((ranklist) => ({
+          eventId: id,
+          rankListId: ranklist.id,
+          weight: ranklist.weight,
+        }))
+      );
     }
 
     revalidatePath("/admin/events");
@@ -217,20 +223,21 @@ export async function getEvent(id: number) {
       return { success: false, error: "Event not found" };
     }
 
-    // Get ranklist attachment if any
-    const ranklistAttachment = await db
+    // Get ranklist attachments
+    const ranklistAttachments = await db
       .select({
         rankListId: eventRankList.rankListId,
         weight: eventRankList.weight,
       })
       .from(eventRankList)
-      .where(eq(eventRankList.eventId, id))
-      .limit(1);
+      .where(eq(eventRankList.eventId, id));
 
     const eventData = {
       ...event[0],
-      ranklistId: ranklistAttachment[0]?.rankListId || null,
-      ranklistWeight: ranklistAttachment[0]?.weight || null,
+      ranklists: ranklistAttachments.map((attachment) => ({
+        id: attachment.rankListId,
+        weight: attachment.weight,
+      })),
     };
 
     return { success: true, data: eventData };
@@ -583,8 +590,10 @@ export async function getActiveRanklists() {
         keyword: rankLists.keyword,
         description: rankLists.description,
         trackerId: rankLists.trackerId,
+        trackerTitle: trackers.title,
       })
       .from(rankLists)
+      .leftJoin(trackers, eq(rankLists.trackerId, trackers.id))
       .where(eq(rankLists.isActive, true))
       .orderBy(desc(rankLists.order));
 

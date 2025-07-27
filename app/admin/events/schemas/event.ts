@@ -32,13 +32,18 @@ export const eventFormSchema = z
       ParticipationScope.JUNIOR_PROGRAMMERS,
       ParticipationScope.SELECTED_PERSONS,
     ]),
-    ranklistId: z.number().optional().nullable(),
-    ranklistWeight: z
-      .number()
-      .min(0.1, "Weight must be at least 0.1")
-      .max(10, "Weight must be at most 10")
+    ranklists: z
+      .array(
+        z.object({
+          id: z.number(),
+          weight: z
+            .number()
+            .min(0.1, "Weight must be at least 0.1")
+            .max(10, "Weight must be at most 10"),
+        })
+      )
       .optional()
-      .nullable(),
+      .default([]),
   })
   .refine(
     (data) => {
@@ -52,18 +57,12 @@ export const eventFormSchema = z
   )
   .refine(
     (data) => {
-      // If ranklist is selected, weight must be provided
-      if (
-        data.ranklistId &&
-        (!data.ranklistWeight || data.ranklistWeight <= 0)
-      ) {
-        return false;
-      }
-      return true;
+      // Validate that all ranklists have valid weights
+      return data.ranklists?.every((ranklist) => ranklist.weight > 0) ?? true;
     },
     {
-      message: "Weight is required when ranklist is selected",
-      path: ["ranklistWeight"],
+      message: "All ranklist weights must be greater than 0",
+      path: ["ranklists"],
     }
   );
 
