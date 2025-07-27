@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
-import { getEvent } from "../../actions";
+import { getEvent, getActiveRanklists } from "../../actions";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,7 +33,16 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
     notFound();
   }
 
-  const { data: event, error } = await getEvent(eventId);
+  // Fetch both event data and active ranklists
+  const [eventResponse, ranklistsResponse] = await Promise.all([
+    getEvent(eventId),
+    getActiveRanklists(),
+  ]);
+
+  const { data: event, error } = eventResponse;
+  const activeRanklists = ranklistsResponse.success
+    ? ranklistsResponse.data || []
+    : [];
 
   if (error || !event) {
     notFound();
@@ -84,7 +93,12 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         </div>
       </div>
 
-      <EventForm initialData={event} isEditing eventId={eventId} />
+      <EventForm
+        initialData={event}
+        isEditing
+        eventId={eventId}
+        activeRanklists={activeRanklists}
+      />
     </div>
   );
 }

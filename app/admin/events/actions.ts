@@ -3,11 +3,24 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db/drizzle";
-import { events, eventUserAttendance } from "@/db/schema";
+import {
+  events,
+  eventUserAttendance,
+  rankLists,
+  eventRankList,
+} from "@/db/schema";
 import { eventFormSchema, type EventFormValues } from "./schemas/event";
 import { hasPermission } from "@/lib/authorization";
 import { ParticipationScope, EventType, VisibilityStatus } from "@/db/schema";
 import { eq, and, or, ilike, count, desc } from "drizzle-orm";
+
+// Type for active ranklist data
+export type ActiveRanklist = {
+  id: number;
+  keyword: string;
+  description: string | null;
+  trackerId: number;
+};
 
 // Create a new event
 export async function createEvent(values: EventFormValues) {
@@ -34,13 +47,27 @@ export async function createEvent(values: EventFormValues) {
       }
     }
 
-    await db.insert(events).values({
-      ...validatedFields,
-      // Handle nullable fields
-      description: validatedFields.description || null,
-      eventLink: validatedFields.eventLink || null,
-      eventPassword: validatedFields.eventPassword || null,
-    });
+    const result = await db
+      .insert(events)
+      .values({
+        ...validatedFields,
+        // Handle nullable fields
+        description: validatedFields.description || null,
+        eventLink: validatedFields.eventLink || null,
+        eventPassword: validatedFields.eventPassword || null,
+      })
+      .returning({ id: events.id });
+
+    const eventId = result[0].id;
+
+    // If ranklist is selected, attach event to ranklist
+    if (validatedFields.ranklistId && validatedFields.ranklistWeight) {
+      await db.insert(eventRankList).values({
+        eventId: eventId,
+        rankListId: validatedFields.ranklistId,
+        weight: validatedFields.ranklistWeight,
+      });
+    }
 
     revalidatePath("/admin/events");
     return { success: true, message: "Event created successfully" };
@@ -108,6 +135,19 @@ export async function updateEvent(id: number, values: EventFormValues) {
         eventPassword: validatedFields.eventPassword || null,
       })
       .where(eq(events.id, id));
+
+    // Handle ranklist attachment for update
+    // First, remove existing attachment if any
+    await db.delete(eventRankList).where(eq(eventRankList.eventId, id));
+
+    // If ranklist is selected, attach event to ranklist
+    if (validatedFields.ranklistId && validatedFields.ranklistWeight) {
+      await db.insert(eventRankList).values({
+        eventId: id,
+        rankListId: validatedFields.ranklistId,
+        weight: validatedFields.ranklistWeight,
+      });
+    }
 
     revalidatePath("/admin/events");
     revalidatePath(`/admin/events/${id}/edit`);
@@ -177,7 +217,23 @@ export async function getEvent(id: number) {
       return { success: false, error: "Event not found" };
     }
 
-    return { success: true, data: event[0] };
+    // Get ranklist attachment if any
+    const ranklistAttachment = await db
+      .select({
+        rankListId: eventRankList.rankListId,
+        weight: eventRankList.weight,
+      })
+      .from(eventRankList)
+      .where(eq(eventRankList.eventId, id))
+      .limit(1);
+
+    const eventData = {
+      ...event[0],
+      ranklistId: ranklistAttachment[0]?.rankListId || null,
+      ranklistWeight: ranklistAttachment[0]?.weight || null,
+    };
+
+    return { success: true, data: eventData };
   } catch (error) {
     console.error("Error fetching event:", error);
     return {
@@ -511,4 +567,36 @@ function decodeHTMLEntities(text: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&#x2F;/g, "/");
+}
+
+// Get active ranklists for event form
+export async function getActiveRanklists() {
+  try {
+    // Check if the user has permission to manage events
+    if (!(await hasPermission("EVENTS:MANAGE"))) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const activeRanklists = await db
+      .select({
+        id: rankLists.id,
+        keyword: rankLists.keyword,
+        description: rankLists.description,
+        trackerId: rankLists.trackerId,
+      })
+      .from(rankLists)
+      .where(eq(rankLists.isActive, true))
+      .orderBy(desc(rankLists.order));
+
+    return {
+      success: true,
+      data: activeRanklists,
+    };
+  } catch (error) {
+    console.error("Error fetching active ranklists:", error);
+    return {
+      success: false,
+      error: "Something went wrong. Please try again.",
+    };
+  }
 }

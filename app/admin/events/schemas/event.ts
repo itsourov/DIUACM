@@ -32,6 +32,13 @@ export const eventFormSchema = z
       ParticipationScope.JUNIOR_PROGRAMMERS,
       ParticipationScope.SELECTED_PERSONS,
     ]),
+    ranklistId: z.number().optional().nullable(),
+    ranklistWeight: z
+      .number()
+      .min(0.1, "Weight must be at least 0.1")
+      .max(10, "Weight must be at most 10")
+      .optional()
+      .nullable(),
   })
   .refine(
     (data) => {
@@ -41,6 +48,22 @@ export const eventFormSchema = z
     {
       message: "End time must be after start time",
       path: ["endingAt"],
+    }
+  )
+  .refine(
+    (data) => {
+      // If ranklist is selected, weight must be provided
+      if (
+        data.ranklistId &&
+        (!data.ranklistWeight || data.ranklistWeight <= 0)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Weight is required when ranklist is selected",
+      path: ["ranklistWeight"],
     }
   );
 

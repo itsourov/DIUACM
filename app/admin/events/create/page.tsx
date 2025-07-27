@@ -1,4 +1,5 @@
 import { EventForm } from "../components/event-form";
+import { getActiveRanklists } from "../actions";
 import { Metadata } from "next";
 import {
   Breadcrumb,
@@ -14,7 +15,13 @@ export const metadata: Metadata = {
   description: "Create a new event",
 };
 
-export default function CreateEventPage() {
+export default async function CreateEventPage() {
+  // Fetch active ranklists
+  const ranklistsResponse = await getActiveRanklists();
+  const activeRanklists = ranklistsResponse.success
+    ? ranklistsResponse.data || []
+    : [];
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -50,7 +57,7 @@ export default function CreateEventPage() {
           </div>
         </div>
       </div>
-      <EventForm />
+      <EventForm activeRanklists={activeRanklists} />
     </div>
   );
 }

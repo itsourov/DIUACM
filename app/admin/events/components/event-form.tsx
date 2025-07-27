@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,7 @@ import {
 import { format } from "date-fns";
 
 import { eventFormSchema, type EventFormValues } from "../schemas/event";
-import { createEvent, updateEvent } from "../actions";
+import { createEvent, updateEvent, type ActiveRanklist } from "../actions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,16 +40,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { QuickFillDialog } from "./quick-fill-dialog";
 
+interface ExtendedEvent extends Event {
+  ranklistId?: number | null;
+  ranklistWeight?: number | null;
+}
+
 interface EventFormProps {
-  initialData?: Event | null;
+  initialData?: ExtendedEvent | null;
   isEditing?: boolean;
   eventId?: number;
+  activeRanklists?: ActiveRanklist[];
 }
 
 export function EventForm({
   initialData,
   isEditing = false,
   eventId,
+  activeRanklists = [],
 }: EventFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -81,8 +88,22 @@ export function EventForm({
       type: initialData?.type || EventType.CONTEST,
       participationScope:
         initialData?.participationScope || ParticipationScope.OPEN_FOR_ALL,
+      ranklistId: initialData?.ranklistId || null,
+      ranklistWeight: initialData?.ranklistWeight || null,
     },
   });
+
+  // Watch ranklist selection to show/hide weight field
+  const selectedRanklistId = form.watch("ranklistId");
+
+  // Reset weight when ranklist is deselected
+  useEffect(() => {
+    if (!selectedRanklistId) {
+      form.setValue("ranklistWeight", null);
+    } else if (selectedRanklistId && !form.getValues("ranklistWeight")) {
+      form.setValue("ranklistWeight", 1.0);
+    }
+  }, [selectedRanklistId, form]);
 
   const onSubmit = async (values: EventFormValues) => {
     setIsLoading(true);
@@ -430,6 +451,82 @@ export function EventForm({
                     </FormItem>
                   )}
                 />
+              </div>
+            </div>
+
+            {/* Ranklist Settings */}
+            <div className="space-y-4 border rounded-lg p-4">
+              <h3 className="text-lg font-medium">Ranklist Settings</h3>
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="ranklistId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ranklist</FormLabel>
+                      <Select
+                        onValueChange={(value) =>
+                          field.onChange(value ? Number(value) : null)
+                        }
+                        value={field.value?.toString() || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select ranklist (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {activeRanklists.map((ranklist) => (
+                            <SelectItem
+                              key={ranklist.id}
+                              value={ranklist.id.toString()}
+                            >
+                              {ranklist.keyword}
+                              {ranklist.description &&
+                                ` - ${ranklist.description}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Attach this event to a ranklist to track scores
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {selectedRanklistId && (
+                  <FormField
+                    control={form.control}
+                    name="ranklistWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="10"
+                            placeholder="1.0"
+                            value={field.value || ""}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value ? Number(e.target.value) : null
+                              )
+                            }
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Weight for this event in the ranklist (0.1 - 10)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </div>
 
