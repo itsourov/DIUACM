@@ -21,7 +21,7 @@ export type ActiveRanklist = {
   keyword: string;
   description: string | null;
   trackerId: number;
-  trackerTitle: string | null;
+  trackerTitle: string;
 };
 
 // Create a new event
@@ -593,7 +593,7 @@ export async function getActiveRanklists() {
         trackerTitle: trackers.title,
       })
       .from(rankLists)
-      .leftJoin(trackers, eq(rankLists.trackerId, trackers.id))
+      .innerJoin(trackers, eq(rankLists.trackerId, trackers.id))
       .where(eq(rankLists.isActive, true))
       .orderBy(desc(rankLists.order));
 
