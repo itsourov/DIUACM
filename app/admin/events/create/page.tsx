@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   description: "Create a new event",
 };
 
+// Force dynamic rendering since we use auth
+export const dynamic = "force-dynamic";
+
 export default async function CreateEventPage() {
   // Fetch active ranklists
   const ranklistsResponse = await getActiveRanklists();
