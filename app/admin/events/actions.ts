@@ -21,7 +21,7 @@ export type ActiveRanklist = {
   keyword: string;
   description: string | null;
   trackerId: number;
-  trackerTitle: string;
+  trackerTitle: string | null;
 };
 
 // Create a new event

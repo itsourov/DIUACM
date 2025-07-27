@@ -471,7 +471,7 @@ export function EventForm({
                           >
                             <div className="flex-1">
                               <Badge variant="secondary">
-                                {ranklist?.trackerTitle} - {ranklist?.keyword}
+                                {ranklist?.trackerTitle || "Unknown Tracker"} - {ranklist?.keyword}
                               </Badge>
                               {ranklist?.description && (
                                 <p className="text-sm text-muted-foreground mt-1">
@@ -555,7 +555,7 @@ export function EventForm({
                               key={ranklist.id}
                               value={ranklist.id.toString()}
                             >
-                              {ranklist.trackerTitle} - {ranklist.keyword}
+                              {ranklist.trackerTitle || "Unknown Tracker"} - {ranklist.keyword}
                               {ranklist.description &&
                                 ` (${ranklist.description})`}
                             </SelectItem>
