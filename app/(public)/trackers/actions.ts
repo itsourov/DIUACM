@@ -113,6 +113,62 @@ export async function getPublicTrackers(): Promise<PublicTracker[]> {
   }
 }
 
+// Function to get all tracker static params for generation
+export async function getAllTrackerStaticParams(): Promise<
+  Array<{
+    slug: string;
+    keyword?: string[];
+  }>
+> {
+  try {
+    // Get all published trackers with their rank lists
+    const trackersWithRankLists = await db
+      .select({
+        trackerSlug: trackers.slug,
+        rankListKeyword: rankLists.keyword,
+      })
+      .from(trackers)
+      .leftJoin(rankLists, eq(rankLists.trackerId, trackers.id))
+      .where(eq(trackers.status, VisibilityStatus.PUBLISHED))
+      .orderBy(asc(trackers.order), asc(rankLists.order));
+
+    // Group by tracker slug and collect keywords
+    const trackerMap = new Map<string, string[]>();
+
+    trackersWithRankLists.forEach(({ trackerSlug, rankListKeyword }) => {
+      if (!trackerMap.has(trackerSlug)) {
+        trackerMap.set(trackerSlug, []);
+      }
+
+      // Add keyword if it exists and isn't already added
+      if (
+        rankListKeyword &&
+        !trackerMap.get(trackerSlug)!.includes(rankListKeyword)
+      ) {
+        trackerMap.get(trackerSlug)!.push(rankListKeyword);
+      }
+    });
+
+    const params: Array<{ slug: string; keyword?: string[] }> = [];
+
+    // Generate params for each tracker
+    trackerMap.forEach((keywords, slug) => {
+      // Add the base tracker page (no keyword)
+      params.push({ slug });
+
+      // Add pages for each keyword
+      keywords.forEach((keyword) => {
+        params.push({ slug, keyword: [keyword] });
+      });
+    });
+
+    return params;
+  } catch (error) {
+    console.error("Error fetching tracker static params:", error);
+    return [];
+  }
+}
+
 export async function getTrackerBySlug(
   slug: string,
   keyword?: string

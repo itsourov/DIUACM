@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTrackerBySlug } from "../../actions";
+import { getTrackerBySlug, getAllTrackerStaticParams } from "../../actions";
 import { TrackerDetailsContent } from "./components/tracker-details-content";
 import { RankListNotFound } from "./components/ranklist-not-found";
 
@@ -11,6 +11,17 @@ interface TrackerDetailsPageProps {
     slug: string;
     keyword?: string[];
   }>;
+}
+
+// Generate static params for all tracker pages
+export async function generateStaticParams() {
+  try {
+    const params = await getAllTrackerStaticParams();
+    return params;
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
 }
 
 export default async function TrackerDetailsPage({
