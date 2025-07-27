@@ -6,6 +6,16 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../lib/s3";
 import { v4 as uuid } from "uuid";
 
+// Helper function to validate URL
+function isValidUrl(string: string): boolean {
+  try {
+    const url = new URL(string);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export const transferProfileImagesToS3 = schedules.task({
   id: "transfer-profile-images-to-s3",
   // Run every 2 hours
@@ -47,9 +57,37 @@ export const transferProfileImagesToS3 = schedules.task({
 
       let successCount = 0;
       let errorCount = 0;
+      let invalidUrlCount = 0;
 
       for (const user of users) {
         if (!user.image) continue;
+
+        // First, validate if the image URL is valid
+        if (!isValidUrl(user.image)) {
+          logger.warn(`Invalid URL for user ${user.id}: ${user.image}`);
+
+          try {
+            // Set the image to null for invalid URLs
+            await db
+              .update(usersTable)
+              .set({
+                image: null,
+                updatedAt: new Date(),
+              })
+              .where(eq(usersTable.id, user.id));
+
+            logger.log(
+              `Set image to null for user ${user.id} due to invalid URL`
+            );
+            invalidUrlCount++;
+          } catch (error) {
+            logger.error(`Failed to update user ${user.id} with null image`, {
+              error: error instanceof Error ? error.message : String(error),
+            });
+            errorCount++;
+          }
+          continue;
+        }
 
         let imageUrl = user.image; // Declare at the beginning to ensure scope
 
@@ -163,6 +201,7 @@ export const transferProfileImagesToS3 = schedules.task({
       logger.log("Profile images transfer to S3 completed", {
         processed: users.length,
         successful: successCount,
+        invalidUrls: invalidUrlCount,
         errors: errorCount,
       });
     } catch (error) {
