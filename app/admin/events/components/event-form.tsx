@@ -466,9 +466,11 @@ export function EventForm({
                       <FormLabel>Ranklist</FormLabel>
                       <Select
                         onValueChange={(value) =>
-                          field.onChange(value ? Number(value) : null)
+                          field.onChange(
+                            value === "none" ? null : Number(value)
+                          )
                         }
-                        value={field.value?.toString() || ""}
+                        value={field.value?.toString() || "none"}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -476,7 +478,7 @@ export function EventForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {activeRanklists.map((ranklist) => (
                             <SelectItem
                               key={ranklist.id}
