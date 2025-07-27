@@ -51,14 +51,28 @@ export const transferProfileImagesToS3 = schedules.task({
       for (const user of users) {
         if (!user.image) continue;
 
+        let imageUrl = user.image; // Declare at the beginning to ensure scope
+
         try {
           logger.log(`Processing image for user ${user.id}: ${user.image}`);
+
+          // Clean up Google profile image URLs by removing size parameters
+          if (
+            imageUrl.includes("googleusercontent.com") &&
+            imageUrl.includes("=s")
+          ) {
+            imageUrl = imageUrl.split("=s")[0];
+            logger.log(`Cleaned Google image URL for user ${user.id}`, {
+              original: user.image,
+              cleaned: imageUrl,
+            });
+          }
 
           // Download the image from the external URL with timeout
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-          const response = await fetch(user.image, {
+          const response = await fetch(imageUrl, {
             signal: controller.signal,
             headers: {
               "User-Agent": "DIUACM-ImageTransfer/1.0",
@@ -140,6 +154,7 @@ export const transferProfileImagesToS3 = schedules.task({
           logger.error(`Error processing image for user ${user.id}`, {
             error: error instanceof Error ? error.message : String(error),
             imageUrl: user.image,
+            cleanedUrl: imageUrl,
           });
           errorCount++;
         }
