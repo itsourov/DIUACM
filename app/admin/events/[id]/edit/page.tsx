@@ -10,7 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Users, Medal } from "lucide-react";
+import { Users } from "lucide-react";
 
 import { EventForm } from "../../components/event-form";
 
@@ -78,12 +78,6 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
               <Link href={`/admin/events/${eventId}/attendees`}>
                 <Users className="h-4 w-4 mr-2" />
                 Manage Attendees
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/admin/events/${eventId}/ranklists`}>
-                <Medal className="h-4 w-4 mr-2" />
-                Manage Ranklists
               </Link>
             </Button>
           </div>
