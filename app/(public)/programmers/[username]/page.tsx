@@ -26,6 +26,7 @@ import { CopyButton } from "../components/copy-button";
 export async function generateStaticParams() {
   return [];
 }
+export const revalidate = 7200;
 
 interface PageProps {
   params: Promise<{ username: string }>;
