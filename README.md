@@ -65,4 +65,4 @@ Make sure you have Node.js and npm (or yarn/pnpm) installed on your machine.
 
 ## 📂 Project Structure
 
-The project follows a standard Next.js structure to keep the codebase organized and scalable.
+The project follows a standard Next.js structure to keep the codebase organized and scalable. Star the repo.
