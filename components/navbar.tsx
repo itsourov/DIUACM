@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -22,7 +23,7 @@ import {
   Calendar,
   ListChecks,
   BookOpen,
-  Image,
+  Image as ImageIcon,
   // Trophy,
 } from "lucide-react";
 import {
@@ -42,7 +43,7 @@ const menuItems = [
   // { name: "Contests", href: "/contests", icon: Trophy },
   { name: "Trackers", href: "/trackers", icon: ListChecks },
   { name: "Blog", href: "/blogs", icon: BookOpen },
-  { name: "Galleries", href: "/galleries", icon: Image },
+  { name: "Galleries", href: "/galleries", icon: ImageIcon },
   { name: "Programmers", href: "/programmers", icon: Users },
   { name: "About", href: "/about", icon: Info },
   { name: "Contact", href: "/contact", icon: Mail },
@@ -106,10 +107,17 @@ export default function Navbar() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo and brand */}
+            {/* Logo and brand */}
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-sm">D</span>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/diuacm-logo-rounded.webp"
+                    alt="DIU ACM Logo"
+                    width={32}
+                    height={32}
+                    className="object-cover rounded-lg"
+                  />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-cyan-300">
                   {process.env.NEXT_PUBLIC_APP_NAME}
