@@ -55,6 +55,11 @@ export const ParticipationScope = {
   SELECTED_PERSONS: "selected_persons",
 } as const;
 
+export const VoteType = {
+  UPVOTE: "upvote",
+  DOWNVOTE: "downvote",
+} as const;
+
 export type VisibilityStatus =
   (typeof VisibilityStatus)[keyof typeof VisibilityStatus];
 export type ContestType = (typeof ContestType)[keyof typeof ContestType];
@@ -62,6 +67,7 @@ export type EventType = (typeof EventType)[keyof typeof EventType];
 export type GenderType = (typeof GenderType)[keyof typeof GenderType];
 export type ParticipationScope =
   (typeof ParticipationScope)[keyof typeof ParticipationScope];
+export type VoteType = (typeof VoteType)[keyof typeof VoteType];
 
 // PostgreSQL enums
 export const visibilityStatusEnum = pgEnum("visibility_status", [
@@ -90,6 +96,7 @@ export const participationScopeEnum = pgEnum("participation_scope", [
   "junior_programmers",
   "selected_persons",
 ]);
+export const voteTypeEnum = pgEnum("vote_type", ["upvote", "downvote"]);
 
 export const users = pgTable(
   "user",
@@ -461,6 +468,106 @@ export const rolePermissions = pgTable(
   (table) => [unique().on(table.roleId, table.permissionId)]
 );
 
+// Forum Categories table
+export const forumCategories = pgTable("forum_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).unique().notNull(),
+  description: text("description"),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  color: varchar("color", { length: 7 }).default("#6B7280"), // hex color for category
+  order: integer("order").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+// Forum Posts table
+export const forumPosts = pgTable("forum_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  authorId: varchar("author_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => forumCategories.id, { onDelete: "cascade" }),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  isLocked: boolean("is_locked").default(false).notNull(),
+  status: visibilityStatusEnum("status").default("published").notNull(),
+  upvotes: integer("upvotes").default(0).notNull(),
+  downvotes: integer("downvotes").default(0).notNull(),
+  commentCount: integer("comment_count").default(0).notNull(),
+  lastActivityAt: timestamp("last_activity_at", { mode: "date" }).defaultNow(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+// Forum Comments table
+export const forumComments = pgTable("forum_comments", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  authorId: varchar("author_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  postId: integer("post_id")
+    .notNull()
+    .references(() => forumPosts.id, { onDelete: "cascade" }),
+  parentId: integer("parent_id"), // self-reference for nested comments/replies
+  upvotes: integer("upvotes").default(0).notNull(),
+  downvotes: integer("downvotes").default(0).notNull(),
+  isDeleted: boolean("is_deleted").default(false).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
+// Forum Post Votes table
+export const forumPostVotes = pgTable(
+  "forum_post_votes",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => forumPosts.id, { onDelete: "cascade" }),
+    voteType: voteTypeEnum("vote_type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => [unique().on(table.userId, table.postId)]
+);
+
+// Forum Comment Votes table
+export const forumCommentVotes = pgTable(
+  "forum_comment_votes",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    commentId: integer("comment_id")
+      .notNull()
+      .references(() => forumComments.id, { onDelete: "cascade" }),
+    voteType: voteTypeEnum("vote_type").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => [unique().on(table.userId, table.commentId)]
+);
+
 // Type exports for better type safety
 export type Event = InferSelectModel<typeof events>;
 export type NewEvent = InferInsertModel<typeof events>;
@@ -515,6 +622,18 @@ export type NewContactFormSubmission = InferInsertModel<
   typeof contactFormSubmissions
 >;
 
+// Forum-related types
+export type ForumCategory = InferSelectModel<typeof forumCategories>;
+export type NewForumCategory = InferInsertModel<typeof forumCategories>;
+export type ForumPost = InferSelectModel<typeof forumPosts>;
+export type NewForumPost = InferInsertModel<typeof forumPosts>;
+export type ForumComment = InferSelectModel<typeof forumComments>;
+export type NewForumComment = InferInsertModel<typeof forumComments>;
+export type ForumPostVote = InferSelectModel<typeof forumPostVotes>;
+export type NewForumPostVote = InferInsertModel<typeof forumPostVotes>;
+export type ForumCommentVote = InferSelectModel<typeof forumCommentVotes>;
+export type NewForumCommentVote = InferInsertModel<typeof forumCommentVotes>;
+
 // Commonly used composite and utility types
 export type UserSearchResult = Pick<
   User,
@@ -556,5 +675,39 @@ export type EventRankListWithRankList = EventRankList & {
   rankList: Pick<RankList, "id" | "keyword" | "description" | "trackerId">;
   tracker: {
     title: string;
+  } | null;
+};
+
+// Forum-related composite types
+export type ForumPostWithAuthor = ForumPost & {
+  author: Pick<User, "id" | "name" | "username" | "image">;
+  category: Pick<ForumCategory, "id" | "name" | "slug" | "color">;
+  userVote?: Pick<ForumPostVote, "voteType"> | null;
+};
+
+export type ForumPostWithDetails = ForumPost & {
+  author: Pick<User, "id" | "name" | "username" | "image">;
+  category: Pick<ForumCategory, "id" | "name" | "slug" | "color">;
+  userVote?: Pick<ForumPostVote, "voteType"> | null;
+  _count: {
+    comments: number;
+  };
+};
+
+export type ForumCommentWithAuthor = ForumComment & {
+  author: Pick<User, "id" | "name" | "username" | "image">;
+  userVote?: Pick<ForumCommentVote, "voteType"> | null;
+  replies?: ForumCommentWithAuthor[];
+};
+
+export type ForumCategoryWithStats = ForumCategory & {
+  _count: {
+    posts: number;
+  };
+  lastPost?: {
+    id: number;
+    title: string;
+    createdAt: Date;
+    author: Pick<User, "id" | "name" | "username">;
   } | null;
 };
