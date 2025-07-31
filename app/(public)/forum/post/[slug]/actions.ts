@@ -25,7 +25,7 @@ export async function getForumPost(
   const session = await auth();
   const userId = session?.user?.id;
 
-  const result = await db
+  let baseQuery = db
     .select({
       // Forum post fields
       id: forumPosts.id,
@@ -56,16 +56,20 @@ export async function getForumPost(
     })
     .from(forumPosts)
     .leftJoin(users, eq(forumPosts.authorId, users.id))
-    .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
-    .leftJoin(
+    .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id));
+
+  // Only add the vote join if user is logged in
+  if (userId) {
+    baseQuery = baseQuery.leftJoin(
       forumPostVotes,
-      userId
-        ? and(
-            eq(forumPostVotes.postId, forumPosts.id),
-            eq(forumPostVotes.userId, userId)
-          )
-        : undefined
-    )
+      and(
+        eq(forumPostVotes.postId, forumPosts.id),
+        eq(forumPostVotes.userId, userId)
+      )
+    );
+  }
+
+  const result = await baseQuery
     .where(and(eq(forumPosts.slug, slug), eq(forumPosts.status, "published")))
     .limit(1);
 
@@ -119,8 +123,8 @@ export async function getForumComments(
   const session = await auth();
   const userId = session?.user?.id;
 
-  // Get all comments for the post
-  const allComments = await db
+  // Build the base query
+  let baseQuery = db
     .select({
       id: forumComments.id,
       content: forumComments.content,
@@ -140,16 +144,21 @@ export async function getForumComments(
       userVoteType: userId ? forumCommentVotes.voteType : sql`NULL`,
     })
     .from(forumComments)
-    .leftJoin(users, eq(forumComments.authorId, users.id))
-    .leftJoin(
+    .leftJoin(users, eq(forumComments.authorId, users.id));
+
+  // Only add the vote join if user is logged in
+  if (userId) {
+    baseQuery = baseQuery.leftJoin(
       forumCommentVotes,
-      userId
-        ? and(
-            eq(forumCommentVotes.commentId, forumComments.id),
-            eq(forumCommentVotes.userId, userId)
-          )
-        : undefined
-    )
+      and(
+        eq(forumCommentVotes.commentId, forumComments.id),
+        eq(forumCommentVotes.userId, userId)
+      )
+    );
+  }
+
+  // Get all comments for the post
+  const allComments = await baseQuery
     .where(
       and(eq(forumComments.postId, postId), eq(forumComments.isDeleted, false))
     )

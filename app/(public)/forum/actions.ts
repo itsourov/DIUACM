@@ -97,7 +97,7 @@ export async function getForumPosts(
   }
 
   // Build the main query
-  const baseQuery = db
+  let baseQuery = db
     .select({
       // Forum post fields
       id: forumPosts.id,
@@ -128,22 +128,24 @@ export async function getForumPosts(
     })
     .from(forumPosts)
     .leftJoin(users, eq(forumPosts.authorId, users.id))
-    .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
-    .leftJoin(
+    .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id));
+
+  // Only add the vote join if user is logged in
+  if (userId) {
+    baseQuery = baseQuery.leftJoin(
       forumPostVotes,
-      userId
-        ? and(
-            eq(forumPostVotes.postId, forumPosts.id),
-            eq(forumPostVotes.userId, userId)
-          )
-        : undefined
-    )
+      and(
+        eq(forumPostVotes.postId, forumPosts.id),
+        eq(forumPostVotes.userId, userId)
+      )
+    );
+  }
+
+  const results = await baseQuery
     .where(whereClause)
     .orderBy(orderBy)
     .limit(limit)
     .offset(offset);
-
-  const results = await baseQuery;
 
   // Format the results to match the expected type
   const formattedPosts: ForumPostWithDetails[] = results.map((result) => ({
