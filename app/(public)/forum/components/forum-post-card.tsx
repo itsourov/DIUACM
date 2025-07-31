@@ -107,55 +107,12 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
 
   return (
     <Card className="transition-all duration-200 hover:shadow-md border border-slate-200 dark:border-slate-700">
-      <div className="flex gap-3 p-4">
-        {/* Vote Section */}
-        <div className="flex flex-col items-center gap-1 min-w-[48px]">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`h-8 w-8 p-0 ${
-              optimisticVotes.userVote === "upvote"
-                ? "text-orange-500 hover:text-orange-600"
-                : "text-slate-400 hover:text-slate-600"
-            }`}
-            onClick={() => handleVote("upvote")}
-            disabled={isVoting}
-          >
-            <ArrowUp className="h-4 w-4" />
-          </Button>
-
-          <span
-            className={`text-sm font-medium ${
-              netScore > 0
-                ? "text-orange-500"
-                : netScore < 0
-                ? "text-blue-500"
-                : "text-slate-500"
-            }`}
-          >
-            {netScore > 0 ? `+${netScore}` : netScore}
-          </span>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`h-8 w-8 p-0 ${
-              optimisticVotes.userVote === "downvote"
-                ? "text-blue-500 hover:text-blue-600"
-                : "text-slate-400 hover:text-slate-600"
-            }`}
-            onClick={() => handleVote("downvote")}
-            disabled={isVoting}
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-        </div>
-
+      <div className="px-6">
         {/* Content Section */}
-        <div className="flex-1 min-w-0">
+        <div className="w-full">
           {/* Header */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
               {/* Category Badge */}
               <Badge
                 variant="secondary"
@@ -177,30 +134,30 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
 
           {/* Title */}
           <Link href={`/forum/post/${post.slug}`} className="block group">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
               {post.title}
             </h3>
           </Link>
 
           {/* Content Preview */}
-          <div className="text-slate-600 dark:text-slate-300 text-sm mb-3 line-clamp-3">
+          <div className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mb-3 line-clamp-2 sm:line-clamp-3">
             {truncatedContent}
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               {/* Author */}
-              <div className="flex items-center gap-2">
-                <Avatar className="h-5 w-5">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
                   <AvatarImage src={post.author.image || undefined} />
                   <AvatarFallback className="text-xs">
-                    <User className="h-3 w-3" />
+                    <User className="h-2 w-2 sm:h-3 sm:w-3" />
                   </AvatarFallback>
                 </Avatar>
                 <Link
                   href={`/programmers/${post.author.username}`}
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs sm:text-sm"
                 >
                   {post.author.name}
                 </Link>
@@ -221,17 +178,61 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
                   })}
                 </span>
               </div>
+
+              {/* Last Activity */}
+              {post.lastActivityAt &&
+                post.lastActivityAt !== post.createdAt && (
+                  <div className="text-xs text-slate-400">
+                    Last active{" "}
+                    {formatDistanceToNow(new Date(post.lastActivityAt), {
+                      addSuffix: true,
+                    })}
+                  </div>
+                )}
             </div>
 
-            {/* Last Activity */}
-            {post.lastActivityAt && post.lastActivityAt !== post.createdAt && (
-              <div className="text-xs text-slate-400">
-                Last active{" "}
-                {formatDistanceToNow(new Date(post.lastActivityAt), {
-                  addSuffix: true,
-                })}
-              </div>
-            )}
+            {/* Vote Section */}
+            <div className="flex items-center gap-1 self-start sm:self-auto">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-6 w-6 sm:h-7 sm:w-7 p-0 ${
+                  optimisticVotes.userVote === "upvote"
+                    ? "text-orange-500 hover:text-orange-600"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+                onClick={() => handleVote("upvote")}
+                disabled={isVoting}
+              >
+                <ArrowUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              </Button>
+
+              <span
+                className={`text-xs sm:text-sm font-medium min-w-[24px] text-center ${
+                  netScore > 0
+                    ? "text-orange-500"
+                    : netScore < 0
+                    ? "text-blue-500"
+                    : "text-slate-500"
+                }`}
+              >
+                {netScore > 0 ? `+${netScore}` : netScore}
+              </span>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-6 w-6 sm:h-7 sm:w-7 p-0 ${
+                  optimisticVotes.userVote === "downvote"
+                    ? "text-blue-500 hover:text-blue-600"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+                onClick={() => handleVote("downvote")}
+                disabled={isVoting}
+              >
+                <ArrowDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

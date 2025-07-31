@@ -95,11 +95,11 @@ export function PostVoting({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 min-w-[64px]">
+    <div className="flex items-center gap-1 sm:gap-2">
       <Button
         variant="ghost"
         size="sm"
-        className={`h-10 w-10 p-0 ${
+        className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${
           optimisticVotes.userVote === "upvote"
             ? "text-orange-500 hover:text-orange-600 bg-orange-50 dark:bg-orange-950"
             : "text-slate-400 hover:text-slate-600"
@@ -107,11 +107,11 @@ export function PostVoting({
         onClick={() => handleVote("upvote")}
         disabled={isVoting}
       >
-        <ArrowUp className="h-5 w-5" />
+        <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
 
       <span
-        className={`text-lg font-bold ${
+        className={`text-sm sm:text-base font-bold min-w-[32px] text-center ${
           netScore > 0
             ? "text-orange-500"
             : netScore < 0
@@ -125,7 +125,7 @@ export function PostVoting({
       <Button
         variant="ghost"
         size="sm"
-        className={`h-10 w-10 p-0 ${
+        className={`h-7 w-7 sm:h-8 sm:w-8 p-0 ${
           optimisticVotes.userVote === "downvote"
             ? "text-blue-500 hover:text-blue-600 bg-blue-50 dark:bg-blue-950"
             : "text-slate-400 hover:text-slate-600"
@@ -133,7 +133,7 @@ export function PostVoting({
         onClick={() => handleVote("downvote")}
         disabled={isVoting}
       >
-        <ArrowDown className="h-5 w-5" />
+        <ArrowDown className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
     </div>
   );

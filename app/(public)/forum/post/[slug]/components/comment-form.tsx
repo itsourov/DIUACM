@@ -55,12 +55,14 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
 
   if (isLocked) {
     return (
-      <Card className="p-6 bg-slate-50 dark:bg-slate-800/50">
-        <div className="text-center text-slate-500 dark:text-slate-400">
-          <div className="w-12 h-12 mx-auto mb-3 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
+      <Card className="bg-slate-50 dark:bg-slate-800/50">
+        <div className="text-center text-slate-500 dark:text-slate-400 px-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
             🔒
           </div>
-          <p>This post is locked and no longer accepting comments.</p>
+          <p className="text-sm sm:text-base">
+            This post is locked and no longer accepting comments.
+          </p>
         </div>
       </Card>
     );
@@ -68,14 +70,16 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
 
   if (!session) {
     return (
-      <Card className="p-6 bg-slate-50 dark:bg-slate-800/50">
-        <div className="text-center text-slate-500 dark:text-slate-400">
-          <div className="w-12 h-12 mx-auto mb-3 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
-            <User className="h-6 w-6" />
+      <Card className="bg-slate-50 dark:bg-slate-800/50">
+        <div className="text-center text-slate-500 dark:text-slate-400 px-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <p className="mb-3">Please log in to join the discussion.</p>
+          <p className="mb-3 text-sm sm:text-base">
+            Please log in to join the discussion.
+          </p>
           <Link href="/auth/signin">
-            <Button>Sign In</Button>
+            <Button size="sm">Sign In</Button>
           </Link>
         </div>
       </Card>
@@ -83,13 +87,13 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
   }
 
   return (
-    <Card className="p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-3">
-          <Avatar className="h-8 w-8 mt-1">
+    <Card>
+      <form onSubmit={handleSubmit} className="space-y-4 px-6">
+        <div className="flex gap-2 sm:gap-3">
+          <Avatar className="h-6 w-6 sm:h-8 sm:w-8 mt-1">
             <AvatarImage src={session.user?.image || undefined} />
             <AvatarFallback>
-              <User className="h-4 w-4" />
+              <User className="h-3 w-3 sm:h-4 sm:w-4" />
             </AvatarFallback>
           </Avatar>
 
@@ -98,11 +102,11 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
               placeholder="What are your thoughts?"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[100px] resize-none"
+              className="min-h-[80px] sm:min-h-[100px] resize-none text-sm"
               maxLength={2000}
             />
 
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-3">
               <span className="text-xs text-slate-500">
                 {content.length}/2000 characters
               </span>
@@ -110,7 +114,8 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
               <Button
                 type="submit"
                 disabled={isSubmitting || !content.trim()}
-                className="gap-2"
+                className="gap-2 self-end sm:self-auto"
+                size="sm"
               >
                 {isSubmitting ? "Posting..." : "Post Comment"}
               </Button>
