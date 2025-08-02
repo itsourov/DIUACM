@@ -94,7 +94,7 @@ export function AttendanceModal({
                 </Label>
                 <Input
                   id="password"
-                  type="password"
+                  type="text"
                   placeholder="Enter event password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
