@@ -410,3 +410,164 @@ export async function createForumPost(
     throw new Error("Failed to create post");
   }
 }
+
+// Function to delete a forum post
+export async function deleteForumPost(
+  postId: number
+): Promise<{ success: boolean }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("You must be logged in to delete a post");
+  }
+
+  try {
+    // Check if the user is the author of the post
+    const post = await db
+      .select({ authorId: forumPosts.authorId })
+      .from(forumPosts)
+      .where(eq(forumPosts.id, postId))
+      .limit(1);
+
+    if (!post[0]) {
+      throw new Error("Post not found");
+    }
+
+    if (post[0].authorId !== session.user.id) {
+      throw new Error("You can only delete your own posts");
+    }
+
+    // Delete the post (this will cascade delete votes and comments due to foreign key constraints)
+    await db.delete(forumPosts).where(eq(forumPosts.id, postId));
+
+    // Revalidate forum pages
+    revalidatePath("/forum");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting forum post:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to delete post"
+    );
+  }
+}
+
+// Define schema for updating forum posts
+const updateForumPostSchema = z.object({
+  title: z.string().min(1, "Title is required").max(200, "Title is too long"),
+  content: z
+    .string()
+    .min(1, "Content is required")
+    .max(10000, "Content is too long"),
+  categoryId: z.number().int().positive("Category is required"),
+});
+
+// Function to update a forum post
+export async function updateForumPost(
+  postId: number,
+  data: z.infer<typeof updateForumPostSchema>
+): Promise<{ success: boolean; slug?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("You must be logged in to update a post");
+  }
+
+  try {
+    // Validate the input data
+    const validatedData = updateForumPostSchema.parse(data);
+
+    // Check if the user is the author of the post and get current data
+    const currentPost = await db
+      .select({
+        authorId: forumPosts.authorId,
+        slug: forumPosts.slug,
+        title: forumPosts.title,
+      })
+      .from(forumPosts)
+      .where(eq(forumPosts.id, postId))
+      .limit(1);
+
+    if (!currentPost[0]) {
+      throw new Error("Post not found");
+    }
+
+    if (currentPost[0].authorId !== session.user.id) {
+      throw new Error("You can only update your own posts");
+    }
+
+    // Generate new slug if title changed
+    let newSlug = currentPost[0].slug;
+    if (validatedData.title !== currentPost[0].title) {
+      const baseSlug = validatedData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim()
+        .substring(0, 50);
+
+      // Check if slug exists and make it unique
+      let slugCounter = 0;
+      let uniqueSlug = baseSlug;
+
+      while (true) {
+        const existingPost = await db
+          .select({ id: forumPosts.id })
+          .from(forumPosts)
+          .where(
+            and(
+              eq(forumPosts.slug, uniqueSlug),
+              // Don't count the current post
+              sql`${forumPosts.id} != ${postId}`
+            )
+          )
+          .limit(1);
+
+        if (existingPost.length === 0) {
+          newSlug = uniqueSlug;
+          break;
+        }
+
+        slugCounter++;
+        uniqueSlug = `${baseSlug}-${slugCounter}`;
+      }
+    }
+
+    // Verify category exists
+    const categoryExists = await db
+      .select({ id: forumCategories.id })
+      .from(forumCategories)
+      .where(eq(forumCategories.id, validatedData.categoryId))
+      .limit(1);
+
+    if (!categoryExists[0]) {
+      throw new Error("Invalid category selected");
+    }
+
+    // Update the post
+    const updatedPost = await db
+      .update(forumPosts)
+      .set({
+        title: validatedData.title,
+        content: validatedData.content,
+        categoryId: validatedData.categoryId,
+        slug: newSlug,
+        updatedAt: new Date(),
+      })
+      .where(eq(forumPosts.id, postId))
+      .returning({ slug: forumPosts.slug });
+
+    // Revalidate forum pages
+    revalidatePath("/forum");
+    revalidatePath(`/forum/post/${currentPost[0].slug}`);
+    if (newSlug !== currentPost[0].slug) {
+      revalidatePath(`/forum/post/${newSlug}`);
+    }
+
+    return { success: true, slug: updatedPost[0].slug };
+  } catch (error) {
+    console.error("Error updating forum post:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to update post"
+    );
+  }
+}

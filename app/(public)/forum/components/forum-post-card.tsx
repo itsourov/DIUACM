@@ -14,12 +14,21 @@ import {
   Lock,
   Clock,
   User,
+  Edit,
+  Trash2,
+  MoreHorizontal,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ForumPostWithDetails, VoteType } from "@/db/schema";
-import { voteOnPost } from "../actions";
+import { voteOnPost, deleteForumPost } from "../actions";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type ForumPostCardProps = {
   post: ForumPostWithDetails;
@@ -28,6 +37,7 @@ type ForumPostCardProps = {
 export function ForumPostCard({ post }: ForumPostCardProps) {
   const { data: session } = useSession();
   const [isVoting, setIsVoting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [optimisticVotes, setOptimisticVotes] = useState({
     upvotes: post.upvotes,
     downvotes: post.downvotes,
@@ -35,6 +45,7 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
   });
 
   const netScore = optimisticVotes.upvotes - optimisticVotes.downvotes;
+  const isAuthor = session?.user?.id === post.authorId;
 
   const handleVote = async (voteType: VoteType) => {
     if (!session) {
@@ -99,6 +110,29 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this post? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteForumPost(post.id);
+      toast.success("Post deleted successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete post"
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Truncate content for preview
   const truncatedContent =
     post.content.length > 300
@@ -130,6 +164,40 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
               {post.isPinned && <Pin className="h-3 w-3 text-green-500" />}
               {post.isLocked && <Lock className="h-3 w-3 text-red-500" />}
             </div>
+
+            {/* Post Actions for Author */}
+            {isAuthor && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-slate-400 hover:text-slate-600"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/forum/post/${post.slug}/edit`}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Edit className="h-3 w-3" />
+                      Edit Post
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    {isDeleting ? "Deleting..." : "Delete Post"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Title */}

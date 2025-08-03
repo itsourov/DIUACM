@@ -19,6 +19,8 @@ import { getForumPost, getForumComments } from "./actions";
 import { Comment } from "./components/comment";
 import { CommentForm } from "./components/comment-form";
 import { PostVoting } from "./components/post-voting";
+import { PostActions } from "./components/post-actions";
+import { auth } from "@/lib/auth";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -58,6 +60,10 @@ export default async function ForumPostPage({ params }: PageProps) {
 
   const comments = await getForumComments(post.id);
   const netScore = post.upvotes - post.downvotes;
+
+  // Get current user session
+  const session = await auth();
+  const isAuthor = session?.user?.id === post.authorId;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -106,24 +112,33 @@ export default async function ForumPostPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* Vote Score */}
-              <div className="flex items-center gap-1 text-sm font-medium">
-                {netScore > 0 ? (
-                  <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
-                ) : netScore < 0 ? (
-                  <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-                ) : null}
-                <span
-                  className={
-                    netScore > 0
-                      ? "text-orange-500"
-                      : netScore < 0
-                      ? "text-blue-500"
-                      : "text-slate-500"
-                  }
-                >
-                  {netScore > 0 ? `+${netScore}` : netScore} votes
-                </span>
+              <div className="flex items-center gap-2">
+                {/* Vote Score */}
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  {netScore > 0 ? (
+                    <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
+                  ) : netScore < 0 ? (
+                    <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
+                  ) : null}
+                  <span
+                    className={
+                      netScore > 0
+                        ? "text-orange-500"
+                        : netScore < 0
+                        ? "text-blue-500"
+                        : "text-slate-500"
+                    }
+                  >
+                    {netScore > 0 ? `+${netScore}` : netScore} votes
+                  </span>
+                </div>
+
+                {/* Author Actions */}
+                <PostActions
+                  postId={post.id}
+                  postSlug={post.slug}
+                  isAuthor={isAuthor}
+                />
               </div>
             </div>
 
