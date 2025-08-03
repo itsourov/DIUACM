@@ -61,19 +61,6 @@ export default async function ForumPage({ searchParams }: PageProps) {
     (awaitedSearchParams.sortBy && awaitedSearchParams.sortBy !== "latest")
   );
 
-  // Get sort label
-  const getSortLabel = (sortBy: string) => {
-    switch (sortBy) {
-      case "popular":
-        return "Popular";
-      case "trending":
-        return "Trending";
-      case "latest":
-      default:
-        return "Latest";
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -97,31 +84,8 @@ export default async function ForumPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <div className="mb-6">
+      <div className="mb-8">
         <ForumFilters categories={categories} />
-      </div>
-
-      {/* Results Summary */}
-      <div className="mb-6">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                {pagination.total} {pagination.total === 1 ? "Post" : "Posts"}
-                {hasActiveFilters ? " found" : ""}
-                <span className="text-slate-500 dark:text-slate-400 font-normal">
-                  • {getSortLabel(awaitedSearchParams.sortBy || "latest")}
-                </span>
-              </h2>
-              {hasActiveFilters && pagination.total > 0 && (
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  Showing page {pagination.page} of {pagination.pages}
-                </p>
-              )}
-            </div>
-          </div>
-        </Card>
       </div>
 
       {/* Posts List */}

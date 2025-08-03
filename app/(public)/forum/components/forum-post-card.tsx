@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowUp,
   ArrowDown,
@@ -145,7 +145,7 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
 
   return (
     <Card className="transition-all duration-200 hover:shadow-md border border-slate-200 dark:border-slate-700">
-      <div className="px-6">
+      <CardContent>
         {/* Content Section */}
         <div className="w-full">
           {/* Header */}
@@ -307,7 +307,7 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
             </div>
           </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

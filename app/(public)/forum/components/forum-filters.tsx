@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search, Filter, ChevronDown } from "lucide-react";
+import { Search, Filter, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -93,7 +93,7 @@ export function ForumFilters({ categories }: ForumFiltersProps) {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Search and Sort Row */}
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Search */}
@@ -102,17 +102,32 @@ export function ForumFilters({ categories }: ForumFiltersProps) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
             <Input
               type="text"
-              placeholder="Search posts..."
+              placeholder="Search posts by title..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="pl-10 pr-4"
+              className="pl-10 pr-12 h-11 w-full border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-slate-900"
             />
+            {searchValue && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-9 w-9 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+                onClick={() => {
+                  setSearchValue("");
+                  updateFilters({ search: null });
+                }}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear search</span>
+              </Button>
+            )}
           </div>
         </form>
 
         {/* Sort Dropdown */}
         <Select value={currentSort} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-full sm:w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px] h-11 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -130,7 +145,10 @@ export function ForumFilters({ categories }: ForumFiltersProps) {
         {/* Category Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
+            <Button
+              variant="outline"
+              className="gap-2 h-11 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+            >
               <Filter className="h-4 w-4" />
               {selectedCategory ? selectedCategory.name : "All Categories"}
               <ChevronDown className="h-4 w-4" />
