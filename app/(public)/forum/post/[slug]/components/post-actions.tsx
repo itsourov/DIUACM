@@ -42,9 +42,13 @@ export function PostActions({ postId, postSlug, isAuthor }: PostActionsProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteForumPost(postId);
-      toast.success("Post deleted successfully");
-      router.push("/forum");
+      const result = await deleteForumPost(postId);
+      if (result.success) {
+        toast.success(result.message || "Post deleted successfully");
+        router.push("/forum");
+      } else {
+        toast.error(result.error || "Failed to delete post");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete post"

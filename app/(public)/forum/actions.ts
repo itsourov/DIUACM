@@ -9,10 +9,53 @@ import {
   users,
   ForumPostWithDetails,
   VoteType,
+  type NewForumPost,
 } from "@/db/schema";
 import { eq, and, ilike, count, desc, asc, sql } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import {
+  forumPostFormSchema,
+  type ForumPostFormValues,
+} from "./schemas/forum-post";
+
+// Enhanced error handling type
+type ActionResult<T = unknown> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  slug?: string;
+};
+
+// Utility function to handle database errors
+function handleDbError<T = unknown>(error: unknown): ActionResult<T> {
+  console.error("Database error:", error);
+
+  if (error instanceof Error) {
+    // Handle specific database constraint errors
+    if (error.message.includes("Duplicate entry")) {
+      return {
+        success: false,
+        error: "A post with this title already exists",
+      };
+    }
+  }
+
+  return { success: false, error: "Something went wrong. Please try again." };
+}
+
+// Utility function to validate authentication
+async function validateAuth<T = unknown>(): Promise<ActionResult<T> | null> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return {
+      success: false,
+      error: "You must be logged in to perform this action",
+    };
+  }
+  return null;
+}
 
 // Define pagination structure
 export type PaginatedForumPosts = {
@@ -333,94 +376,102 @@ export async function voteOnPost(postId: number, voteType: VoteType) {
   }
 }
 
-// Schema for creating a new forum post
-const createPostSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content too long"),
-  categoryId: z.number().int().positive("Please select a category"),
-});
-
 // Function to create a new forum post
 export async function createForumPost(
-  data: z.infer<typeof createPostSchema>
-): Promise<{ success: boolean; slug?: string }> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("You must be logged in to create a post");
-  }
+  values: ForumPostFormValues
+): Promise<ActionResult> {
+  try {
+    const authError = await validateAuth();
+    if (authError) return authError;
 
-  // Validate the input data
-  const validatedData = createPostSchema.parse(data);
+    const session = await auth();
+    const validatedFields = forumPostFormSchema.parse(values);
 
-  // Generate a slug from the title
-  const baseSlug = validatedData.title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  // Ensure slug is unique by checking existing posts
-  let slug = baseSlug;
-  let counter = 1;
-
-  while (true) {
-    const existing = await db
-      .select({ id: forumPosts.id })
-      .from(forumPosts)
-      .where(eq(forumPosts.slug, slug))
+    // Check if category exists
+    const categoryExists = await db
+      .select({ id: forumCategories.id })
+      .from(forumCategories)
+      .where(eq(forumCategories.id, validatedFields.categoryId))
       .limit(1);
 
-    if (existing.length === 0) break;
+    if (!categoryExists[0]) {
+      return {
+        success: false,
+        error: "Invalid category selected",
+      };
+    }
 
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
+    // Generate a slug from the title
+    const baseSlug = validatedFields.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim()
+      .substring(0, 50);
 
-  try {
+    // Ensure slug is unique by checking existing posts
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (true) {
+      const existing = await db
+        .select({ id: forumPosts.id })
+        .from(forumPosts)
+        .where(eq(forumPosts.slug, slug))
+        .limit(1);
+
+      if (existing.length === 0) break;
+
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Convert form types to database types
+    const dbValues: NewForumPost = {
+      title: validatedFields.title,
+      content: validatedFields.content,
+      slug: slug,
+      authorId: session!.user!.id!,
+      categoryId: validatedFields.categoryId,
+      status: "published",
+      isPinned: false,
+      isLocked: false,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
+      lastActivityAt: new Date(),
+    };
+
     // Create the post
     const [newPost] = await db
       .insert(forumPosts)
-      .values({
-        title: validatedData.title,
-        content: validatedData.content,
-        slug: slug,
-        authorId: session.user.id,
-        categoryId: validatedData.categoryId,
-        status: "published",
-        isPinned: false,
-        isLocked: false,
-        upvotes: 0,
-        downvotes: 0,
-        commentCount: 0,
-        lastActivityAt: new Date(),
-      })
+      .values(dbValues)
       .returning({ id: forumPosts.id, slug: forumPosts.slug });
 
     // Revalidate forum pages
     revalidatePath("/forum");
     revalidatePath(`/forum/post/${slug}`);
 
-    return { success: true, slug: newPost.slug };
+    return {
+      success: true,
+      slug: newPost.slug,
+      message: "Post created successfully",
+    };
   } catch (error) {
     console.error("Error creating forum post:", error);
-    throw new Error("Failed to create post");
+    return handleDbError(error);
   }
 }
 
 // Function to delete a forum post
-export async function deleteForumPost(
-  postId: number
-): Promise<{ success: boolean }> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("You must be logged in to delete a post");
-  }
-
+export async function deleteForumPost(postId: number): Promise<ActionResult> {
   try {
+    const authError = await validateAuth();
+    if (authError) return authError;
+
+    const session = await auth();
+
     // Check if the user is the author of the post
     const post = await db
       .select({ authorId: forumPosts.authorId })
@@ -429,11 +480,17 @@ export async function deleteForumPost(
       .limit(1);
 
     if (!post[0]) {
-      throw new Error("Post not found");
+      return {
+        success: false,
+        error: "Post not found",
+      };
     }
 
-    if (post[0].authorId !== session.user.id) {
-      throw new Error("You can only delete your own posts");
+    if (post[0].authorId !== session!.user!.id) {
+      return {
+        success: false,
+        error: "You can only delete your own posts",
+      };
     }
 
     // Delete the post (this will cascade delete votes and comments due to foreign key constraints)
@@ -442,38 +499,27 @@ export async function deleteForumPost(
     // Revalidate forum pages
     revalidatePath("/forum");
 
-    return { success: true };
+    return {
+      success: true,
+      message: "Post deleted successfully",
+    };
   } catch (error) {
     console.error("Error deleting forum post:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to delete post"
-    );
+    return handleDbError(error);
   }
 }
-
-// Define schema for updating forum posts
-const updateForumPostSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title is too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content is too long"),
-  categoryId: z.number().int().positive("Category is required"),
-});
 
 // Function to update a forum post
 export async function updateForumPost(
   postId: number,
-  data: z.infer<typeof updateForumPostSchema>
-): Promise<{ success: boolean; slug?: string }> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("You must be logged in to update a post");
-  }
-
+  values: ForumPostFormValues
+): Promise<ActionResult> {
   try {
-    // Validate the input data
-    const validatedData = updateForumPostSchema.parse(data);
+    const authError = await validateAuth();
+    if (authError) return authError;
+
+    const session = await auth();
+    const validatedFields = forumPostFormSchema.parse(values);
 
     // Check if the user is the author of the post and get current data
     const currentPost = await db
@@ -487,17 +533,23 @@ export async function updateForumPost(
       .limit(1);
 
     if (!currentPost[0]) {
-      throw new Error("Post not found");
+      return {
+        success: false,
+        error: "Post not found",
+      };
     }
 
-    if (currentPost[0].authorId !== session.user.id) {
-      throw new Error("You can only update your own posts");
+    if (currentPost[0].authorId !== session!.user!.id) {
+      return {
+        success: false,
+        error: "You can only update your own posts",
+      };
     }
 
     // Generate new slug if title changed
     let newSlug = currentPost[0].slug;
-    if (validatedData.title !== currentPost[0].title) {
-      const baseSlug = validatedData.title
+    if (validatedFields.title !== currentPost[0].title) {
+      const baseSlug = validatedFields.title
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, "")
         .replace(/\s+/g, "-")
@@ -536,20 +588,23 @@ export async function updateForumPost(
     const categoryExists = await db
       .select({ id: forumCategories.id })
       .from(forumCategories)
-      .where(eq(forumCategories.id, validatedData.categoryId))
+      .where(eq(forumCategories.id, validatedFields.categoryId))
       .limit(1);
 
     if (!categoryExists[0]) {
-      throw new Error("Invalid category selected");
+      return {
+        success: false,
+        error: "Invalid category selected",
+      };
     }
 
     // Update the post
     const updatedPost = await db
       .update(forumPosts)
       .set({
-        title: validatedData.title,
-        content: validatedData.content,
-        categoryId: validatedData.categoryId,
+        title: validatedFields.title,
+        content: validatedFields.content,
+        categoryId: validatedFields.categoryId,
         slug: newSlug,
         updatedAt: new Date(),
       })
@@ -563,11 +618,13 @@ export async function updateForumPost(
       revalidatePath(`/forum/post/${newSlug}`);
     }
 
-    return { success: true, slug: updatedPost[0].slug };
+    return {
+      success: true,
+      slug: updatedPost[0].slug,
+      message: "Post updated successfully",
+    };
   } catch (error) {
     console.error("Error updating forum post:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to update post"
-    );
+    return handleDbError(error);
   }
 }

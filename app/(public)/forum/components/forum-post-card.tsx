@@ -122,8 +122,12 @@ export function ForumPostCard({ post }: ForumPostCardProps) {
     setIsDeleting(true);
 
     try {
-      await deleteForumPost(post.id);
-      toast.success("Post deleted successfully");
+      const result = await deleteForumPost(post.id);
+      if (result.success) {
+        toast.success(result.message || "Post deleted successfully");
+      } else {
+        toast.error(result.error || "Failed to delete post");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete post"
