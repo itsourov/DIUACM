@@ -32,7 +32,7 @@ export default async function EditForumPostPage({ params }: PageProps) {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/auth/signin");
+    redirect("/login");
   }
 
   const { slug } = await params;

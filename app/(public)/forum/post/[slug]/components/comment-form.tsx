@@ -78,7 +78,7 @@ export function CommentForm({ postId, isLocked }: CommentFormProps) {
           <p className="mb-3 text-sm sm:text-base">
             Please log in to join the discussion.
           </p>
-          <Link href="/auth/signin">
+          <Link href="/login">
             <Button size="sm">Sign In</Button>
           </Link>
         </div>

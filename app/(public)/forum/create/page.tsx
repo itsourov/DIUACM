@@ -14,7 +14,7 @@ export default async function CreatePostPage() {
 
   // Require authentication to create posts
   if (!session?.user) {
-    redirect("/auth/signin?callbackUrl=/forum/create");
+    redirect("/login?callbackUrl=/forum/create");
   }
 
   const categories = await getForumCategories();
