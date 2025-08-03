@@ -332,3 +332,81 @@ export async function voteOnPost(postId: number, voteType: VoteType) {
     throw new Error("Failed to vote on post");
   }
 }
+
+// Schema for creating a new forum post
+const createPostSchema = z.object({
+  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  content: z
+    .string()
+    .min(1, "Content is required")
+    .max(10000, "Content too long"),
+  categoryId: z.number().int().positive("Please select a category"),
+});
+
+// Function to create a new forum post
+export async function createForumPost(
+  data: z.infer<typeof createPostSchema>
+): Promise<{ success: boolean; slug?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("You must be logged in to create a post");
+  }
+
+  // Validate the input data
+  const validatedData = createPostSchema.parse(data);
+
+  // Generate a slug from the title
+  const baseSlug = validatedData.title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  // Ensure slug is unique by checking existing posts
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await db
+      .select({ id: forumPosts.id })
+      .from(forumPosts)
+      .where(eq(forumPosts.slug, slug))
+      .limit(1);
+
+    if (existing.length === 0) break;
+
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  try {
+    // Create the post
+    const [newPost] = await db
+      .insert(forumPosts)
+      .values({
+        title: validatedData.title,
+        content: validatedData.content,
+        slug: slug,
+        authorId: session.user.id,
+        categoryId: validatedData.categoryId,
+        status: "published",
+        isPinned: false,
+        isLocked: false,
+        upvotes: 0,
+        downvotes: 0,
+        commentCount: 0,
+        lastActivityAt: new Date(),
+      })
+      .returning({ id: forumPosts.id, slug: forumPosts.slug });
+
+    // Revalidate forum pages
+    revalidatePath("/forum");
+    revalidatePath(`/forum/post/${slug}`);
+
+    return { success: true, slug: newPost.slug };
+  } catch (error) {
+    console.error("Error creating forum post:", error);
+    throw new Error("Failed to create post");
+  }
+}
