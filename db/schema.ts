@@ -230,6 +230,30 @@ export const contests = pgTable("contests", {
     .$onUpdateFn(() => new Date()),
 });
 
+// Intra Contests table
+export const intraContests = pgTable("intra_contests", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).unique().notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+  description: text("description"),
+  registrationFee: integer("registration_fee").notNull(),
+  registrationStartTime: timestamp("registration_start_time", {
+    mode: "date",
+  }).notNull(),
+  registrationEndTime: timestamp("registration_end_time", {
+    mode: "date",
+  }).notNull(),
+  mainEventDateTime: timestamp("main_event_datetime", {
+    mode: "date",
+  }).notNull(),
+  status: visibilityStatusEnum("status").default("draft").notNull(),
+  registrationLimit: integer("registration_limit"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+});
+
 // Teams table
 export const teams = pgTable(
   "teams",
@@ -591,6 +615,8 @@ export type Media = InferSelectModel<typeof media>;
 export type NewMedia = InferInsertModel<typeof media>;
 export type Contest = InferSelectModel<typeof contests>;
 export type NewContest = InferInsertModel<typeof contests>;
+export type IntraContest = InferSelectModel<typeof intraContests>;
+export type NewIntraContest = InferInsertModel<typeof intraContests>;
 export type Team = InferSelectModel<typeof teams>;
 export type NewTeam = InferInsertModel<typeof teams>;
 export type TeamUser = InferSelectModel<typeof teamUser>;
