@@ -29,6 +29,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Calendar, Plus, Eye, EyeOff } from "lucide-react";
+import { SearchIntraContests } from "./components/search-intra-contests";
 
 export const metadata: Metadata = {
   title: "Intra Contests | DIU ACM Admin",
@@ -96,6 +97,7 @@ export default async function IntraContestsPage({ searchParams }: PageProps) {
             <CardTitle className="text-xl">Intra Contests List</CardTitle>
             <CardDescription>Total: {pagination.totalCount}</CardDescription>
           </div>
+          <SearchIntraContests />
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
