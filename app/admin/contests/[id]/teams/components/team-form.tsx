@@ -186,7 +186,18 @@ export function TeamForm({
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-4">
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                  className="flex-1 sm:flex-none"
+                >
+                  Cancel
+                </Button>
+              )}
               <Button
                 type="submit"
                 disabled={isSubmitting}
@@ -204,17 +215,6 @@ export function TeamForm({
                   </>
                 )}
               </Button>
-              {onCancel && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onCancel}
-                  disabled={isSubmitting}
-                  className="flex-1 sm:flex-none"
-                >
-                  Cancel
-                </Button>
-              )}
             </div>
           </form>
         </Form>

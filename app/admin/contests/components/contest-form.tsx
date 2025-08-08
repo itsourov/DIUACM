@@ -331,7 +331,7 @@ export function ContestForm({
               />
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"

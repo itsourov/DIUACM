@@ -237,7 +237,7 @@ export function GalleryForm({
                 />
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex justify-end gap-3">
                 <Button
                   type="button"
                   variant="outline"

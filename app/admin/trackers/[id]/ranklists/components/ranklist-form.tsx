@@ -273,11 +273,7 @@ export function RanklistForm({
               )}
             />
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditing ? "Update Ranklist" : "Create Ranklist"}
-              </Button>
+            <div className="flex justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -286,6 +282,10 @@ export function RanklistForm({
                 }
               >
                 Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEditing ? "Update Ranklist" : "Create Ranklist"}
               </Button>
             </div>
           </form>

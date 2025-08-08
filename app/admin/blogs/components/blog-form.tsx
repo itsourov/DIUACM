@@ -304,14 +304,7 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
               )}
             />
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading
-                  ? "Saving..."
-                  : mode === "create"
-                  ? "Create Blog Post"
-                  : "Update Blog Post"}
-              </Button>
+            <div className="flex justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -319,6 +312,13 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
                 disabled={isLoading}
               >
                 Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? "Saving..."
+                  : mode === "create"
+                  ? "Create Blog Post"
+                  : "Update Blog Post"}
               </Button>
             </div>
           </form>
