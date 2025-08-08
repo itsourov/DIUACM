@@ -49,7 +49,11 @@ export async function generatePresignedUrl(
 ): Promise<ActionResult<{ presignedUrl: string; fileUrl: string }>> {
   try {
     const permissionError = await validatePermission();
-    if (permissionError) return permissionError as ActionResult<{ presignedUrl: string; fileUrl: string }>;
+    if (permissionError)
+      return permissionError as ActionResult<{
+        presignedUrl: string;
+        fileUrl: string;
+      }>;
 
     if (!fileType.startsWith("image/")) {
       return { success: false, error: "Only image files are allowed" };
@@ -76,7 +80,10 @@ export async function generatePresignedUrl(
     const fileUrl = `${process.env.NEXT_PUBLIC_S3_DOMAIN}/${key}`;
     return { success: true, data: { presignedUrl, fileUrl } };
   } catch (error) {
-    return handleDbError(error) as ActionResult<{ presignedUrl: string; fileUrl: string }>;
+    return handleDbError(error) as ActionResult<{
+      presignedUrl: string;
+      fileUrl: string;
+    }>;
   }
 }
 
@@ -112,7 +119,7 @@ export async function createIntraContest(
       name: validated.name,
       slug: validated.slug,
       description: validated.description || null,
-  bannerImage: validated.bannerImage || null,
+      bannerImage: validated.bannerImage || null,
       registrationFee: validated.registrationFee,
       registrationStartTime: new Date(validated.registrationStartTime),
       registrationEndTime: new Date(validated.registrationEndTime),
@@ -191,7 +198,7 @@ export async function updateIntraContest(
       name: validated.name,
       slug: validated.slug,
       description: validated.description || null,
-  bannerImage: validated.bannerImage || null,
+      bannerImage: validated.bannerImage || null,
       registrationFee: validated.registrationFee,
       registrationStartTime: new Date(validated.registrationStartTime),
       registrationEndTime: new Date(validated.registrationEndTime),

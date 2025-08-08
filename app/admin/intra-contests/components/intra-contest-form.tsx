@@ -32,7 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BannerUpload } from "./banner-upload";
+import { AdminImageUpload } from "@/components/admin/image-upload";
+import { generatePresignedUrl } from "../actions";
 
 interface IntraContestFormProps {
   initialData?: IntraContest | null;
@@ -63,12 +64,14 @@ export function IntraContestForm({
 
   const form = useForm<IntraContestFormValues>({
     resolver: zodResolver(intraContestFormSchema),
-  defaultValues: initialData
+    defaultValues: initialData
       ? {
           name: initialData.name,
           slug: initialData.slug,
           description: initialData.description ?? "",
-      bannerImage: (initialData as IntraContest & { bannerImage?: string }).bannerImage || "",
+          bannerImage:
+            (initialData as IntraContest & { bannerImage?: string })
+              .bannerImage || "",
           registrationFee: initialData.registrationFee,
           registrationStartTime: initialData.registrationStartTime
             ? toInputDateTimeLocal(new Date(initialData.registrationStartTime))
@@ -223,14 +226,19 @@ export function IntraContestForm({
               />
             </div>
 
-      <FormField
+            <FormField
               control={form.control}
               name="bannerImage"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Banner Image</FormLabel>
                   <FormControl>
-        <BannerUpload value={field.value || ""} onChange={field.onChange} />
+                    <AdminImageUpload
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      generate={generatePresignedUrl}
+                      ratio={16 / 9}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

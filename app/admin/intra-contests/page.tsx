@@ -132,7 +132,9 @@ export default async function IntraContestsPage({ searchParams }: PageProps) {
                             {item.bannerImage && (
                               <div className="flex items-center text-xs text-muted-foreground">
                                 <ImageIcon className="h-3.5 w-3.5 mr-1" />
-                                <span className="truncate max-w-[220px]">Banner set</span>
+                                <span className="truncate max-w-[220px]">
+                                  Banner set
+                                </span>
                               </div>
                             )}
                           </div>

@@ -21,7 +21,11 @@ export const intraContestFormSchema = z
       .string()
       .max(2000, { message: "Description must not exceed 2000 characters" })
       .optional(),
-  bannerImage: z.string().url({ message: "Please provide a valid image URL" }).optional().or(z.literal("").transform(() => undefined)),
+    bannerImage: z
+      .string()
+      .url({ message: "Please provide a valid image URL" })
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
     registrationFee: z
       .number()
       .int({ message: "Registration fee must be a whole number" })

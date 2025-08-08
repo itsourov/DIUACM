@@ -72,28 +72,53 @@ export function BannerUpload({ value, onChange }: BannerUploadProps) {
   return (
     <div className="space-y-4 max-w-md">
       <div className="flex items-center gap-4">
-        <Button type="button" variant="outline" size="sm" disabled={isUploading} asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isUploading}
+          asChild
+        >
           <label className="cursor-pointer">
             <Upload className="h-4 w-4 mr-2" />
             {value ? "Change Banner" : "Upload Banner"}
-            <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={isUploading} />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleUpload}
+              disabled={isUploading}
+            />
           </label>
         </Button>
         {value && (
-          <Button type="button" variant="destructive" size="sm" onClick={handleRemove} disabled={isUploading}>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={handleRemove}
+            disabled={isUploading}
+          >
             <Trash2 className="h-4 w-4 mr-2" />
             Remove
           </Button>
         )}
       </div>
 
-      {isUploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+      {isUploading && (
+        <p className="text-sm text-muted-foreground">Uploading...</p>
+      )}
 
       {value && (
         <Card className="overflow-hidden">
           <CardContent className="p-0 ">
             <div className="relative aspect-video">
-              <Image src={value} alt="Banner image" fill className="object-cover" />
+              <Image
+                src={value}
+                alt="Banner image"
+                fill
+                className="object-cover"
+              />
             </div>
           </CardContent>
         </Card>

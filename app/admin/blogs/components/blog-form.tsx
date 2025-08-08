@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { VisibilityStatus, type BlogPost } from "@/db/schema";
 import { blogFormSchema, type BlogFormValues } from "../schemas/blog";
-import { createBlog, updateBlog } from "../actions";
-import { ImageUpload } from "./image-upload";
+import { createBlog, updateBlog, generatePresignedUrl } from "../actions";
+import { AdminImageUpload } from "@/components/admin/image-upload";
 import MarkdownEditorWrapper from "./markdown-editor-wrapper";
 
 import { Button } from "@/components/ui/button";
@@ -193,9 +193,11 @@ export function BlogForm({ blog, mode = "create" }: BlogFormProps) {
                 <FormItem>
                   <FormLabel>Featured Image</FormLabel>
                   <FormControl>
-                    <ImageUpload
+                    <AdminImageUpload
                       value={field.value || ""}
                       onChange={field.onChange}
+                      generate={generatePresignedUrl}
+                      ratio={16 / 9}
                     />
                   </FormControl>
                   <FormDescription>
