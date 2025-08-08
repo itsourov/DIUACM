@@ -80,6 +80,11 @@ export function Sidebar({ className, onNavItemClick }: SidebarProps) {
       href: "/admin/contests",
     },
     {
+      icon: <Award className="h-5 w-5" />,
+      label: "Intra Contests",
+      href: "/admin/intra-contests",
+    },
+    {
       icon: <UserRound className="h-5 w-5" />,
       label: "Roles",
       href: "/admin/roles",
