@@ -1,0 +1,1 @@
+ALTER TABLE "intra_contests" ADD COLUMN "banner_image" varchar(255);

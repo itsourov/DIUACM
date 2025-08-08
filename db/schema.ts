@@ -236,6 +236,8 @@ export const intraContests = pgTable("intra_contests", {
   name: varchar("name", { length: 255 }).unique().notNull(),
   slug: varchar("slug", { length: 255 }).unique().notNull(),
   description: text("description"),
+  // Optional banner image (stored as full URL)
+  bannerImage: varchar("banner_image", { length: 255 }),
   registrationFee: integer("registration_fee").notNull(),
   registrationStartTime: timestamp("registration_start_time", {
     mode: "date",

@@ -11,6 +11,10 @@ import {
 } from "./schemas/intra-contest";
 import type { IntraContest } from "@/db/schema";
 import { hasPermission } from "@/lib/authorization";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3 } from "@/lib/s3";
+import { v4 as uuid } from "uuid";
 
 // Enhanced error handling type
 type ActionResult<T = unknown> = {
@@ -35,6 +39,45 @@ async function validatePermission(): Promise<ActionResult | null> {
     };
   }
   return null;
+}
+
+// Generate pre-signed URL for intra contest banner image upload
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+export async function generatePresignedUrl(
+  fileType: string,
+  fileSize: number
+): Promise<ActionResult<{ presignedUrl: string; fileUrl: string }>> {
+  try {
+    const permissionError = await validatePermission();
+    if (permissionError) return permissionError as ActionResult<{ presignedUrl: string; fileUrl: string }>;
+
+    if (!fileType.startsWith("image/")) {
+      return { success: false, error: "Only image files are allowed" };
+    }
+
+    if (fileSize > MAX_FILE_SIZE) {
+      return { success: false, error: "File size exceeds the 5MB limit" };
+    }
+
+    const fileExtension = fileType.split("/")[1] ?? "png";
+    const key = `intra-contest-banners/${uuid()}.${fileExtension}`;
+
+    const putObjectCommand = new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+      ContentType: fileType,
+      ContentLength: fileSize,
+    });
+
+    const presignedUrl = await getSignedUrl(s3, putObjectCommand, {
+      expiresIn: 300,
+    });
+
+    const fileUrl = `${process.env.NEXT_PUBLIC_S3_DOMAIN}/${key}`;
+    return { success: true, data: { presignedUrl, fileUrl } };
+  } catch (error) {
+    return handleDbError(error) as ActionResult<{ presignedUrl: string; fileUrl: string }>;
+  }
 }
 
 export async function createIntraContest(
@@ -69,6 +112,7 @@ export async function createIntraContest(
       name: validated.name,
       slug: validated.slug,
       description: validated.description || null,
+  bannerImage: validated.bannerImage || null,
       registrationFee: validated.registrationFee,
       registrationStartTime: new Date(validated.registrationStartTime),
       registrationEndTime: new Date(validated.registrationEndTime),
@@ -147,6 +191,7 @@ export async function updateIntraContest(
       name: validated.name,
       slug: validated.slug,
       description: validated.description || null,
+  bannerImage: validated.bannerImage || null,
       registrationFee: validated.registrationFee,
       registrationStartTime: new Date(validated.registrationStartTime),
       registrationEndTime: new Date(validated.registrationEndTime),

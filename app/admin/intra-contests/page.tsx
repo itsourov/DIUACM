@@ -28,7 +28,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Calendar, Plus, Eye, EyeOff } from "lucide-react";
+import { Calendar, Plus, Eye, EyeOff, Image as ImageIcon } from "lucide-react";
 import { SearchIntraContests } from "./components/search-intra-contests";
 
 export const metadata: Metadata = {
@@ -129,6 +129,12 @@ export default async function IntraContestsPage({ searchParams }: PageProps) {
                             <div className="text-xs text-muted-foreground">
                               /{item.slug}
                             </div>
+                            {item.bannerImage && (
+                              <div className="flex items-center text-xs text-muted-foreground">
+                                <ImageIcon className="h-3.5 w-3.5 mr-1" />
+                                <span className="truncate max-w-[220px]">Banner set</span>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
